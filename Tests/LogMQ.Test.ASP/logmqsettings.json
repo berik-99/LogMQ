@@ -1,0 +1,24 @@
+{
+  "Providers": [
+    {
+      "Type": "Console",
+      "MinLevel": "Info",
+      "Format": "{a} - {b} [{c}]"
+
+    },
+    {
+      "Type": "File",
+      "MinLevel": "Info",
+      "FilePath": "C://Users/User1/Desktop",
+      "RollingInterval": "Day",
+      "FileNameFormat": "{AppName}_{dd}/{MM}/{yyyy}.log"
+    },
+    {
+      "Type": "Broker",
+      "MinLevel": "Info",
+      "BrokerAddress": "localhost",
+      "BrokerPort": 9000,
+      "QueueName": "LogMQ"
+    }
+  ]
+}
