@@ -10,7 +10,7 @@ namespace LogMQ.Broker
         {
             try
             {
-                server = new("127.0.0.1", 9000);
+                server = new("localhost", 9000);
                 server.Events.ClientConnected += ClientConnected;
                 server.Events.ClientDisconnected += ClientDisconnected;
                 server.Events.MessageReceived += MessageReceived;
