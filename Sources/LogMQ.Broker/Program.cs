@@ -1,7 +1,10 @@
 using LogMQ.Broker;
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddWindowsService();
 builder.Services.AddHostedService<Worker>();
 
 var host = builder.Build();
-await host.RunAsync();
+
+host.Run();
