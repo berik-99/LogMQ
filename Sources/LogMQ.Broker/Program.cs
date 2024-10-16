@@ -1,10 +1,23 @@
 using LogMQ.Broker;
+using LogMQ.Broker.Services.InternalQueueServices;
+using RocksDbSharp;
+using Serilog;
+using System.IO;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.Logging
+   .ClearProviders()
+   .AddSerilog(
+	   new LoggerConfiguration()
+		   .WriteTo.Console()
+		   //.WriteTo.File(Path.Join(builder.Environment.ContentRootPath, "myApp.log"))
+		   .CreateLogger()
+   );
+
 builder.Services.AddWindowsService();
-builder.Services.AddHostedService<Worker>();
+builder.Services.AddSingleton<RocksDbService>();
+builder.Services.AddHostedService<MSMQReader>();
 
 var host = builder.Build();
-
-host.Run();
+await host.RunAsync();

@@ -57,7 +57,7 @@ internal class Program
 		Log.Logger = new LoggerConfiguration()
 			.MinimumLevel.Debug()
 			.WriteTo.LogMQBrokerSink(host, port)
-			.WriteTo.LogMQMSMQSink(host, port)
+			.WriteTo.LogMQMSMQSink()
 			.CreateLogger();
 
 		Log.Information("This is a test log message from Main");

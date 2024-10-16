@@ -35,31 +35,10 @@ public static class LoggerSinkConfigurationExtensions
 	}
 
 #if Windows
-	/// <summary>
-	/// Configures a custom log sink to send logs to Microsoft Message Queuing (MSMQ).
-	/// The logs will then be routed and processed by the LogMQ Service.
-	/// </summary>
-	/// <param name="loggerSinkConfiguration">The logger sink configuration to extend.</param>
-	/// <param name="host">The host address of the MSMQ service.</param>
-	/// <param name="port">The port number of the MSMQ service.</param>
-	/// <param name="applicationName">The name of the application sending log messages.</param>
-	/// <returns>A <see cref="LoggerConfiguration"/> object that allows further configuration of logging.</returns>
-	public static LoggerConfiguration LogMQMSMQSink(this LoggerSinkConfiguration loggerSinkConfiguration, string host, int port, string applicationName)
-	{
-		return loggerSinkConfiguration.Sink(new LogMQMSMQSink(null, host, port, applicationName));
-	}
 
-	/// <summary>
-	/// Configures a custom log sink to send logs to Microsoft Message Queuing (MSMQ) without specifying an application name.
-	/// The logs will then be routed and processed by the LogMQ Service.
-	/// </summary>
-	/// <param name="loggerSinkConfiguration">The logger sink configuration to extend.</param>
-	/// <param name="host">The host address of the MSMQ service.</param>
-	/// <param name="port">The port number of the MSMQ service.</param>
-	/// <returns>A <see cref="LoggerConfiguration"/> object that allows further configuration of logging.</returns>
-	public static LoggerConfiguration LogMQMSMQSink(this LoggerSinkConfiguration loggerSinkConfiguration, string host, int port)
+	public static LoggerConfiguration LogMQMSMQSink(this LoggerSinkConfiguration loggerSinkConfiguration)
 	{
-		return loggerSinkConfiguration.LogMQMSMQSink(host, port, null);
+		return loggerSinkConfiguration.Sink(new LogMQMSMQSink());
 	}
 #endif
 }
