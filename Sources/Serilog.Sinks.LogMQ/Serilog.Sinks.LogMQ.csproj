@@ -9,21 +9,17 @@
 	<PropertyGroup Condition="'$(IsWindows)'=='true'">
 		<DefineConstants>Windows</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(IsOSX)'=='true'">
-		<DefineConstants>OSX</DefineConstants>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(IsLinux)'=='true'">
-		<DefineConstants>Linux</DefineConstants>
-	</PropertyGroup>
 
+	
 	<ItemGroup>
+		<PackageReference Condition="'$(IsWindows)'=='true'" Include="MSMQ.Messaging" Version="1.0.4" />
 		<PackageReference Include="Ben.Demystifier" Version="0.4.1" />
-		<PackageReference Include="MSMQ.Messaging" Version="1.0.4" />
 		<PackageReference Include="Serilog" Version="4.0.2" />
 	</ItemGroup>
 
+	
 	<ItemGroup>
-	  <ProjectReference Include="..\Sources\LogMQ\LogMQ.csproj" />
+	  <ProjectReference Include="..\LogMQ\LogMQ.csproj" />
 	</ItemGroup>
 
 </Project>

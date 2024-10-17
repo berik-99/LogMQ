@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 17
+# Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sources", "Sources", "{25EA2428-C302-4179-A1BB-C63258BEC435}"
@@ -15,9 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogMQ", "Sources\LogMQ\LogM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogMQ.Broker", "Sources\LogMQ.Broker\LogMQ.Broker.csproj", "{9BED6F20-329C-40D6-9293-F010616687EB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogMQ.GUI", "LogMQ.GUI\LogMQ.GUI.csproj", "{F917C401-4DE3-47B9-B609-85D1735138D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogMQ.GUI", "Sources\LogMQ.GUI\LogMQ.GUI.csproj", "{F917C401-4DE3-47B9-B609-85D1735138D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.LogMQ", "Serilog.Sinks.LogMQ\Serilog.Sinks.LogMQ.csproj", "{153EA4E7-0A9E-4592-9420-B1EE40CC1FBE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.LogMQ", "Sources\Serilog.Sinks.LogMQ\Serilog.Sinks.LogMQ.csproj", "{153EA4E7-0A9E-4592-9420-B1EE40CC1FBE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

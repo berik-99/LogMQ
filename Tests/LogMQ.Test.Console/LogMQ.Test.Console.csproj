@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Serilog.Sinks.LogMQ\Serilog.Sinks.LogMQ.csproj" />
+    <ProjectReference Include="..\..\Sources\Serilog.Sinks.LogMQ\Serilog.Sinks.LogMQ.csproj" />
   </ItemGroup>
 
 </Project>

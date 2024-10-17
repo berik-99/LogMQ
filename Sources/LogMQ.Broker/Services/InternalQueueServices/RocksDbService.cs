@@ -1,59 +1,110 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace LogMQ.Broker.Services.InternalQueueServices;
+
+using RocksDbSharp;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace LogMQ.Broker.Services.InternalQueueServices
+public class RocksDbService : IDisposable
 {
-	using RocksDbSharp;
-	using System;
-	using System.Threading;
-	using System.Threading.Tasks;
+    private ILogger _logger;
+    private readonly RocksDb db;
+    private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
 
-	public class RocksDbService : IDisposable
-	{
-		private readonly RocksDb db;
-		private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
+    public RocksDbService(ILogger<RocksDbService> logger)
+    {
+        try
+        {
+            _logger = logger;
+            var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "rocksdb_data");
+            Directory.CreateDirectory(dbPath);
 
-		public RocksDbService()
-		{
-			try
-			{
-				var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "rocksdb_data");
-				Directory.CreateDirectory(dbPath);
-				var options = new DbOptions()
-					.SetCreateIfMissing(true)
-					.SetWriteBufferSize(64 * 1024 * 1024)
-					.SetMaxWriteBufferNumber(3)
-					.SetCompression(Compression.Snappy);
-				db = RocksDb.Open(options, dbPath);
-			}
-			catch (Exception ex)
-			{
-				throw;
-			}
-		}
 
-		public async Task WriteLogMessage(string key, string message)
-		{
-			await semaphoreSlim.WaitAsync();
-			try
-			{
-				db.Put(key, message);
-			}
-			finally
-			{
-				semaphoreSlim.Release();
-			}
-		}
+            var options = new DbOptions()
+                .SetCreateIfMissing(true)
+                .SetCreateMissingColumnFamilies(true)
+                .SetWriteBufferSize(64 * 1024 * 1024)
+                .SetMaxWriteBufferNumber(3)
+                .SetCompression(Compression.Snappy);
 
-		public void Dispose()
-		{
-			db?.Dispose();
-			semaphoreSlim?.Dispose();
-			GC.SuppressFinalize(this);
-		}
-	}
+            var familiesStr = RocksDb.ListColumnFamilies(options, dbPath);
+            ColumnFamilies families = [];
+            foreach (var family in familiesStr)
+                families.Add(family, new());
 
+            db = RocksDb.Open(options, dbPath, families);
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    public async Task WriteLogMessage(LogMessage logMessage)
+    {
+        await semaphoreSlim.WaitAsync();
+        try
+        {
+            bool columnFamilyExists = db.TryGetColumnFamily(logMessage.Application, out ColumnFamilyHandle handle);
+            if (!columnFamilyExists) handle = db.CreateColumnFamily(new ColumnFamilyOptions(), logMessage.Application);
+            byte[] key = SerializeKey(logMessage.Timestamp, Guid.NewGuid());
+            byte[] message = logMessage.Serialize();
+            db.Put(key, message, handle);
+        }
+        finally
+        {
+            semaphoreSlim.Release();
+        }
+    }
+
+    private static byte[] SerializeKey(DateTimeOffset dateTimeOffset, Guid guid)
+    {
+        // Ottieni il timestamp UNIX in millisecondi
+        long unixTimestamp = dateTimeOffset.ToUnixTimeMilliseconds();
+
+        // Ottieni l'offset in minuti
+        short offsetMinutes = (short)dateTimeOffset.Offset.TotalMinutes;
+
+        // Crea un array di byte per contenere il timestamp, l'offset e il GUID
+        byte[] keyBytes = new byte[sizeof(long) + sizeof(short) + Guid.NewGuid().ToByteArray().Length];
+
+        // Copia il timestamp nell'array di byte
+        BitConverter.GetBytes(unixTimestamp).CopyTo(keyBytes, 0);
+
+        // Copia l'offset nell'array di byte
+        BitConverter.GetBytes(offsetMinutes).CopyTo(keyBytes, sizeof(long));
+
+        // Copia il GUID nell'array di byte
+        byte[] guidBytes = guid.ToByteArray();
+        guidBytes.CopyTo(keyBytes, sizeof(long) + sizeof(short));
+
+        return keyBytes;
+    }
+
+    private static (DateTimeOffset dateTimeOffset, Guid guid) DeserializeKey(byte[] keyBytes)
+    {
+        // Converti il byte[] indietro in un timestamp UNIX
+        long unixTimestamp = BitConverter.ToInt64(keyBytes, 0);
+
+        // Estrai l'offset
+        short offsetMinutes = BitConverter.ToInt16(keyBytes, sizeof(long));
+        TimeSpan offset = TimeSpan.FromMinutes(offsetMinutes);
+
+        // Estrai il GUID
+        byte[] guidBytes = new byte[16];
+        Array.Copy(keyBytes, sizeof(long) + sizeof(short), guidBytes, 0, 16);
+        Guid guid = new Guid(guidBytes);
+
+        // Ricostruisci il DateTimeOffset
+        DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimestamp).ToOffset(offset);
+
+        return (dateTimeOffset, guid);
+    }
+
+    public void Dispose()
+    {
+        db?.Dispose();
+        semaphoreSlim?.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

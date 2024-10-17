@@ -9,37 +9,39 @@ namespace Serilog.Sinks.LogMQ;
 
 public class LogMQMSMQSink : ILogEventSink, IDisposable
 {
-	private readonly IFormatProvider formatProvider;
-	private readonly string queuePath = @".\Private$\LogMQ_Queue";
-	private readonly string applicationName;
-	private readonly MessageQueue queue;
+    private readonly IFormatProvider _formatProvider;
+    private readonly string _queuePath;
+    private readonly string _applicationName;
+    private readonly MessageQueue queue;
 
-	public LogMQMSMQSink(IFormatProvider formatProvider = null, string queuePath = null, string applicationName = null)
-	{
-		this.formatProvider = formatProvider;
-		this.queuePath = queuePath ?? this.queuePath;
-		this.applicationName = string.IsNullOrWhiteSpace(applicationName) ? Process.GetCurrentProcess().ProcessName : applicationName;
-		if (!MessageQueue.Exists(this.queuePath))
-			MessageQueue.Create(this.queuePath);
-		queue = new MessageQueue(this.queuePath);
-	}
+    public LogMQMSMQSink(IFormatProvider formatProvider = null, string queuePath = null, string applicationName = null)
+    {
+        _formatProvider = formatProvider;
+        _queuePath = queuePath ?? _queuePath;
+        _applicationName = string.IsNullOrWhiteSpace(applicationName) ? Process.GetCurrentProcess().ProcessName : applicationName;
+        if (!MessageQueue.Exists(_queuePath))
+            MessageQueue.Create(_queuePath);
+        queue = new MessageQueue(_queuePath);
+    }
 
-	public void Emit(LogEvent logEvent)
-	{
-		var jsonMessage = logEvent.ToJsonLogMessage(formatProvider, applicationName);
-		Message message = new()
-		{
-			Body = jsonMessage,
-			Formatter = new ActiveXMessageFormatter(),
-			Label = $"LogMQ_{applicationName}_{logEvent.Timestamp.ToString()}"
-		};
-		queue.Send(message);
-	}
+    public void Emit(LogEvent logEvent)
+    {
+        var logMsg = logEvent.ToLogMessage(_formatProvider, _applicationName);
 
-	public void Dispose()
-	{
-		queue.Dispose();
-		GC.SuppressFinalize(this);
-	}
+        using MemoryStream stream = new();
+        logMsg.SerializeToStream(stream);
+        Message message = new()
+        {
+            BodyStream = stream,
+            Label = $"LogMQ_{_applicationName}_{logEvent.Timestamp}"
+        };
+        queue.Send(message);
+    }
+
+    public void Dispose()
+    {
+        queue.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }
 #endif
