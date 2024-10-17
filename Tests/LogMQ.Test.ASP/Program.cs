@@ -1,5 +1,3 @@
-using LogMQ;
-
 MQLogger.LoadConfiguration();
 
 var builder = WebApplication.CreateBuilder(args);

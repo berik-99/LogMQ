@@ -7,37 +7,26 @@ using System.Threading.Tasks;
 
 public class RocksDbService : IDisposable
 {
-    private ILogger _logger;
+    private readonly ILogger _logger;
     private readonly RocksDb db;
     private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
 
     public RocksDbService(ILogger<RocksDbService> logger)
     {
-        try
-        {
-            _logger = logger;
-            var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "rocksdb_data");
-            Directory.CreateDirectory(dbPath);
+        _logger = logger;
+        var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "data/logmq-db");
+        Directory.CreateDirectory(dbPath);
 
 
-            var options = new DbOptions()
-                .SetCreateIfMissing(true)
-                .SetCreateMissingColumnFamilies(true)
-                .SetWriteBufferSize(64 * 1024 * 1024)
-                .SetMaxWriteBufferNumber(3)
-                .SetCompression(Compression.Snappy);
+        var options = new DbOptions()
+            .SetCreateIfMissing(true)
+            .SetCreateMissingColumnFamilies(true)
+            .SetWriteBufferSize(64 * 1024 * 1024)
+            .SetMaxWriteBufferNumber(3)
+            .SetCompression(Compression.Snappy);
 
-            var familiesStr = RocksDb.ListColumnFamilies(options, dbPath);
-            ColumnFamilies families = [];
-            foreach (var family in familiesStr)
-                families.Add(family, new());
-
-            db = RocksDb.Open(options, dbPath, families);
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
+        var families = GetColumnFamilies(options, dbPath);
+        db = RocksDb.Open(options, dbPath, families);
     }
 
     public async Task WriteLogMessage(LogMessage logMessage)
@@ -50,6 +39,7 @@ public class RocksDbService : IDisposable
             byte[] key = SerializeKey(logMessage.Timestamp, Guid.NewGuid());
             byte[] message = logMessage.Serialize();
             db.Put(key, message, handle);
+            _logger.LogInformation("{application} - {message}", logMessage.Application, logMessage.Message);
         }
         finally
         {
@@ -99,6 +89,17 @@ public class RocksDbService : IDisposable
         DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimestamp).ToOffset(offset);
 
         return (dateTimeOffset, guid);
+    }
+
+    private static ColumnFamilies GetColumnFamilies(DbOptions options, string dbPath)
+    {
+        ColumnFamilies families = [];
+        List<string> familiesStr = [];
+        if (Directory.GetFiles(dbPath).Length > 0)
+            familiesStr = RocksDb.ListColumnFamilies(options, dbPath).ToList();
+        foreach (var family in familiesStr)
+            families.Add(family, new());
+        return families;
     }
 
     public void Dispose()

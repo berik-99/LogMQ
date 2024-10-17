@@ -10,22 +10,22 @@ namespace Serilog.Sinks.LogMQ;
 public class LogMQMSMQSink : ILogEventSink, IDisposable
 {
     private readonly IFormatProvider _formatProvider;
-    private readonly string _queuePath;
     private readonly string _applicationName;
     private readonly MessageQueue queue;
 
     public LogMQMSMQSink(IFormatProvider formatProvider = null, string queuePath = null, string applicationName = null)
     {
+        //TODO: handle exceptions
         _formatProvider = formatProvider;
-        _queuePath = queuePath ?? _queuePath;
         _applicationName = string.IsNullOrWhiteSpace(applicationName) ? Process.GetCurrentProcess().ProcessName : applicationName;
-        if (!MessageQueue.Exists(_queuePath))
-            MessageQueue.Create(_queuePath);
-        queue = new MessageQueue(_queuePath);
+        if (!MessageQueue.Exists(queuePath))
+            MessageQueue.Create(queuePath);
+        queue = new MessageQueue(queuePath);
     }
 
     public void Emit(LogEvent logEvent)
     {
+        //TODO: handle exceptions
         var logMsg = logEvent.ToLogMessage(_formatProvider, _applicationName);
 
         using MemoryStream stream = new();
