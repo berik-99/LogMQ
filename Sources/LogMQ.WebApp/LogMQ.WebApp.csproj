@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sources\LogMQ\LogMQ.csproj" />
+    <ProjectReference Include="..\LogMQ\LogMQ.csproj" />
   </ItemGroup>
 
 </Project>

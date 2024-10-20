@@ -40,15 +40,33 @@ public class LogMessage
     public string Application { get; set; }
 
     /// <summary>
-    /// Gets or sets additional metadata related to the log event, such as file, class, and method information.
+    /// Gets or sets the name of the machine where tha application is running.
     /// </summary>
     [ProtoMember(4)]
+    public string Machine { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ProcessID of the application generating the log message.
+    /// </summary>
+    [ProtoMember(5)]
+    public int Pid { get; set; }
+
+    /// <summary>
+    /// Gets or sets the Category of the application generating the log message.
+    /// </summary>
+    [ProtoMember(6)]
+    public string Category { get; set; }
+
+    /// <summary>
+    /// Gets or sets additional metadata related to the log event, such as file, class, and method information.
+    /// </summary>
+    [ProtoMember(7)]
     public LogMetadata Meta { get; set; }
 
-    [ProtoMember(5)]
+    [ProtoMember(8)]
     private DateTime timestampDateTime;
 
-    [ProtoMember(6)]
+    [ProtoMember(9)]
     private TimeSpan timestampOffset;
 
     /// <summary>

@@ -6,12 +6,15 @@ namespace Serilog.Sinks.LogMQ.Extensions;
 
 internal static class LogEventExtensions
 {
-    internal static LogMessage ToLogMessage(this LogEvent logEvent, IFormatProvider formatProvider, string applicationName) => new()
+    internal static LogMessage ToLogMessage(this LogEvent logEvent, IFormatProvider formatProvider, string applicationName, string category) => new()
     {
         Timestamp = logEvent.Timestamp,
         LogLevel = logEvent.Level.ToLogMQLogLevel(),
         Message = logEvent.RenderMessage(formatProvider),
+        Category = category,
         Application = applicationName,
+        Machine = Environment.MachineName,
+        Pid = Environment.ProcessId,
         Meta = logEvent.GetMetadata()
     };
 

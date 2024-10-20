@@ -23,7 +23,14 @@ public static class Program
         await m2(2);
         Log.Error(new Exception("Sample exception"), "An error occurred");
 
-        await Task.Delay(10000);
+        long count = 0;
+        while (true)
+        {
+            Log.Information($"This is the #{count} message from loop");
+            System.Console.WriteLine($"Sent log #{count}");
+            count++;
+            await Task.Delay(250);
+        }
 
         Log.CloseAndFlush();
 
