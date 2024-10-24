@@ -1,0 +1,90 @@
+@import "../../wwwroot/styles/variables.scss";
+
+.page {
+    .navbar {
+        .navbar-back {
+            padding: 2rem;
+            padding-top: 2.5rem;
+            padding-bottom: 3.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            background-color: $bg-primary-light;
+            color: $text-primary-light;
+
+            .navbar-logo {
+                img {
+                    height: 4rem;
+                }
+            }
+
+            .navbar-user {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: .5rem;
+
+                & * {
+                    font-weight: 500;
+                    color: $text-secondary-light !important;
+                }
+
+                .navbar-user-avatar {
+                    background-color: $bg-secondary-light;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    img {
+                        width: 2rem;
+                        height: 2rem;
+                    }
+                }
+            }
+        }
+
+        .navbar-nav {
+            display: flex;
+            padding: 1rem 4rem;
+            justify-content: space-between;
+            background-color: $bg-secondary-light;
+            margin: 0 2rem;
+            margin-top: -2.2rem;
+            box-shadow: $shadow;
+            border-radius: $radius;
+
+            ::deep .navbar-nav-item {
+
+                span {
+                    margin-left: .5rem;
+                }
+
+                * {
+                    font-weight: 500;
+                    transition: color 100ms ease;
+                }
+
+                &:not(.active) * {
+                    color: $text-tertiary-light !important;
+                }
+
+                &:hover * {
+                    color: $text-hover-light !important;
+                }
+            }
+        }
+    }
+
+    .content {
+        padding: 0 2rem;
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            padding: 1.5rem 0;
+        }
+    }
+}

@@ -1,9 +1,61 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<CascadingValue Value="this">
+    <div class="page">
+        <nav class="navbar">
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+            <div class="navbar-back">
+                <div class="navbar-logo">
+                    <img src="assets/logo/LogMQ_logo_horizontal.svg" alt="LogMQ logo" />
+                </div>
+                <div class="navbar-user">
+                    <div class="navbar-user-avatar">
+                        <img src="assets/misc/user-placeholder.svg" alt="User avatar" />
+                    </div>
+                    <h2 class="navbar-user-username">Username</h2>
+                </div>
+            </div>
+            <div class="navbar-nav">
+                <NavLink class="navbar-nav-item" href="/" Match=NavLinkMatch.All>
+                    <i class="bi bi-house-fill"></i>
+                    <span>OVERVIEW</span>
+                </NavLink>
+                <NavLink class="navbar-nav-item" href="/applications">
+                    <i class="bi bi-stack"></i>
+                    <span>APPLICATIONS</span>
+                </NavLink>
+                <NavLink class="navbar-nav-item" href="/settings">
+                    <i class="bi bi-gear-fill"></i>
+                    <span>SETTINGS</span>
+                </NavLink>
+                <NavLink class="navbar-nav-item" href="/about">
+                    <i class="bi bi-info-square-fill"></i>
+                    <span>ABOUT</span>
+                </NavLink>
+            </div>
+
+        </nav>
+        <div class="content">
+            @if (!string.IsNullOrWhiteSpace(pageTitle))
+            {
+                <h1 class="page-title">@pageTitle</h1>
+            }
+            @Body
+        </div>
+    </div>
+</CascadingValue>
+
+@code {
+    private string pageTitle;
+
+    public void SetPageTitle(string newTitle)
+    {
+        pageTitle = newTitle;
+        StateHasChanged();
+    }
+}
+
+
+
+
+

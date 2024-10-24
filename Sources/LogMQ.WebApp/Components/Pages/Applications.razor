@@ -1,0 +1,13 @@
+﻿@page "/applications";
+
+<NavLink href="@($"applications/{Guid.NewGuid()}")">DETAIL TEST</NavLink>
+
+@code {
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Layout.SetPageTitle("Applications");
+    }
+}

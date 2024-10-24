@@ -1,0 +1,58 @@
+﻿@page "/"
+
+<PageTitle>Overview</PageTitle>
+<div class="container">
+    <div class="cards">
+        <div class="card">
+            <h1 class="card-title">Applications</h1>
+            <h1 class="card-main">2345</h1>
+            <h1 class="card-description">Total applications</h1>
+        </div>
+        <div class="card">
+            <h1 class="card-title">Applications</h1>
+            <h1 class="card-main">2345</h1>
+            <h1 class="card-description">Total applications</h1>
+        </div>
+        <div class="card">
+            <h1 class="card-title">Applications</h1>
+            <h1 class="card-main">2345</h1>
+            <h1 class="card-description">Total applications</h1>
+        </div>
+        <div class="card">
+            <h1 class="card-title">Applications</h1>
+            <h1 class="card-main">2345</h1>
+            <h1 class="card-description">Total applications</h1>
+        </div>
+        <div class="card">
+            <h1 class="card-title">Applications</h1>
+            <h1 class="card-main">2345</h1>
+            <h1 class="card-description">Total applications</h1>
+        </div>
+        <div class="card">
+            <h1 class="card-title">Applications</h1>
+            <h1 class="card-main">2345</h1>
+            <h1 class="card-description">Total applications</h1>
+        </div>
+    </div>
+    <div class="chart-grid">
+        <div class="card chart-1">
+        </div>
+
+        <div class="card chart-2">
+        </div>
+
+        <div class="card chart-3">
+        </div>
+
+    </div>
+</div>
+
+@code {
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Layout.SetPageTitle("Overview");
+    }
+}

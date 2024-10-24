@@ -1,0 +1,24 @@
+.cards {
+    display: flex;
+    gap: 2rem;
+
+    .card {
+        flex: 1;
+    }
+}
+
+.chart-grid {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: .6fr .4fr;
+
+    .chart-1 {
+        grid-column: span 2 / auto;
+        height: 200px;
+    }
+
+    .chart-2, .chart-3 {
+        height: 400px;
+    }
+}

@@ -1,18 +1,73 @@
-#blazor-error-ui {
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
+﻿/*$bg-primary-light: #624BFF;
+$bg-secondary-light: #FFFFFF;
+$bg-tertiary-light: #E9ECEF;
+$text-primary-light: #000000;
+$text-secondary-light: #FFFFFF;
+$text-tertiary-light: #808080;*/
+.page .navbar .navbar-back {
+  padding: 2rem;
+  padding-top: 2.5rem;
+  padding-bottom: 3.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  background-color: #624BFF;
+  color: #212529;
 }
-
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
+.page .navbar .navbar-back .navbar-logo img {
+  height: 4rem;
+}
+.page .navbar .navbar-back .navbar-user {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+.page .navbar .navbar-back .navbar-user * {
+  font-weight: 500;
+  color: #FFFFFF !important;
+}
+.page .navbar .navbar-back .navbar-user .navbar-user-avatar {
+  background-color: #FFFFFF;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.page .navbar .navbar-back .navbar-user .navbar-user-avatar img {
+  width: 2rem;
+  height: 2rem;
+}
+.page .navbar .navbar-nav {
+  display: flex;
+  padding: 1rem 4rem;
+  justify-content: space-between;
+  background-color: #FFFFFF;
+  margin: 0 2rem;
+  margin-top: -2.2rem;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem;
+}
+.page .navbar .navbar-nav ::deep .navbar-nav-item span {
+  margin-left: 0.5rem;
+}
+.page .navbar .navbar-nav ::deep .navbar-nav-item * {
+  font-weight: 500;
+  transition: color 100ms ease;
+}
+.page .navbar .navbar-nav ::deep .navbar-nav-item:not(.active) * {
+  color: #ADB5BD !important;
+}
+.page .navbar .navbar-nav ::deep .navbar-nav-item:hover * {
+  color: #6C757D !important;
+}
+.page .content {
+  padding: 0 2rem;
+}
+.page .content .page-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  padding: 1.5rem 0;
+}

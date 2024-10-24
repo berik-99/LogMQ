@@ -1,0 +1,15 @@
+﻿@page "/applications/{ApplicationId:guid}";
+
+@code {
+    [Parameter]
+    public Guid ApplicationId { get; set; }
+
+    [CascadingParameter]
+    public MainLayout Layout { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Layout.SetPageTitle($"Applications -> {ApplicationId}");
+    }
+}
+

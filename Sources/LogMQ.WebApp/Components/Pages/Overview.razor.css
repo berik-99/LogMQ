@@ -1,0 +1,21 @@
+﻿.cards {
+  display: flex;
+  gap: 2rem;
+}
+.cards .card {
+  flex: 1;
+}
+
+.chart-grid {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 0.6fr 0.4fr;
+}
+.chart-grid .chart-1 {
+  grid-column: span 2/auto;
+  height: 200px;
+}
+.chart-grid .chart-2, .chart-grid .chart-3 {
+  height: 400px;
+}
