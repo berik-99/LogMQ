@@ -9,12 +9,12 @@ namespace Serilog.Sinks.LogMQ;
 /// </summary>
 public static class LoggerSinkConfigurationExtensions
 {
-    private const string defultTcpHost = "localhost";
-    private const int defultTcpPort = 5563;
-    private const string defultQueuePath = @".\Private$\LogMQ_Queue";
-    private const string defultCategory = "Generic";
-    private static readonly string defultApplicationName = Process.GetCurrentProcess().ProcessName;
-    private static readonly ILogEventSink defaultFallbackSink = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+    private const string DefaultTcpHost = "localhost";
+    private const int DefaultTcpPort = 5563;
+    private const string DefaultQueuePath = @".\Private$\LogMQ_Queue";
+    private const string DefaultCategory = "Generic";
+    private static readonly string DefaultApplicationName = Process.GetCurrentProcess().ProcessName;
+    private static readonly ILogEventSink DefaultFallbackSink = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
     /// <summary>
     /// Configures a custom log sink to send logs to LogMQ's internal message broker.
@@ -32,20 +32,20 @@ public static class LoggerSinkConfigurationExtensions
     /// </returns>
     public static LoggerConfiguration LogMQBrokerSink(
         this LoggerSinkConfiguration loggerSinkConfiguration,
-        string host = defultTcpHost,
-        int port = defultTcpPort,
-        string category = defultCategory,
+        string host = DefaultTcpHost,
+        int port = DefaultTcpPort,
+        string category = DefaultCategory,
         string applicationName = null,
         IFormatProvider formatProvider = null,
         ILogEventSink fallbackLogger = null)
     {
-        category = string.IsNullOrWhiteSpace(category) ? defultCategory : category;
-        applicationName = string.IsNullOrWhiteSpace(applicationName) ? defultApplicationName : applicationName;
-        fallbackLogger ??= defaultFallbackSink;
+        ArgumentNullException.ThrowIfNull(loggerSinkConfiguration);
+        category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
+        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
+        fallbackLogger ??= DefaultFallbackSink;
+
         return loggerSinkConfiguration.Sink(new LogMQBrokerSink(formatProvider, host, port, category, applicationName, fallbackLogger));
     }
-
-#if Windows
 
     /// <summary>
     /// Configures a custom log sink to send logs to a specified MSMQ queue.
@@ -62,18 +62,18 @@ public static class LoggerSinkConfigurationExtensions
     /// </returns>
     public static LoggerConfiguration LogMQMSMQSink(
         this LoggerSinkConfiguration loggerSinkConfiguration,
-        string queuePath = defultQueuePath,
-        string category = defultCategory,
+        string queuePath = DefaultQueuePath,
+        string category = DefaultCategory,
         string applicationName = null,
         IFormatProvider formatProvider = null,
         ILogEventSink fallbackLogger = null)
     {
-        queuePath = string.IsNullOrWhiteSpace(queuePath) ? defultQueuePath : queuePath;
-        category = string.IsNullOrWhiteSpace(category) ? defultCategory : category;
-        applicationName = string.IsNullOrWhiteSpace(applicationName) ? defultApplicationName : applicationName;
-        fallbackLogger ??= defaultFallbackSink;
+        ArgumentNullException.ThrowIfNull(loggerSinkConfiguration);
+        queuePath = string.IsNullOrWhiteSpace(queuePath) ? DefaultQueuePath : queuePath;
+        category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
+        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
+        fallbackLogger ??= DefaultFallbackSink;
+
         return loggerSinkConfiguration.Sink(new LogMQMSMQSink(formatProvider, queuePath, applicationName, category, fallbackLogger));
     }
-
-#endif
 }
