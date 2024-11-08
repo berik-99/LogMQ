@@ -6,7 +6,7 @@ using WatsonTcp;
 
 namespace Serilog.Sinks.LogMQ;
 
-public class LogMQBrokerSink : ILogEventSink, IDisposable
+public sealed class LogMQBrokerSink : ILogEventSink, IDisposable
 {
     private readonly IFormatProvider _formatProvider;
     private readonly string _applicationName;
@@ -18,6 +18,10 @@ public class LogMQBrokerSink : ILogEventSink, IDisposable
     {
         try
         {
+            _formatProvider = formatProvider;
+            _applicationName = applicationName;
+            _category = category;
+            _fallbackLogger = fallbackLogger;
             _tcpClient = new WatsonTcpClient(host, port);
             _tcpClient.Events.MessageReceived += (s, e) => { };
             _tcpClient.Connect();
@@ -46,7 +50,7 @@ public class LogMQBrokerSink : ILogEventSink, IDisposable
         catch (Exception ex)
         {
             (_fallbackLogger as Logger)?.Error(ex, "Error occurred during the Ping operation");
-            throw;
+            throw new InvalidOperationException("Ping operation failed", ex);
         }
     }
 

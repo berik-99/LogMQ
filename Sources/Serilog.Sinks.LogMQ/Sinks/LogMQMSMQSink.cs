@@ -1,4 +1,5 @@
-﻿#if Windows
+﻿#pragma warning disable S101 // Types should be named in PascalCase
+#if Windows
 using MSMQ.Messaging;
 using Serilog.Core;
 using Serilog.Events;
@@ -6,7 +7,7 @@ using Serilog.Sinks.LogMQ.Extensions;
 
 namespace Serilog.Sinks.LogMQ;
 
-public class LogMQMSMQSink : ILogEventSink, IDisposable
+public sealed class LogMQMSMQSink : ILogEventSink, IDisposable
 {
     private readonly IFormatProvider _formatProvider;
     private readonly string _applicationName;
@@ -18,6 +19,10 @@ public class LogMQMSMQSink : ILogEventSink, IDisposable
     {
         try
         {
+            _formatProvider = formatProvider;
+            _applicationName = applicationName;
+            _category = category;
+            _fallbackLogger = fallbackLogger;
             if (!MessageQueue.Exists(queuePath)) MessageQueue.Create(queuePath);
             _queue = new MessageQueue(queuePath);
         }
@@ -62,3 +67,4 @@ public class LogMQMSMQSink : ILogEventSink, IDisposable
     }
 }
 #endif
+#pragma warning restore S101 // Types should be named in PascalCase
