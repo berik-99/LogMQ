@@ -9,7 +9,7 @@ public static class Program
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
-            .WriteTo.LogMQBrokerSink(applicationName: "BrokerSink")
+            //.WriteTo.LogMQBrokerSink(applicationName: "BrokerSink")
             .WriteTo.LogMQMSMQSink(applicationName: "MSMQSink")
             .CreateLogger();
 
@@ -26,15 +26,13 @@ public static class Program
         long count = 0;
         while (true)
         {
-            Log.Information($"This is the #{count} message from loop");
+            Log.Information("This is the #{Count} message from loop", count);
             System.Console.WriteLine($"Sent log #{count}");
             count++;
             await Task.Delay(250);
         }
-
-        Log.CloseAndFlush();
-
     }
+
     private static void TestSyncMethod(int arg1, int arg2)
     {
         Log.Information("This is a test log message from internal sync method");

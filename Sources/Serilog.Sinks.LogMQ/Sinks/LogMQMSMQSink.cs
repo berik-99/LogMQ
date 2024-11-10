@@ -5,15 +5,17 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.LogMQ.Extensions;
 
-namespace Serilog.Sinks.LogMQ;
+namespace Serilog.Sinks.LogMQ.Sinks;
 
-public sealed class LogMQMSMQSink : ILogEventSink, IDisposable
+internal sealed class LogMQMSMQSink : ILogEventSink, IDisposable
 {
     private readonly IFormatProvider _formatProvider;
     private readonly string _applicationName;
     private readonly string _category;
     private readonly MessageQueue _queue;
     private readonly ILogEventSink _fallbackLogger;
+    private static readonly AsyncLocal<string> TraceId = new AsyncLocal<string>();
+
 
     internal LogMQMSMQSink(IFormatProvider formatProvider, string queuePath, string applicationName, string category, ILogEventSink fallbackLogger)
     {
@@ -36,6 +38,8 @@ public sealed class LogMQMSMQSink : ILogEventSink, IDisposable
     {
         try
         {
+            TraceId.Value ??= Guid.NewGuid().ToString();
+
             var logMsg = logEvent.ToLogMessage(_formatProvider, _applicationName, _category);
             using MemoryStream stream = new();
             logMsg.SerializeToStream(stream);

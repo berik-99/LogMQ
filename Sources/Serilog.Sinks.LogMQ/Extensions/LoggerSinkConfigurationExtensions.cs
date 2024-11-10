@@ -1,5 +1,6 @@
 ﻿using Serilog.Configuration;
 using Serilog.Core;
+using Serilog.Sinks.LogMQ.Sinks;
 using System.Diagnostics;
 
 namespace Serilog.Sinks.LogMQ;

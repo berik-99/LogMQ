@@ -4,36 +4,36 @@ using Serilog.Sinks.LogMQ.Extensions;
 using System.Text;
 using WatsonTcp;
 
-namespace Serilog.Sinks.LogMQ;
+namespace Serilog.Sinks.LogMQ.Sinks;
 
-public sealed class LogMQBrokerSink : ILogEventSink, IDisposable
+internal sealed class LogMQBrokerSink : ILogEventSink, IDisposable
 {
-    private readonly IFormatProvider _formatProvider;
-    private readonly string _applicationName;
-    private readonly string _category;
-    private readonly WatsonTcpClient _tcpClient;
-    private readonly ILogEventSink _fallbackLogger;
+    private readonly IFormatProvider formatProvider;
+    private readonly string applicationName;
+    private readonly string category;
+    private readonly WatsonTcpClient tcpClient;
+    private readonly ILogEventSink fallbackLogger;
 
     internal LogMQBrokerSink(IFormatProvider formatProvider, string host, int port, string applicationName, string category, ILogEventSink fallbackLogger)
     {
         try
         {
-            _formatProvider = formatProvider;
-            _applicationName = applicationName;
-            _category = category;
-            _fallbackLogger = fallbackLogger;
-            _tcpClient = new WatsonTcpClient(host, port);
-            _tcpClient.Events.MessageReceived += (s, e) => { };
-            _tcpClient.Connect();
+            this.formatProvider = formatProvider;
+            this.applicationName = applicationName;
+            this.category = category;
+            this.fallbackLogger = fallbackLogger;
+            tcpClient = new WatsonTcpClient(host, port);
+            tcpClient.Events.MessageReceived += (s, e) => { };
+            tcpClient.Connect();
             Task.Run(Ping).Wait();
         }
         catch (AggregateException aex)
         {
-            (_fallbackLogger as Logger)?.Error(aex.GetBaseException(), "An aggregate exception occurred during LogMQBrokerSink initialization");
+            (this.fallbackLogger as Logger)?.Error(aex.GetBaseException(), "An aggregate exception occurred during LogMQBrokerSink initialization");
         }
         catch (Exception ex)
         {
-            (_fallbackLogger as Logger)?.Error(ex, "An error occurred during LogMQBrokerSink initialization");
+            (this.fallbackLogger as Logger)?.Error(ex, "An error occurred during LogMQBrokerSink initialization");
         }
     }
 
@@ -42,14 +42,14 @@ public sealed class LogMQBrokerSink : ILogEventSink, IDisposable
         try
         {
             byte[] message = Encoding.ASCII.GetBytes("PING");
-            var res = await _tcpClient.SendAndWaitAsync(2000, message);
+            var res = await tcpClient.SendAndWaitAsync(2000, message);
             string pong = Encoding.UTF8.GetString(res.Data);
             if (pong != "PONG")
                 throw new InvalidOperationException("Unexpected response from LogMQ Broker: Expected 'PONG'");
         }
         catch (Exception ex)
         {
-            (_fallbackLogger as Logger)?.Error(ex, "Error occurred during the Ping operation");
+            (fallbackLogger as Logger)?.Error(ex, "Error occurred during the Ping operation");
             throw new InvalidOperationException("Ping operation failed", ex);
         }
     }
@@ -58,14 +58,14 @@ public sealed class LogMQBrokerSink : ILogEventSink, IDisposable
     {
         try
         {
-            var logMsg = logEvent.ToLogMessage(_formatProvider, _applicationName, _category);
+            var logMsg = logEvent.ToLogMessage(formatProvider, applicationName, category);
             var bin = logMsg.Serialize();
-            _tcpClient.SendAsync(bin).Wait();
+            tcpClient.SendAsync(bin).Wait();
         }
         catch (Exception ex)
         {
-            (_fallbackLogger as Logger)?.Error(ex, "Error occurred while writing log to LogMQ Broker");
-            _fallbackLogger.Emit(logEvent);
+            (fallbackLogger as Logger)?.Error(ex, "Error occurred while writing log to LogMQ Broker");
+            fallbackLogger.Emit(logEvent);
         }
     }
 
@@ -73,14 +73,14 @@ public sealed class LogMQBrokerSink : ILogEventSink, IDisposable
     {
         try
         {
-            if (_tcpClient?.Connected == true)
-                _tcpClient.Disconnect();
-            _tcpClient?.Dispose();
+            if (tcpClient?.Connected == true)
+                tcpClient.Disconnect();
+            tcpClient?.Dispose();
             GC.SuppressFinalize(this);
         }
         catch (Exception ex)
         {
-            (_fallbackLogger as Logger)?.Error(ex, "Error occurred during LogMQBrokerSink disposal");
+            (fallbackLogger as Logger)?.Error(ex, "Error occurred during LogMQBrokerSink disposal");
         }
     }
 }

@@ -7,18 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="logmqsettings.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="logmqsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Serilog.Enrichers.WithCaller" Version="1.3.0" />
   </ItemGroup>
 

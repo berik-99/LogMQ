@@ -69,6 +69,9 @@ public class LogMessage
     [ProtoMember(9)]
     private TimeSpan timestampOffset;
 
+    [ProtoMember(10)]
+    public string TraceId { get; set; }
+
     /// <summary>
     /// Serializes the log message to the specified stream using Protocol Buffers (protobuf).
     /// </summary>
