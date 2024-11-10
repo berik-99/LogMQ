@@ -17,5 +17,5 @@
 - [ ] **Add alerting system with email or other messaging types**
 - [ ] **Add local storage system** for messages not sent by the log provider that goes into exception after n messages
 - [ ] **Add plugin system** in the Broker to allow community to create new communication systems
-- [ ] **Use dynamic logo theme in readme**
+- [x] ~~Use dynamic logo theme in readme~~
 

@@ -30,7 +30,7 @@ internal sealed class LogMQMSMQSink : ILogEventSink, IDisposable
         }
         catch (Exception ex)
         {
-            (_fallbackLogger as Logger)?.Error(ex, "An error occurred during LogMQMSMQSink initialization.");
+            (_fallbackLogger as Logger)?.Error(ex, "An error occurred during LogMQ Sink initialization.");
         }
     }
 
