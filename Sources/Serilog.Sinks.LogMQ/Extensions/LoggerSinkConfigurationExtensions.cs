@@ -61,7 +61,7 @@ public static class LoggerSinkConfigurationExtensions
     /// <returns>
     /// A <see cref="LoggerConfiguration"/> object that allows further configuration of logging.
     /// </returns>
-    public static LoggerConfiguration LogMQMSMQSink(
+    public static LoggerConfiguration LogMQMsmqSink(
         this LoggerSinkConfiguration loggerSinkConfiguration,
         string queuePath = DefaultQueuePath,
         string category = DefaultCategory,
@@ -75,6 +75,6 @@ public static class LoggerSinkConfigurationExtensions
         applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
         fallbackLogger ??= DefaultFallbackSink;
 
-        return loggerSinkConfiguration.Sink(new LogMQMSMQSink(formatProvider, queuePath, applicationName, category, fallbackLogger));
+        return loggerSinkConfiguration.Sink(new LogMQMsmqSink(formatProvider, queuePath, applicationName, category, fallbackLogger));
     }
 }

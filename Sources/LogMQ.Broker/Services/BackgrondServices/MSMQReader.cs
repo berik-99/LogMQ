@@ -1,5 +1,5 @@
 using LogMQ.Broker.Services.InternalQueueServices;
-using MSMQ.Messaging;
+using Msmq.NetCore.Messaging;
 
 namespace LogMQ.Broker.Services.BackgrondServices;
 
