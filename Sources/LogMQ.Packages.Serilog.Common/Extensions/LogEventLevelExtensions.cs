@@ -1,7 +1,7 @@
-﻿using LogMQ;
+﻿using LogMQ.Messages;
 using Serilog.Events;
 
-namespace Serilog.Sinks.LogMQ.Extensions;
+namespace LogMQ.Serilog.Extensions;
 
 internal static class LogEventLevelExtensions
 {
@@ -15,4 +15,16 @@ internal static class LogEventLevelExtensions
 		LogEventLevel.Fatal => LogLevel.Critical,        // Fatal -> Critical (custom equivalent)
 		_ => LogLevel.None,                              // Default case, if needed
 	};
+
+	internal static LogEventLevel ToSerilogLogLevel(this LogLevel logMQLevel) => logMQLevel switch
+	{
+		LogLevel.Trace => LogEventLevel.Verbose,         // Trace (custom) -> Verbose (Serilog)
+		LogLevel.Debug => LogEventLevel.Debug,           // Debug -> Debug
+		LogLevel.Information => LogEventLevel.Information, // Information -> Information
+		LogLevel.Warning => LogEventLevel.Warning,       // Warning -> Warning
+		LogLevel.Error => LogEventLevel.Error,           // Error -> Error
+		LogLevel.Critical => LogEventLevel.Fatal,        // Critical (custom) -> Fatal
+		_ => LogEventLevel.Information,                 // Default case, e.g., treat None as Information
+	};
+
 }

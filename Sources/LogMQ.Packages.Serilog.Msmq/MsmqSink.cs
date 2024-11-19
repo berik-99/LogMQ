@@ -1,13 +1,10 @@
-﻿#pragma warning disable S101 // Types should be named in PascalCase
-#if Windows
-using Msmq.NetCore.Messaging;
+﻿using Msmq.NetCore.Messaging;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Sinks.LogMQ.Extensions;
 
 namespace Serilog.Sinks.LogMQ.Sinks;
 
-internal sealed class LogMQMsmqSink : ILogEventSink, IDisposable
+internal sealed class MsmqSink : ILogEventSink, IDisposable
 {
     private readonly IFormatProvider _formatProvider;
     private readonly string _applicationName;
@@ -15,7 +12,7 @@ internal sealed class LogMQMsmqSink : ILogEventSink, IDisposable
     private readonly MessageQueue _queue;
     private readonly ILogEventSink _fallbackLogger;
 
-    internal LogMQMsmqSink(IFormatProvider formatProvider, string queuePath, string applicationName, string category, ILogEventSink fallbackLogger)
+    internal MsmqSink(IFormatProvider formatProvider, string queuePath, string applicationName, string category, ILogEventSink fallbackLogger)
     {
         try
         {
@@ -66,5 +63,3 @@ internal sealed class LogMQMsmqSink : ILogEventSink, IDisposable
         }
     }
 }
-#endif
-#pragma warning restore S101 // Types should be named in PascalCase

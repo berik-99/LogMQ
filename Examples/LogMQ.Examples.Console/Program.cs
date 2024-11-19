@@ -1,15 +1,17 @@
-﻿using Serilog;
-using Serilog.Sinks.LogMQ;
+﻿using LogMQ.Providers;
+using LogMQ.Serilog;
+using LogMQ.Serilog.Extensions;
+using Serilog;
 
-namespace LogMQ.Test.Console;
+namespace LogMQ.Examples.Console;
+
 public static class Program
 {
 	private static async Task Main(string[] args)
 	{
 		Log.Logger = new LoggerConfiguration()
 			.MinimumLevel.Debug()
-			//.WriteTo.LogMQBrokerSink(applicationName: "BrokerSink")
-			.WriteTo.LogMQMsmqSink(applicationName: "MSMQSink")
+			.WriteTo.LogMQ(new MsmqProvider(null, @".\Private$\LogMQ_Queue", new FallbackLogger()))
 			.CreateLogger();
 
 		Log.Information("This is a test log message from Main");

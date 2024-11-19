@@ -7,6 +7,8 @@
 - [ ] **Write tests**
 - [ ] **Improve fallback logger management** (allow users to choose whether to stop the application if logging fails)
 - [ ] **Use multi target framework** in LogMQ package and Serilog sinks
+- [x] ~~**Divide the project into multiple projects** (by log providers)~~
+- [x] ~~**Use Application object inside LogMessage**~~
 - [x] ~~**Use a custom implementation for MSMQ** (MSMQ.Messaging is not maintained and contains vulnerabilities)~~
 
 ## ✨ Enhancement
