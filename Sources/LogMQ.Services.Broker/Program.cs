@@ -15,8 +15,8 @@ builder.Logging
 
 builder.Services.AddWindowsService();
 builder.Services.AddSingleton<RocksDbService>();
-builder.Services.AddHostedService<SocketReader>();
-builder.Services.AddHostedService<MSMQReader>();
+builder.Services.AddHostedService<TcpReader>();
+builder.Services.AddHostedService<MsmqReader>();
 
 var host = builder.Build();
 await host.RunAsync();

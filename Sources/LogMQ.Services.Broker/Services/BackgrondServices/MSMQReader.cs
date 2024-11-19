@@ -1,9 +1,10 @@
 using LogMQ.Broker.Services.InternalQueueServices;
 using Msmq.NetCore.Messaging;
+using LogMQ.Messages;
 
 namespace LogMQ.Broker.Services.BackgrondServices;
 
-public class MSMQReader(ILogger<MSMQReader> logger, RocksDbService rdb) : BackgroundService
+public class MsmqReader(ILogger<MsmqReader> logger, RocksDbService rdb) : BackgroundService
 {
     private readonly string queuePath = @".\Private$\LogMQ_Queue";
 

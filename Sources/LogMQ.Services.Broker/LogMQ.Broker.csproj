@@ -20,6 +20,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\LogMQ\LogMQ.csproj" />
+	  <ProjectReference Include="..\LogMQ.Packages.Base\LogMQ.Base.csproj" />
 	</ItemGroup>
 </Project>

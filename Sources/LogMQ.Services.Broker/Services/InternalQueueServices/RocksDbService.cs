@@ -1,5 +1,6 @@
 ﻿namespace LogMQ.Broker.Services.InternalQueueServices;
 
+using LogMQ.Messages;
 using RocksDbSharp;
 using System;
 using System.Threading;
@@ -34,8 +35,8 @@ public class RocksDbService : IDisposable
         await semaphoreSlim.WaitAsync();
         try
         {
-            bool columnFamilyExists = db.TryGetColumnFamily(logMessage.Application, out ColumnFamilyHandle handle);
-            if (!columnFamilyExists) handle = db.CreateColumnFamily(new ColumnFamilyOptions(), logMessage.Application);
+            bool columnFamilyExists = db.TryGetColumnFamily(logMessage.Application.Name, out ColumnFamilyHandle handle);
+            if (!columnFamilyExists) handle = db.CreateColumnFamily(new ColumnFamilyOptions(), logMessage.Application.Name);
             byte[] key = SerializeKey(logMessage.Timestamp, Guid.NewGuid());
             byte[] message = logMessage.Serialize();
             db.Put(key, message, handle);

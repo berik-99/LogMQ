@@ -1,10 +1,11 @@
 ﻿using LogMQ.Broker.Services.InternalQueueServices;
+using LogMQ.Messages;
 using System.Text;
 using WatsonTcp;
 
 namespace LogMQ.Broker.Services.BackgrondServices;
 
-public class SocketReader(ILogger<SocketReader> logger, RocksDbService rdb) : BackgroundService
+public class TcpReader(ILogger<TcpReader> logger, RocksDbService rdb) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {

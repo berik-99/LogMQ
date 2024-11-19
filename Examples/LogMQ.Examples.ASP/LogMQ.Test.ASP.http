@@ -1,6 +1,0 @@
-@LogMQ.Test.ASP_HostAddress = http://localhost:5210
-
-GET {{LogMQ.Test.ASP_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
