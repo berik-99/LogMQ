@@ -1,4 +1,4 @@
-﻿namespace LogMQ.Messages;
+﻿namespace LogMQ.Contracts;
 
 /// <summary>
 /// Defines logging severity levels.

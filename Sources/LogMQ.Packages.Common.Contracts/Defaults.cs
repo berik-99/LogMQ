@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace LogMQ;
+namespace LogMQ.Contracts;
 
 public static class Defaults
 {

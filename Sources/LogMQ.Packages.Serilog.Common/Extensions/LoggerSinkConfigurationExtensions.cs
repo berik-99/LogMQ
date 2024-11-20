@@ -1,7 +1,7 @@
 ﻿using LogMQ.Providers;
 using Serilog;
 using Serilog.Configuration;
-using static LogMQ.Defaults;
+using static LogMQ.Contracts.Defaults;
 
 namespace LogMQ.Serilog.Extensions;
 
@@ -10,7 +10,6 @@ namespace LogMQ.Serilog.Extensions;
 /// </summary>
 public static class LoggerSinkConfigurationExtensions
 {
-
 	/// <summary>
 	/// Configures a custom log sink to send logs to LogMQ's internal message broker.
 	/// The logs will be routed and processed by the LogMQ Service.

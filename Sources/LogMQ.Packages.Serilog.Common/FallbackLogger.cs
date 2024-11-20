@@ -1,4 +1,4 @@
-﻿using LogMQ.Messages;
+﻿using LogMQ.Contracts;
 using LogMQ.Providers;
 using LogMQ.Serilog.Extensions;
 using Serilog;

@@ -11,8 +11,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LogMQ.Packages.Base\LogMQ.Base.csproj" />
-		<ProjectReference Include="..\LogMQ.Plugins.StorageBase\LogMQ.Plugins.StorageBase.csproj" />
+		<ProjectReference Include="..\LogMQ.Packages.Common.Contracts\LogMQ.Common.Contracts.csproj" />
+		<ProjectReference Include="..\LogMQ.Plugins.StorageContracts\LogMQ.Plugins.StorageContracts.csproj" />
 	</ItemGroup>
 
 </Project>

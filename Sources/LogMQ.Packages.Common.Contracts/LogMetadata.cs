@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 using System.Diagnostics;
-namespace LogMQ.Messages;
+namespace LogMQ.Contracts;
 
 /// <summary>
 /// Contains metadata related to a log message, such as the source file and method details.

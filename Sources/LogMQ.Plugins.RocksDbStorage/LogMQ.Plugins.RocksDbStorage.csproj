@@ -12,7 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LogMQ.Plugins.StorageBase\LogMQ.Plugins.StorageBase.csproj" />
+		<ProjectReference Include="..\LogMQ.Plugins.StorageContracts\LogMQ.Plugins.StorageContracts.csproj" />
 	</ItemGroup>
 
 </Project>

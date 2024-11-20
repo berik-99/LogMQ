@@ -12,7 +12,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\LogMQ.Packages.Base\LogMQ.Base.csproj" />
+		<ProjectReference Include="..\LogMQ.Packages.Common.Contracts\LogMQ.Common.Contracts.csproj" />
+	  <ProjectReference Include="..\LogMQ.Packages.Providers.ProviderContracts\LogMQ.Providers.ProviderContracts.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using LogMQ.Messages;
+﻿using LogMQ.Contracts;
 using Serilog.Events;
 
 namespace LogMQ.Serilog.Extensions;
@@ -26,5 +26,4 @@ internal static class LogEventLevelExtensions
 		LogLevel.Critical => LogEventLevel.Fatal,        // Critical (custom) -> Fatal
 		_ => LogEventLevel.Information,                 // Default case, e.g., treat None as Information
 	};
-
 }

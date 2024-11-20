@@ -3,11 +3,11 @@
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<RootNamespace>LogMQ.Plugins.Storage.Contracts</RootNamespace>
+		<RootNamespace>LogMQ.Providers</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LogMQ.Packages.Base\LogMQ.Base.csproj" />
+		<ProjectReference Include="..\LogMQ.Packages.Common.Contracts\LogMQ.Common.Contracts.csproj" />
 	</ItemGroup>
 
 </Project>

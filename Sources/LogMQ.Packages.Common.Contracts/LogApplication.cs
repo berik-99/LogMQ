@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace LogMQ.Messages;
+namespace LogMQ.Contracts;
 
 /// <summary>
 /// Contains data related to an application

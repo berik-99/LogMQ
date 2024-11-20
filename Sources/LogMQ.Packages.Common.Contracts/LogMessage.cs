@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace LogMQ.Messages;
+namespace LogMQ.Contracts;
 
 /// <summary>
 /// Represents a log message with metadata and information about the event.
@@ -50,9 +50,6 @@ public class LogMessage
 
 	[ProtoMember(6)]
 	private TimeSpan timestampOffset;
-
-	[ProtoMember(7)]
-	public string TraceId { get; set; }
 
 	/// <summary>
 	/// Serializes the log message to the specified stream using Protocol Buffers (protobuf).

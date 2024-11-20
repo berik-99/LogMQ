@@ -20,7 +20,7 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 else
 	builder.Services.AddSystemd();
 
-builder.Services.AddSingleton<ILogMQStorage, RocksDbStorage>();
+builder.Services.AddSingleton<ILogStorage, RocksDbStorage>();
 builder.Services.AddHostedService<TcpReceiver>();
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 	builder.Services.AddHostedService<MsmqReceiver>();

@@ -8,7 +8,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\LogMQ.Packages.Providers.Tcp\LogMQ.Providers.Tcp.csproj" />
-		<ProjectReference Include="..\LogMQ.Plugins.ReceiverBase\LogMQ.Plugins.ReceiverBase.csproj" />
+		<ProjectReference Include="..\LogMQ.Plugins.ReceiverContracts\LogMQ.Plugins.ReceiverContracts.csproj" />
 	</ItemGroup>
 
 </Project>
