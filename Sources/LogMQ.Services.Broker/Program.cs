@@ -1,22 +1,29 @@
-using LogMQ.Broker.Services.BackgrondServices;
-using LogMQ.Broker.Services.InternalQueueServices;
+using LogMQ.Plugins.Receivers;
+using LogMQ.Plugins.Storage;
+using LogMQ.Plugins.Storage.Contracts;
 using Serilog;
+using System.Runtime.InteropServices;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Logging
    .ClearProviders()
    .AddSerilog(
-       new LoggerConfiguration()
-           .WriteTo.Console()
-           //.WriteTo.File(Path.Join(builder.Environment.ContentRootPath, "myApp.log"))
-           .CreateLogger()
+	   new LoggerConfiguration()
+		   .WriteTo.Console()
+		   //.WriteTo.File(Path.Join(builder.Environment.ContentRootPath, "myApp.log"))
+		   .CreateLogger()
    );
 
-builder.Services.AddWindowsService();
-builder.Services.AddSingleton<RocksDbService>();
-builder.Services.AddHostedService<TcpReader>();
-builder.Services.AddHostedService<MsmqReader>();
+if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+	builder.Services.AddWindowsService();
+else
+	builder.Services.AddSystemd();
+
+builder.Services.AddSingleton<ILogMQStorage, RocksDbStorage>();
+builder.Services.AddHostedService<TcpReceiver>();
+if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+	builder.Services.AddHostedService<MsmqReceiver>();
 
 var host = builder.Build();
 await host.RunAsync();

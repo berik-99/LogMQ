@@ -3,15 +3,16 @@
 	<PropertyGroup>
 		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<RootNamespace>LogMQ.Providers</RootNamespace>
+		<RootNamespace>LogMQ.Plugins.Receivers.Contracts</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Msmq.NetCore" Version="1.1.1" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\LogMQ.Packages.Base\LogMQ.Base.csproj" />
+		<ProjectReference Include="..\LogMQ.Plugins.StorageBase\LogMQ.Plugins.StorageBase.csproj" />
 	</ItemGroup>
 
 </Project>

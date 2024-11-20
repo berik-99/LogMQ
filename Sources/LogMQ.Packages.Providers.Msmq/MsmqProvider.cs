@@ -1,8 +1,10 @@
 ﻿using LogMQ.Messages;
 using Msmq.NetCore.Messaging;
+using System.Runtime.Versioning;
 
 namespace LogMQ.Providers;
 
+[SupportedOSPlatform("windows")]
 public sealed class MsmqProvider : ILogProvider, IDisposable
 {
 	private readonly MessageQueue queue;
