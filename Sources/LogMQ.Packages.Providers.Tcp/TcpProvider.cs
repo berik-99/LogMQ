@@ -6,6 +6,11 @@ namespace LogMQ.Providers;
 
 public sealed class TcpProvider : ILogProvider, IDisposable
 {
+	public const string DefaultTcpHost = "localhost";
+	public const int DefaultTcpPort = 5563;
+	public const string DefaultTcpPingMsg = "PING";
+	public const string DefaultTcpPongMsg = "PONG";
+
 	private readonly WatsonTcpClient tcpClient;
 	public IFormatProvider FormatProvider { get; }
 	public IFallbackLogProvider FallbackLogger { get; }

@@ -1,7 +1,7 @@
 ﻿using LogMQ.Providers;
 using Serilog;
 using Serilog.Configuration;
-using System.Diagnostics;
+using static LogMQ.Defaults;
 
 namespace LogMQ.Serilog.Extensions;
 
@@ -10,12 +10,6 @@ namespace LogMQ.Serilog.Extensions;
 /// </summary>
 public static class LoggerSinkConfigurationExtensions
 {
-	private const string DefaultTcpHost = "localhost";
-	private const int DefaultTcpPort = 5563;
-	private const string DefaultQueuePath = @".\Private$\LogMQ_Queue";
-	private const string DefaultCategory = "Generic";
-	private static readonly string DefaultApplicationName = Process.GetCurrentProcess().ProcessName;
-	//private static readonly ILogEventSink DefaultFallbackSink = new LoggerConfiguration().WriteTo.Console().CreateLogger();
 
 	/// <summary>
 	/// Configures a custom log sink to send logs to LogMQ's internal message broker.
@@ -31,15 +25,14 @@ public static class LoggerSinkConfigurationExtensions
 	/// <returns>
 	/// A <see cref="LoggerConfiguration"/> object that allows further configuration of logging.
 	/// </returns>
-	public static LoggerConfiguration LogMQ(
-		this LoggerSinkConfiguration loggerSinkConfiguration,
-		ILogProvider logProvider,
-		string category = DefaultCategory,
-		string applicationName = null)
+	public static LoggerConfiguration LogMQ(this LoggerSinkConfiguration loggerSinkConfiguration,
+												 ILogProvider logProvider,
+												 string category = DefaultCategory,
+												 string applicationName = null)
 	{
 		ArgumentNullException.ThrowIfNull(loggerSinkConfiguration);
 		category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
 		applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
-		return loggerSinkConfiguration.Sink(new LogMQSink(logProvider, category, applicationName));
+		return loggerSinkConfiguration.Sink(new LogMQSink(logProvider, applicationName, category));
 	}
 }

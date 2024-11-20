@@ -7,11 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="System.Text.Json" Version="9.0.0" />
-		<PackageReference Include="WatsonTcp" Version="6.0.6" />
-	</ItemGroup>
-
-	<ItemGroup>
+		<ProjectReference Include="..\LogMQ.Packages.Providers.Tcp\LogMQ.Providers.Tcp.csproj" />
 		<ProjectReference Include="..\LogMQ.Plugins.ReceiverBase\LogMQ.Plugins.ReceiverBase.csproj" />
 	</ItemGroup>
 

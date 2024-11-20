@@ -12,8 +12,8 @@
 - [x] ~~**Use a custom implementation for MSMQ** (MSMQ.Messaging is not maintained and contains vulnerabilities)~~
 
 ## ✨ Enhancement
-- [ ] **Consider using other data exchange methods** (e.g., gRPC, WebSocket or similar)
-- [ ] **Implement new log providers** (e.g., log4net, etc.)
+- [ ] **Implement other data exchange methods** (e.g. gRPC, WebSocket, etc.)
+- [ ] **Implement new log providers** (e.g. log4net, NLog, etc.)
 - [ ] **Implement a custom log provider**
 - [ ] **Add a TraceID to log metadata** (identifies the call stack)
 - [ ] **Add ASP.NET Core support** (e.g., use specific metadata for HTTP requests)

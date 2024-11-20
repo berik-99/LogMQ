@@ -40,7 +40,7 @@ public class RocksDbStorage : ILogMQStorage, IDisposable
 			byte[] key = SerializeKey(logMessage.Timestamp, Guid.NewGuid());
 			byte[] message = logMessage.Serialize();
 			db.Put(key, message, handle);
-			logger.LogInformation("{application} - {message}", logMessage.Application, logMessage.Message);
+			logger.LogInformation("{application} - {message}", logMessage.Application.Name, logMessage.Message);
 		}
 		finally
 		{
@@ -50,45 +50,25 @@ public class RocksDbStorage : ILogMQStorage, IDisposable
 
 	private static byte[] SerializeKey(DateTimeOffset dateTimeOffset, Guid guid)
 	{
-		// Ottieni il timestamp UNIX in millisecondi
 		long unixTimestamp = dateTimeOffset.ToUnixTimeMilliseconds();
-
-		// Ottieni l'offset in minuti
 		short offsetMinutes = (short)dateTimeOffset.Offset.TotalMinutes;
-
-		// Crea un array di byte per contenere il timestamp, l'offset e il GUID
 		byte[] keyBytes = new byte[sizeof(long) + sizeof(short) + Guid.NewGuid().ToByteArray().Length];
-
-		// Copia il timestamp nell'array di byte
 		BitConverter.GetBytes(unixTimestamp).CopyTo(keyBytes, 0);
-
-		// Copia l'offset nell'array di byte
 		BitConverter.GetBytes(offsetMinutes).CopyTo(keyBytes, sizeof(long));
-
-		// Copia il GUID nell'array di byte
 		byte[] guidBytes = guid.ToByteArray();
 		guidBytes.CopyTo(keyBytes, sizeof(long) + sizeof(short));
-
 		return keyBytes;
 	}
 
 	private static (DateTimeOffset dateTimeOffset, Guid guid) DeserializeKey(byte[] keyBytes)
 	{
-		// Converti il byte[] indietro in un timestamp UNIX
 		long unixTimestamp = BitConverter.ToInt64(keyBytes, 0);
-
-		// Estrai l'offset
 		short offsetMinutes = BitConverter.ToInt16(keyBytes, sizeof(long));
 		TimeSpan offset = TimeSpan.FromMinutes(offsetMinutes);
-
-		// Estrai il GUID
 		byte[] guidBytes = new byte[16];
 		Array.Copy(keyBytes, sizeof(long) + sizeof(short), guidBytes, 0, 16);
 		Guid guid = new Guid(guidBytes);
-
-		// Ricostruisci il DateTimeOffset
 		DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimestamp).ToOffset(offset);
-
 		return (dateTimeOffset, guid);
 	}
 

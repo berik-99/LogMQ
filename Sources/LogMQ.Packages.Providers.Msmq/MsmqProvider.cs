@@ -7,6 +7,8 @@ namespace LogMQ.Providers;
 [SupportedOSPlatform("windows")]
 public sealed class MsmqProvider : ILogProvider, IDisposable
 {
+	public const string DefaultQueuePath = @".\Private$\LogMQ_Queue";
+
 	private readonly MessageQueue queue;
 	public IFormatProvider FormatProvider { get; }
 	public IFallbackLogProvider FallbackLogger { get; }

@@ -4,13 +4,14 @@ using LogMQ.Plugins.Storage.Contracts;
 using Microsoft.Extensions.Logging;
 using Msmq.NetCore.Messaging;
 using System.Runtime.Versioning;
+using static LogMQ.Providers.MsmqProvider;
 
 namespace LogMQ.Plugins.Receivers;
 
 [SupportedOSPlatform("windows")]
-public class MsmqReceiver(ILogger<MsmqReceiver> logger, ILogMQStorage rdb) : LogMQReceiverBase(logger, rdb)
+public class MsmqReceiver(ILogger<MsmqReceiver> logger, ILogMQStorage storage) : LogMQReceiverBase(storage)
 {
-	private readonly string queuePath = @".\Private$\LogMQ_Queue";
+	private readonly string queuePath = DefaultQueuePath;
 
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
@@ -25,7 +26,7 @@ public class MsmqReceiver(ILogger<MsmqReceiver> logger, ILogMQStorage rdb) : Log
 				Message message = queue.Receive();
 				var stream = message.BodyStream;
 				var logMessage = LogMessage.Deserialize(stream);
-				await rdb.WriteLogMessage(logMessage);
+				await Storage.WriteLogMessage(logMessage);
 			}, stoppingToken);
 		}
 	}

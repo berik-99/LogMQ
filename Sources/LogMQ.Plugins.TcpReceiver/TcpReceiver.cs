@@ -4,15 +4,20 @@ using LogMQ.Plugins.Storage.Contracts;
 using Microsoft.Extensions.Logging;
 using System.Text;
 using WatsonTcp;
+using static LogMQ.Providers.TcpProvider;
 
 namespace LogMQ.Plugins.Receivers;
 
-public class TcpReceiver(ILogger<TcpReceiver> logger, ILogMQStorage rdb) : LogMQReceiverBase(logger, rdb)
+public class TcpReceiver(ILogger<TcpReceiver> logger, ILogMQStorage storage) : LogMQReceiverBase(storage)
 {
+
+	private readonly string tcpHost = DefaultTcpHost;
+	private readonly int tcpPort = DefaultTcpPort;
+
 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 	{
 		logger.LogInformation("Init Tcp Receiver");
-		using WatsonTcpServer tcpServer = new("localhost", 5563);
+		using WatsonTcpServer tcpServer = new(tcpHost, tcpPort);
 		tcpServer.Events.MessageReceived += async (s, e) => await MessageReceived(e);
 		tcpServer.Callbacks.SyncRequestReceivedAsync = SyncMessageReceived;
 		tcpServer.Start();
@@ -24,9 +29,9 @@ public class TcpReceiver(ILogger<TcpReceiver> logger, ILogMQStorage rdb) : LogMQ
 
 	private Task<SyncResponse> SyncMessageReceived(SyncRequest request)
 	{
-		byte[] message = Encoding.ASCII.GetBytes("PONG");
+		byte[] message = Encoding.ASCII.GetBytes(DefaultTcpPongMsg);
 		string ping = Encoding.UTF8.GetString(request.Data);
-		if (ping != "PING")
+		if (ping != DefaultTcpPingMsg)
 			throw new InvalidOperationException("Invalid ping message from client");
 		return Task.FromResult(new SyncResponse(request, message));
 	}
@@ -34,9 +39,8 @@ public class TcpReceiver(ILogger<TcpReceiver> logger, ILogMQStorage rdb) : LogMQ
 
 	private async Task MessageReceived(MessageReceivedEventArgs e)
 	{
-		Console.WriteLine("received");
 		await using MemoryStream stream = new(e.Data);
 		var logMessage = LogMessage.Deserialize(stream);
-		await rdb.WriteLogMessage(logMessage);
+		await Storage.WriteLogMessage(logMessage);
 	}
 }
