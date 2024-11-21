@@ -1,7 +1,6 @@
-﻿namespace LogMQ.Loggers.NLog
-{
-	public class Class1
-	{
+﻿namespace LogMQ.Loggers.NLog;
 
-	}
+public class Class1
+{
+
 }

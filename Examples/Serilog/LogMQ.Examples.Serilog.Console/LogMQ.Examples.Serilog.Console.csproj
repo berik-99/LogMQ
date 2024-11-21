@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Sources\Modules\Loggers\Serilog\LogMQ.Loggers.Serilog\LogMQ.Loggers.Serilog.csproj" />
     <ProjectReference Include="..\..\..\Sources\Modules\Providers\LogMQ.Providers.Msmq\LogMQ.Providers.Msmq.csproj" />
     <ProjectReference Include="..\..\..\Sources\Modules\Providers\LogMQ.Providers.Tcp\LogMQ.Providers.Tcp.csproj" />

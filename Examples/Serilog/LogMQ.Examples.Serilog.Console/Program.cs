@@ -11,8 +11,8 @@ public static class Program
 	{
 		Log.Logger = new LoggerConfiguration()
 			.MinimumLevel.Debug()
-			.WriteTo.LogMQ(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "ConsoleApplication", "TCP_PROVIDER")
-			.WriteTo.LogMQ(new MsmqProvider(null, @".\Private$\LogMQ_Queue", new FallbackLogger()), "ConsoleApplication", "MSMQ_PROVIDER")
+			.WriteTo.Async(x => x.LogMQ(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "ConsoleApplication", "TCP_PROVIDER"))
+			.WriteTo.Async(x => x.LogMQ(new MsmqProvider(null, @".\Private$\LogMQ_Queue", new FallbackLogger()), "ConsoleApplication", "MSMQ_PROVIDER"))
 			.CreateLogger();
 
 		Log.Information("This is a test log message from Main");

@@ -1,7 +1,6 @@
-﻿namespace LogMQ.Loggers.Log4Net
-{
-	public class Class1
-	{
+﻿namespace LogMQ.Loggers.Log4Net;
 
-	}
+public class Class1
+{
+
 }

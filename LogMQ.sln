@@ -74,6 +74,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Loggers.Log4Net", "So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Examples.Serilog.Console", "Examples\Serilog\LogMQ.Examples.Serilog.Console\LogMQ.Examples.Serilog.Console.csproj", "{2159B536-E3AB-4D37-8ED4-9A9731CB22A2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{16C03A58-D6C0-405B-8D85-B96A9823D8EE}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+		TODO List.md = TODO List.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions.Logging", "Extensions.Logging", "{DAD28332-D723-4EDB-A928-4DB643CC38E3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions.Logging", "Extensions.Logging", "{14899ADF-4026-4C4B-9B95-2D27B6F1C707}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Loggers.Extensions.Logging", "Sources\Modules\Loggers\Extensions.Logging\LogMQ.Loggers.Extensions.Logging\LogMQ.Loggers.Extensions.Logging.csproj", "{687C755D-471E-4BE6-A635-89991DB60B25}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Examples.Extensions.Logging", "LogMQ.Examples.Extensions.Logging\LogMQ.Examples.Extensions.Logging.csproj", "{57921FD9-F3A9-44F6-AF74-AF6260B08DEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -140,6 +156,14 @@ Global
 		{2159B536-E3AB-4D37-8ED4-9A9731CB22A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2159B536-E3AB-4D37-8ED4-9A9731CB22A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2159B536-E3AB-4D37-8ED4-9A9731CB22A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{687C755D-471E-4BE6-A635-89991DB60B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687C755D-471E-4BE6-A635-89991DB60B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687C755D-471E-4BE6-A635-89991DB60B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687C755D-471E-4BE6-A635-89991DB60B25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57921FD9-F3A9-44F6-AF74-AF6260B08DEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57921FD9-F3A9-44F6-AF74-AF6260B08DEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57921FD9-F3A9-44F6-AF74-AF6260B08DEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57921FD9-F3A9-44F6-AF74-AF6260B08DEB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,5 +203,9 @@ Global
 		{F70671D3-42E2-447C-B218-155F11906CBD} = {5E91C9BE-DFE3-4325-9EB0-35090869FE72}
 		{AF5CEDF0-BC1E-4A53-90B3-C2C857735197} = {FFE79C58-F9A9-4B8B-A0BD-B6AE3FEB11A6}
 		{2159B536-E3AB-4D37-8ED4-9A9731CB22A2} = {F401E5F5-E875-4AB4-893E-0F17D955E314}
+		{DAD28332-D723-4EDB-A928-4DB643CC38E3} = {DA901B68-8B8B-42EA-851C-C28D68027630}
+		{14899ADF-4026-4C4B-9B95-2D27B6F1C707} = {697B6DE9-4526-41E1-A0E5-E6F872757EF8}
+		{687C755D-471E-4BE6-A635-89991DB60B25} = {14899ADF-4026-4C4B-9B95-2D27B6F1C707}
+		{57921FD9-F3A9-44F6-AF74-AF6260B08DEB} = {DAD28332-D723-4EDB-A928-4DB643CC38E3}
 	EndGlobalSection
 EndGlobal

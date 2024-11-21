@@ -57,13 +57,10 @@ public sealed class TcpProvider : ILogProvider, IDisposable
 			tcpClient.Connect();
 			Task.Run(Ping).Wait();
 		}
-		catch (AggregateException aex)
-		{
-			FallbackLogger.WriteError($"An aggregate exception occurred during {nameof(TcpProvider)} initialization", aex.GetBaseException());
-		}
 		catch (Exception ex)
 		{
-			FallbackLogger.WriteError($"An error occurred during {nameof(TcpProvider)} initialization", ex);
+			Exception baseException = ex is AggregateException aex ? aex.GetBaseException() : ex;
+			FallbackLogger.WriteError($"An error occurred during {nameof(TcpProvider)} initialization", baseException);
 		}
 	}
 
@@ -109,14 +106,10 @@ public sealed class TcpProvider : ILogProvider, IDisposable
 		{
 			WriteAsync(message).Wait();
 		}
-		catch (AggregateException aex)
-		{
-			FallbackLogger.WriteError("An aggregate exception occurred while writing log to LogMQ Broker", aex.GetBaseException());
-			FallbackLogger.WriteFallback(message);
-		}
 		catch (Exception ex)
 		{
-			FallbackLogger.WriteError("Error occurred while writing log to LogMQ Broker", ex);
+			Exception baseException = ex is AggregateException aex ? aex.GetBaseException() : ex;
+			FallbackLogger.WriteError("Error occurred while writing log to LogMQ Broker", baseException);
 			FallbackLogger.WriteFallback(message);
 		}
 	}
