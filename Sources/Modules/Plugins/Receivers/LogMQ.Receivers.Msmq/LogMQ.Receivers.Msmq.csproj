@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net9.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<RootNamespace>LogMQ.Receivers</RootNamespace>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Providers\LogMQ.Providers.Msmq\LogMQ.Providers.Msmq.csproj" />
+		<ProjectReference Include="..\Contracts\LogMQ.Receivers.Contracts\LogMQ.Receivers.Contracts.csproj" />
+	</ItemGroup>
+
+</Project>
