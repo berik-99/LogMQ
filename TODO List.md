@@ -10,7 +10,7 @@
 
 ## ✨ Enhancement
 - [ ] **Implement other data exchange methods** (e.g. gRPC, WebSocket, etc.)
-- [ ] **Implement new loggers** (e.g. log4net, NLog, etc.)
+- [ ] **Implement new loggers** (e.g. Log4net, NLog, etc.)
 - [ ] **Add a TraceID to log metadata** (identifies the call stack)
 - [ ] **Add ASP.NET Core support** (e.g., use specific metadata for HTTP requests)
 - [ ] **Add support for logging to cloud services** (e.g., Azure Monitor, AWS CloudWatch)

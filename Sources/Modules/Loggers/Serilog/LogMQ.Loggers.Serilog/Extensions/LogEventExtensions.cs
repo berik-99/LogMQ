@@ -33,6 +33,7 @@ internal static class LogEventExtensions
     /// </remarks>
     internal static LogMessage ToLogMessage(this LogEvent logEvent, IFormatProvider formatProvider, string applicationName, string category) => new()
     {
+        Guid = Guid.NewGuid(),
         Timestamp = logEvent.Timestamp,
         LogLevel = logEvent.Level.ToLogMQLogLevel(),
         Message = logEvent.RenderMessage(formatProvider),
