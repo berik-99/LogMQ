@@ -59,7 +59,7 @@ public class FallbackLogger(ILogEventSink fallback = null) : IFallbackLogProvide
     }
 
     /// <inheritdoc />
-    public void WriteWarning(string message)
+    public void WriteWarning(string message, Exception ex = null)
     {
         Write(LogLevel.Warning, message);
     }
