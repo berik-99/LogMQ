@@ -5,10 +5,18 @@ using Serilog.Events;
 
 namespace LogMQ.Loggers.Serilog;
 
-internal sealed class LogMQSink(ILogProvider provider, string applicationName, string category) : ILogEventSink
+internal sealed class LogMQSink(ILogProvider provider,
+                                string applicationName,
+                                string category,
+                                LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+                                LoggingLevelSwitch levelSwitch = null) : ILogEventSink
 {
-	public void Emit(LogEvent logEvent)
-	{
-		provider.Write(logEvent.ToLogMessage(provider.FormatProvider, applicationName, category));
-	}
+    public void Emit(LogEvent logEvent)
+    {
+        if (logEvent.Level < restrictedToMinimumLevel)
+            return;
+        if (levelSwitch != null && logEvent.Level < levelSwitch.MinimumLevel)
+            return;
+        provider.Write(logEvent.ToLogMessage(provider.FormatProvider, applicationName, category));
+    }
 }

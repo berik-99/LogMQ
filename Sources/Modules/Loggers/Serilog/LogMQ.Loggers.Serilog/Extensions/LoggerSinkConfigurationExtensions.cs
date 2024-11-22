@@ -1,6 +1,8 @@
 ﻿using LogMQ.Providers.Contracts;
 using Serilog;
 using Serilog.Configuration;
+using Serilog.Core;
+using Serilog.Events;
 using static LogMQ.Core.Defaults;
 
 namespace LogMQ.Loggers.Serilog.Extensions;
@@ -10,28 +12,30 @@ namespace LogMQ.Loggers.Serilog.Extensions;
 /// </summary>
 public static class LoggerSinkConfigurationExtensions
 {
-	/// <summary>
-	/// Configures a custom log sink to send logs to LogMQ's internal message broker.
-	/// The logs will be routed and processed by the LogMQ Service.
-	/// </summary>
-	/// <param name="loggerSinkConfiguration">The logger sink configuration to extend.</param>
-	/// <param name="host">The host address of the LogMQ message broker. Defaults to 'localhost'.</param>
-	/// <param name="port">The port number of the LogMQ message broker. Defaults to 5563.</param>
-	/// <param name="category">The log category (e.g., 'Generic'). Defaults to 'Generic'.</param>
-	/// <param name="applicationName">The name of the application sending log messages. Defaults to the current process name.</param>
-	/// <param name="formatProvider">An optional <see cref="IFormatProvider"/> for formatting log messages.</param>
-	/// <param name="fallbackLogger">An optional fallback logger in case of errors. Defaults to a console logger.</param>
-	/// <returns>
-	/// A <see cref="LoggerConfiguration"/> object that allows further configuration of logging.
-	/// </returns>
-	public static LoggerConfiguration LogMQ(this LoggerSinkConfiguration loggerSinkConfiguration,
-												 ILogProvider logProvider,
-												 string category = DefaultCategory,
-												 string applicationName = null)
-	{
-		ArgumentNullException.ThrowIfNull(loggerSinkConfiguration);
-		category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
-		applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
-		return loggerSinkConfiguration.Sink(new LogMQSink(logProvider, applicationName, category));
-	}
+    /// <summary>
+    /// Configures a custom log sink to send logs to LogMQ's internal message broker.
+    /// The logs will be routed and processed by the LogMQ Service.
+    /// </summary>
+    /// <param name="sinkConfiguration">The logger sink configuration to extend.</param>
+    /// <param name="host">The host address of the LogMQ message broker. Defaults to 'localhost'.</param>
+    /// <param name="port">The port number of the LogMQ message broker. Defaults to 5563.</param>
+    /// <param name="category">The log category (e.g., 'Generic'). Defaults to 'Generic'.</param>
+    /// <param name="applicationName">The name of the application sending log messages. Defaults to the current process name.</param>
+    /// <param name="formatProvider">An optional <see cref="IFormatProvider"/> for formatting log messages.</param>
+    /// <param name="fallbackLogger">An optional fallback logger in case of errors. Defaults to a console logger.</param>
+    /// <returns>
+    /// A <see cref="LoggerConfiguration"/> object that allows further configuration of logging.
+    /// </returns>
+    public static LoggerConfiguration LogMQ(this LoggerSinkConfiguration sinkConfiguration,
+                                            ILogProvider logProvider,
+                                            string category = DefaultCategory,
+                                            string applicationName = null,
+                                            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+                                            LoggingLevelSwitch levelSwitch = null)
+    {
+        ArgumentNullException.ThrowIfNull(sinkConfiguration);
+        category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
+        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
+        return sinkConfiguration.Sink(new LogMQSink(logProvider, applicationName, category, restrictedToMinimumLevel, levelSwitch));
+    }
 }

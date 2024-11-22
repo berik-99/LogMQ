@@ -12,8 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sources\Modules\Loggers\Extensions.Logging\LogMQ.Loggers.Extensions.Logging\LogMQ.Loggers.Extensions.Logging.csproj" />
-    <ProjectReference Include="..\Sources\Modules\Providers\LogMQ.Providers.Tcp\LogMQ.Providers.Tcp.csproj" />
+    <ProjectReference Include="..\..\..\Sources\Modules\Loggers\Extensions.Logging\LogMQ.Loggers.Extensions.Logging\LogMQ.Loggers.Extensions.Logging.csproj" />
+    <ProjectReference Include="..\..\..\Sources\Modules\Providers\LogMQ.Providers.Msmq\LogMQ.Providers.Msmq.csproj" />
+    <ProjectReference Include="..\..\..\Sources\Modules\Providers\LogMQ.Providers.Tcp\LogMQ.Providers.Tcp.csproj" />
   </ItemGroup>
 
 </Project>

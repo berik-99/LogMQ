@@ -8,17 +8,17 @@ namespace LogMQ.Loggers.Serilog;
 
 public class FallbackLogger(ILogEventSink fallback = null) : IFallbackLogProvider
 {
-	private static readonly Lazy<ILogEventSink> defaultFallbackSink = new(() => new LoggerConfiguration().WriteTo.Console().CreateLogger());
+    private static readonly Lazy<ILogEventSink> defaultFallbackSink = new(() => new LoggerConfiguration().WriteTo.Console().CreateLogger());
 
-	public void WriteError(string message, Exception ex = null)
-	{
-		fallback ??= defaultFallbackSink.Value;
-		(fallback as Logger)?.Error(ex, message);
-	}
+    public void WriteError(string message, Exception ex = null)
+    {
+        fallback ??= defaultFallbackSink.Value;
+        (fallback as Logger)?.Error(ex, "{Message}", message);
+    }
 
-	public void WriteFallback(LogMessage message)
-	{
-		fallback ??= defaultFallbackSink.Value;
-		fallback.Emit(message.ToLogEvent());
-	}
+    public void WriteFallback(LogMessage message)
+    {
+        fallback ??= defaultFallbackSink.Value;
+        fallback.Emit(message.ToLogEvent());
+    }
 }
