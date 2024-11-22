@@ -26,33 +26,53 @@ public class FallbackLogger(ILogEventSink fallback = null) : IFallbackLogProvide
     /// </remarks>
     private static readonly Lazy<ILogEventSink> defaultFallbackSink = new(() => new LoggerConfiguration().WriteTo.Console().CreateLogger());
 
-    /// <summary>
-    /// Writes an error message to the fallback logger, optionally including exception details.
-    /// </summary>
-    /// <param name="message">The error message to log.</param>
-    /// <param name="ex">The exception to include in the log entry, if any. Default is <c>null</c>.</param>
-    /// <remarks>
-    /// If the <see cref="fallback"/> logger is not set, the method initializes it to the default console-based sink.
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is <c>null</c>.</exception>
-    public void WriteError(string message, Exception ex = null)
-    {
-        fallback ??= defaultFallbackSink.Value;
-        (fallback as Logger)?.Error(ex, "{Message}", message);
-    }
-
-    /// <summary>
-    /// Writes a log message to the fallback logger.
-    /// </summary>
-    /// <param name="message">The <see cref="LogMessage"/> to log.</param>
-    /// <remarks>
-    /// The log message is converted to a <see cref="LogEvent"/> before being passed to the fallback logger.
-    /// If the <see cref="fallback"/> logger is not set, the method initializes it to the default console-based sink.
-    /// </remarks>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="message"/> is <c>null</c>.</exception>
+    /// <inheritdoc />
     public void WriteFallback(LogMessage message)
     {
         fallback ??= defaultFallbackSink.Value;
         fallback.Emit(message.ToLogEvent());
+    }
+
+    /// <inheritdoc />
+    public void Write(LogLevel logLevel, string message, Exception ex = null)
+    {
+        fallback ??= defaultFallbackSink.Value;
+        (fallback as Logger).Write(logLevel.ToSerilogLogLevel(), exception: ex, "{Message}", message);
+    }
+
+    /// <inheritdoc />
+    public void WriteTrace(string message)
+    {
+        Write(LogLevel.Trace, message);
+    }
+
+    /// <inheritdoc />
+    public void WriteDebug(string message)
+    {
+        Write(LogLevel.Debug, message);
+    }
+
+    /// <inheritdoc />
+    public void WriteInformation(string message)
+    {
+        Write(LogLevel.Information, message);
+    }
+
+    /// <inheritdoc />
+    public void WriteWarning(string message)
+    {
+        Write(LogLevel.Warning, message);
+    }
+
+    /// <inheritdoc />
+    public void WriteError(string message, Exception ex = null)
+    {
+        Write(LogLevel.Error, message, ex);
+    }
+
+    /// <inheritdoc />
+    public void WriteCritical(string message, Exception ex = null)
+    {
+        Write(LogLevel.Critical, message, ex);
     }
 }
