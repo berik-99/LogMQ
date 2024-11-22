@@ -13,7 +13,7 @@ internal sealed class LogMQSink(ILogProvider provider,
 {
     public void Emit(LogEvent logEvent)
     {
-        if (logEvent.Level < restrictedToMinimumLevel)
+        if (levelSwitch == null && logEvent.Level < restrictedToMinimumLevel)
             return;
         if (levelSwitch != null && logEvent.Level < levelSwitch.MinimumLevel)
             return;

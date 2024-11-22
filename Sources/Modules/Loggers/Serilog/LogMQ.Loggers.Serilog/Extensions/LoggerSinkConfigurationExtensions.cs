@@ -8,34 +8,50 @@ using static LogMQ.Core.Defaults;
 namespace LogMQ.Loggers.Serilog.Extensions;
 
 /// <summary>
-/// Provides extension methods for configuring custom log sinks to send logs to LogMQ's message broker and MSMQ.
+/// Provides extension methods for configuring a custom Serilog sink to send logs
+/// to the LogMQ message broker and integrate with MSMQ.
 /// </summary>
 public static class LoggerSinkConfigurationExtensions
 {
     /// <summary>
-    /// Configures a custom log sink to send logs to LogMQ's internal message broker.
-    /// The logs will be routed and processed by the LogMQ Service.
+    /// Configures a custom Serilog sink to send log events to LogMQ's internal message broker.
+    /// The logs will be routed and processed by the LogMQ service according to its configuration.
     /// </summary>
-    /// <param name="sinkConfiguration">The logger sink configuration to extend.</param>
-    /// <param name="host">The host address of the LogMQ message broker. Defaults to 'localhost'.</param>
-    /// <param name="port">The port number of the LogMQ message broker. Defaults to 5563.</param>
-    /// <param name="category">The log category (e.g., 'Generic'). Defaults to 'Generic'.</param>
-    /// <param name="applicationName">The name of the application sending log messages. Defaults to the current process name.</param>
-    /// <param name="formatProvider">An optional <see cref="IFormatProvider"/> for formatting log messages.</param>
-    /// <param name="fallbackLogger">An optional fallback logger in case of errors. Defaults to a console logger.</param>
+    /// <param name="sinkConfiguration">The <see cref="LoggerSinkConfiguration"/> to extend.</param>
+    /// <param name="logProvider">An instance of <see cref="ILogProvider"/> for managing log delivery to LogMQ.</param>
+    /// <param name="category">
+    /// The category of the application generating the logs (e.g., 'Console', 'Desktop', 'Web', 'App').
+    /// This helps classify logs based on the type of application.
+    /// Defaults to 'Generic' if not specified.
+    /// </param>
+    /// <param name="applicationName">
+    /// The name of the application generating the logs.
+    /// If <c>null</c> or empty, it defaults to the current process name.
+    /// </param>
+    /// <param name="restrictedToMinimumLevel">
+    /// The minimum log level for events to be written to this sink.
+    /// Defaults to <see cref="LogEventLevel.Verbose"/>.
+    /// </param>
+    /// <param name="levelSwitch">
+    /// An optional <see cref="LoggingLevelSwitch"/> that allows dynamic control of the log level at runtime.
+    /// If provided, it overrides <paramref name="restrictedToMinimumLevel"/>.
+    /// </param>
     /// <returns>
-    /// A <see cref="LoggerConfiguration"/> object that allows further configuration of logging.
+    /// A <see cref="LoggerConfiguration"/> object, enabling further configuration of logging behavior.
     /// </returns>
-    public static LoggerConfiguration LogMQ(this LoggerSinkConfiguration sinkConfiguration,
-                                            ILogProvider logProvider,
-                                            string category = DefaultCategory,
-                                            string applicationName = null,
-                                            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
-                                            LoggingLevelSwitch levelSwitch = null)
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="sinkConfiguration"/> is <c>null</c>.</exception>
+    public static LoggerConfiguration LogMQ(
+        this LoggerSinkConfiguration sinkConfiguration,
+        ILogProvider logProvider,
+        string category = DefaultCategory,
+        string applicationName = null,
+        LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+        LoggingLevelSwitch levelSwitch = null)
     {
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
         category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
         applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
-        return sinkConfiguration.Sink(new LogMQSink(logProvider, applicationName, category, restrictedToMinimumLevel, levelSwitch));
+        return sinkConfiguration.Sink(
+            new LogMQSink(logProvider, applicationName, category, restrictedToMinimumLevel, levelSwitch));
     }
 }
