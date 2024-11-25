@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace LogMQ.Extensions.Logging
-{
+namespace LogMQ.Extensions.Logging;
+
 	public static class LogMQLoggerExtensions
 	{
 		public static ILoggingBuilder AddLogMQ(
@@ -20,4 +20,3 @@ namespace LogMQ.Extensions.Logging
 			return builder;
 		}
 	}
-}

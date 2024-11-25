@@ -7,7 +7,7 @@
 - [ ] **Write tests**
 - [ ] **Improve fallback logger management** (allow users to choose whether to stop the application if logging fails)
 - [ ] **Use multi target framework** in LogMQ modules
-- [ ] **Fix wrong method metadata when serilog async**
+
 
 ## ✨ Enhancement
 - [ ] **Implement other data exchange methods** (e.g. gRPC, WebSocket, etc.)
@@ -16,6 +16,7 @@
 - [ ] **Add ASP.NET Core support** (e.g., use specific metadata for HTTP requests)
 - [ ] **Add support for logging to cloud services** (e.g., Azure Monitor, AWS CloudWatch)
 - [ ] **Add alerting system with email or other messaging types**
+- [ ] **Create extension method to register serilog enricher**
 
 ## 🟢 Low Priority
 - [ ] **Implement a custom logger**
@@ -32,3 +33,4 @@
 - [x] **Use Application object inside LogMessage**
 - [x] **Use a custom implementation for MSMQ** (MSMQ.Messaging is not maintained and contains vulnerabilities)
 - [x] **Use dynamic logo theme in README**
+- [x] **Fix wrong method metadata when serilog async**

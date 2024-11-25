@@ -13,6 +13,7 @@ public static class Program
     {
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Verbose()
+            .Enrich.With(new LogMQEnricher())
             .WriteTo.Async(x => x.LogMQ(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "ConsoleApplication", "TCP_PROVIDER", LogEventLevel.Fatal, new LoggingLevelSwitch(LogEventLevel.Information)))
             //.WriteTo.Async(x => x.LogMQ(new MsmqProvider(null, @".\Private$\LogMQ_Queue", new FallbackLogger()), "ConsoleApplication", "MSMQ_PROVIDER"))
             .WriteTo.Console()

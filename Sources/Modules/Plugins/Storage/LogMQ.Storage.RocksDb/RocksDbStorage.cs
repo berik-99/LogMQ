@@ -101,7 +101,7 @@ public class RocksDbStorage : ILogStorage, IDisposable
 
         byte[] guidBytes = new byte[16];
         Array.Copy(keyBytes, sizeof(long) + sizeof(short), guidBytes, 0, 16);
-        Guid guid = new Guid(guidBytes);
+        Guid guid = new(guidBytes);
 
         DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimestamp).ToOffset(offset);
         return (dateTimeOffset, guid);
