@@ -7,6 +7,7 @@
 - [ ] **Write tests**
 - [ ] **Improve fallback logger management** (allow users to choose whether to stop the application if logging fails)
 - [ ] **Use multi target framework** in LogMQ modules
+- [ ] **Fix wrong method metadata when serilog async**
 
 ## ✨ Enhancement
 - [ ] **Implement other data exchange methods** (e.g. gRPC, WebSocket, etc.)
