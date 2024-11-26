@@ -27,7 +27,6 @@
 - [ ] **Add more examples and tutorials**
 
 ## 🔄 In Progress
-- [ ] **Improve fallback logger management** (allow users to choose whether to stop the application if logging fails)
 
 ## ✅ Done
 - [x] **Divide the project into multiple projects** (by log providers)
@@ -37,3 +36,4 @@
 - [x] **Fix wrong method metadata when Serilog async**
 - [x] **Create extension method to register Serilog enricher**
 - [x] **Add plugin system** in the Broker to allow the community to create new communication systems
+- [x] **Improve fallback logger management** (allow users to choose the size of the retry queue)

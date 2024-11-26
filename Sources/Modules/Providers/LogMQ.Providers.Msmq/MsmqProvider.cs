@@ -6,7 +6,8 @@ using System.Runtime.Versioning;
 namespace LogMQ.Providers;
 
 /// <summary>
-/// Provides a log provider implementation for sending log messages to LogMQ broker using Microsoft Message Queuing (MSMQ).
+/// A Microsoft Message Queuing (MSMQ) log provider for sending log messages to the Msmq Receiver inside the LogMQ Broker.
+/// This provider is supported only on Windows platforms.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed class MsmqProvider : ILogProvider, IDisposable
@@ -29,27 +30,51 @@ public sealed class MsmqProvider : ILogProvider, IDisposable
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="MsmqProvider"/> class.
+	/// Establishes a connection to the specified MSMQ queue for storing log messages.
 	/// </summary>
-	/// <param name="formatProvider">An object that provides culture-specific formatting information.</param>
-	/// <param name="queuePath">The path to the MSMQ queue to use for storing log messages.</param>
-	/// <param name="fallbackLogger">The fallback logger to use in case of errors.</param>
+	/// <param name="formatProvider">
+	/// An object that provides culture-specific formatting information for log messages.
+	/// Cannot be null.
+	/// </param>
+	/// <param name="queuePath">
+	/// The path to the MSMQ queue to use for storing log messages.
+	/// If the specified queue does not exist, it will be created automatically.
+	/// Cannot be null or empty.
+	/// </param>
+	/// <param name="fallbackLogger">
+	/// The fallback logger to use for error handling and logging when MSMQ operations fail.
+	/// Cannot be null.
+	/// </param>
+	/// <exception cref="ArgumentNullException">
+	/// Thrown when <paramref name="formatProvider"/>, <paramref name="queuePath"/>, or <paramref name="fallbackLogger"/> is null or empty.
+	/// </exception>
+	/// <remarks>
+	/// This class requires the MSMQ service to be installed and running on the host system.
+	/// </remarks>
 	public MsmqProvider(IFormatProvider formatProvider, string queuePath, IFallbackLogProvider fallbackLogger)
 	{
-		try
-		{
-			FormatProvider = formatProvider;
-			FallbackLogger = fallbackLogger;
-			if (!MessageQueue.Exists(queuePath))
-				MessageQueue.Create(queuePath);
-			queue = new MessageQueue(queuePath);
-		}
-		catch (Exception ex)
-		{
-			FallbackLogger.WriteError($"An error occurred during {nameof(MsmqProvider)} initialization", ex);
-		}
+		ArgumentNullException.ThrowIfNull(fallbackLogger, nameof(fallbackLogger));
+		ArgumentNullException.ThrowIfNullOrWhiteSpace(queuePath, nameof(queuePath));
+		FormatProvider = formatProvider;
+		FallbackLogger = fallbackLogger;
+		if (!MessageQueue.Exists(queuePath))
+			MessageQueue.Create(queuePath);
+		queue = new MessageQueue(queuePath);
 	}
 
 	/// <inheritdoc />
+	/// <summary>
+	/// Sends a log message to the MSMQ queue.
+	/// </summary>
+	/// <param name="message">
+	/// The log message to be sent to the MSMQ queue.
+	/// </param>
+	/// <exception cref="Exception">
+	/// Thrown when an error occurs while sending the log message to the MSMQ queue.
+	/// </exception>
+	/// <remarks>
+	/// If the send operation fails, the log message is forwarded to the fallback logger.
+	/// </remarks>
 	public void Write(LogMessage message)
 	{
 		try
@@ -73,16 +98,25 @@ public sealed class MsmqProvider : ILogProvider, IDisposable
 	/// <summary>
 	/// Disposes of the resources used by the <see cref="MsmqProvider"/> instance.
 	/// </summary>
+	/// <remarks>
+	/// This method releases any unmanaged resources and suppresses finalization for the current instance.
+	/// </remarks>
+	/// <exception cref="Exception">
+	/// Thrown when an error occurs during the disposal of the MSMQ queue.
+	/// </exception>
 	public void Dispose()
 	{
 		try
 		{
 			queue.Dispose();
-			GC.SuppressFinalize(this);
 		}
 		catch (Exception ex)
 		{
 			FallbackLogger.WriteError($"Error occurred during {nameof(MsmqProvider)} disposal", ex);
+		}
+		finally
+		{
+			GC.SuppressFinalize(this);
 		}
 	}
 }
