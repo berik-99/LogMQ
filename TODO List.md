@@ -5,7 +5,6 @@
 
 ## ⚠️ Important
 - [ ] **Write tests**
-- [ ] **Improve fallback logger management** (allow users to choose whether to stop the application if logging fails)
 - [ ] **Use multi-target framework** in LogMQ modules
 
 ## ✨ Enhancement
@@ -28,7 +27,7 @@
 - [ ] **Add more examples and tutorials**
 
 ## 🔄 In Progress
-- [ ] **Add plugin system** in the Broker to allow the community to create new communication systems
+- [ ] **Improve fallback logger management** (allow users to choose whether to stop the application if logging fails)
 
 ## ✅ Done
 - [x] **Divide the project into multiple projects** (by log providers)
@@ -37,3 +36,4 @@
 - [x] **Use dynamic logo theme in README**
 - [x] **Fix wrong method metadata when Serilog async**
 - [x] **Create extension method to register Serilog enricher**
+- [x] **Add plugin system** in the Broker to allow the community to create new communication systems
