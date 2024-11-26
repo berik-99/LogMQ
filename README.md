@@ -10,6 +10,7 @@
 
 LogMQ is currently under **active development** and is not yet considered stable.  
 Please use it at your own risk in non-production environments.
+For a detailed list of tasks and ongoing work, see the [TODO list](./TODO.md).
 
 ---
 
