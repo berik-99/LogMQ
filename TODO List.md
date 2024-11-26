@@ -28,6 +28,7 @@
 - [ ] **Replace WatsonWebSocket with standard tcp socket**
 
 ## 🔄 In Progress
+- [ ] **Implement new Loggers** Microsoft.Extensions.Logging
 
 ## ✅ Done
 - [x] **Divide the project into multiple projects** (by log providers)
