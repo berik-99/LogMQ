@@ -86,26 +86,15 @@ public class LogMessage : IEquatable<LogMessage>
     /// <returns>The deserialized log message.</returns>
     public static LogMessage Deserialize(Stream stream) => Serializer.Deserialize<LogMessage>(stream);
 
-    /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-        return Equals(obj as LogMessage);
-    }
+	/// <inheritdoc/>
+	public override bool Equals(object obj) => Equals(obj as LogMessage);
 
-    /// <inheritdoc/>
-    public bool Equals(LogMessage other)
-    {
-        return other is not null &&
-               Guid.Equals(other.Guid);
-    }
+	/// <inheritdoc/>
+	public bool Equals(LogMessage other) => other is not null && Guid.Equals(other.Guid);
 
-    public static bool operator ==(LogMessage left, LogMessage right)
-    {
-        return EqualityComparer<LogMessage>.Default.Equals(left, right);
-    }
+	/// <inheritdoc/>
+	public static bool operator ==(LogMessage left, LogMessage right) => EqualityComparer<LogMessage>.Default.Equals(left, right);
 
-    public static bool operator !=(LogMessage left, LogMessage right)
-    {
-        return !(left == right);
-    }
+	/// <inheritdoc/>
+	public static bool operator !=(LogMessage left, LogMessage right) => !(left == right);
 }
