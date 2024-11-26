@@ -6,19 +6,19 @@
 ## ⚠️ Important
 - [ ] **Write tests**
 - [ ] **Improve fallback logger management** (allow users to choose whether to stop the application if logging fails)
-- [ ] **Use multi target framework** in LogMQ modules
-
+- [ ] **Use multi-target framework** in LogMQ modules
 
 ## ✨ Enhancement
-- [ ] **Implement other Provider-Receiver methods** (e.g. gRPC, WebSocket, etc.)
-- [ ] **Implement new Loggers** (e.g. Log4net, NLog, etc.)
+- [ ] **Implement other Provider-Receiver methods** (e.g., gRPC, WebSocket, etc.)
+- [ ] **Implement new Loggers** (e.g., Log4net, NLog, etc.)
 - [ ] **Add a TraceID to log metadata** (identifies the call stack)
 - [ ] **Add ASP.NET Core support** (e.g., use specific metadata for HTTP requests)
 - [ ] **Add support for logging to cloud services** (e.g., Azure Monitor, AWS CloudWatch)
 - [ ] **Add alerting system with email or other messaging types**
-- [ ] **Create extension method to register serilog enricher**
+- [ ] **Create extension method to register Serilog enricher**
 - [ ] **Define Plugin protocol and create Plugin installer** to manage plugin installation (separate executable from broker and viewer)
-- [ ] **Define Viewer UI** as figma prototype
+- [ ] **Define Viewer UI** as Figma prototype
+- [ ] **Split documentation for each Logger** to explain in detail how to use each one
 
 ## 🟢 Low Priority
 - [ ] **Implement a LogMQ-specific Logger**
@@ -29,11 +29,11 @@
 ## 🔄 In Progress
 - [ ] **Add plugin system** in the Broker to allow the community to create new communication systems
 - [ ] **Add local storage system** for messages not sent by the log provider that goes into exception after n messages
-- [ ] **Create extension method to register serilog enricher**
 
 ## ✅ Done
 - [x] **Divide the project into multiple projects** (by log providers)
 - [x] **Use Application object inside LogMessage**
 - [x] **Use a custom implementation for MSMQ** (MSMQ.Messaging is not maintained and contains vulnerabilities)
 - [x] **Use dynamic logo theme in README**
-- [x] **Fix wrong method metadata when serilog async**
+- [x] **Fix wrong method metadata when Serilog async**
+- [x] **Create extension method to register Serilog enricher**

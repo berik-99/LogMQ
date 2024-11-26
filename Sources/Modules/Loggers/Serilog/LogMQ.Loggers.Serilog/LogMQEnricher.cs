@@ -4,9 +4,23 @@ using Serilog.Events;
 
 namespace LogMQ.Loggers.Serilog;
 
-public class LogMQEnricher : ILogEventEnricher
+/// <summary>
+/// The <c>LogMQEnricher</c> class enriches log messages with structured metadata
+/// specific to LogMQ providers. It ensures that the log events carry additional
+/// contextual information required by LogMQ.
+/// </summary>
+internal sealed class LogMQEnricher : ILogEventEnricher
 {
-    public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
+	/// <summary>
+	/// Enriches the provided <see cref="LogEvent"/> with LogMQ-specific metadata properties.
+	/// </summary>
+	/// <param name="logEvent">
+	/// The <see cref="LogEvent"/> instance to be enriched with metadata.
+	/// </param>
+	/// <param name="propertyFactory">
+	/// A factory for creating structured properties to attach to the log event.
+	/// </param>
+	public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
     {
         var meta = logEvent.GetMetadata();
 
