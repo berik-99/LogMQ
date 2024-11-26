@@ -87,18 +87,27 @@ public sealed class TcpProvider : ILogProvider, IDisposable
     /// </exception>
     public TcpProvider(IFormatProvider formatProvider, string host, int port, IFallbackLogProvider fallbackLogger, int retryQueueSize = DefaultRetryQueueSize)
     {
-        ArgumentNullException.ThrowIfNull(fallbackLogger);
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(host);
-        ArgumentOutOfRangeException.ThrowIfNegative(retryQueueSize);
-        FallbackLogger = fallbackLogger;
-        FormatProvider = formatProvider;
-        retryQueue = new ConcurrentQueue<LogMessage>();
-        retryQueueLength = retryQueueSize;
-        tcpClient = new WatsonTcpClient(host, port);
-        tcpClient.Events.ServerDisconnected += (s, e) => TryReconnect();
-        tcpClient.Events.MessageReceived += (s, e) => { };
-        tcpClient.Connect();
-        Task.Run(Ping).Wait();
+        try
+        {
+            ArgumentNullException.ThrowIfNull(fallbackLogger);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(host);
+            ArgumentOutOfRangeException.ThrowIfNegative(retryQueueSize);
+            FallbackLogger = fallbackLogger;
+            FormatProvider = formatProvider;
+            retryQueue = new ConcurrentQueue<LogMessage>();
+            retryQueueLength = retryQueueSize;
+            tcpClient = new WatsonTcpClient(host, port);
+            tcpClient.Events.ServerDisconnected += (s, e) => TryReconnect();
+            tcpClient.Events.MessageReceived += (s, e) => { };
+            tcpClient.Connect();
+            Task.Run(Ping).Wait();
+        }
+        catch (Exception ex)
+        {
+            Exception baseException = ex is AggregateException aex ? aex.GetBaseException() : ex;
+            FallbackLogger.WriteError($"Error occurred during {nameof(TcpProvider)} initalization", baseException);
+            throw;
+        }
     }
 
 
@@ -119,7 +128,6 @@ public sealed class TcpProvider : ILogProvider, IDisposable
         }
         catch (Exception ex)
         {
-            FallbackLogger.WriteError("Error occurred during the Ping operation", ex);
             throw new InvalidOperationException("Ping operation failed", ex);
         }
     }
@@ -139,7 +147,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
             }
             catch (Exception ex)
             {
-                FallbackLogger.WriteError($"Error occurred during the reconnection operation. Attempt #{retryCount}", ex);
+                FallbackLogger.WriteError($"Error occurred during the {nameof(TcpProvider)}  reconnection operation. Attempt #{retryCount}", ex);
                 Thread.Sleep(1000);
                 retryCount++;
             }
@@ -180,18 +188,26 @@ public sealed class TcpProvider : ILogProvider, IDisposable
         }
         catch (Exception ex) when (enqueueErrors)
         {
-            if (retryQueue.Count >= retryQueueLength)
+            if (retryQueueLength > 0)
             {
-                retryQueue.TryDequeue(out _);
-                FallbackLogger.WriteError("Error occurred while writing log to LogMQ Broker. Retry queue is full", ex);
-                FallbackLogger.WriteFallback(message);
+                if (retryQueue.Count >= retryQueueLength)
+                {
+                    retryQueue.TryDequeue(out _);
+                    FallbackLogger.WriteError($"Error occurred while writing log from {nameof(TcpProvider)} to LogMQ Broker. Retry queue is full", ex);
+                    FallbackLogger.WriteFallback(message);
+                }
+                else
+                {
+                    FallbackLogger.WriteWarning($"Error occurred while writing log from {nameof(TcpProvider)} to LogMQ Broker. Retry queue is {retryQueue.Count}/{retryQueueLength}", ex);
+                    FallbackLogger.WriteFallback(message);
+                }
+                retryQueue.Enqueue(message);
             }
             else
             {
-                FallbackLogger.WriteWarning($"Error occurred while writing log to LogMQ Broker. Retry queue is {retryQueue.Count}/{retryQueueLength}", ex);
+                FallbackLogger.WriteError($"Error occurred while writing log from {nameof(TcpProvider)} to LogMQ Broker. Retry queue is disabled", ex);
                 FallbackLogger.WriteFallback(message);
             }
-            retryQueue.Enqueue(message);
         }
     }
 
@@ -221,7 +237,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
         {
             FallbackLogger.Write(
                 retryQueue.Count >= retryQueueLength ? LogLevel.Error : LogLevel.Warning,
-                $"Error occurred while writing logs from retry queue to LogMQ Broker. Retry queue is {retryQueue.Count}/{retryQueueLength}",
+                $"Error occurred while writing logs from {nameof(TcpProvider)} retry queue to LogMQ Broker. Retry queue is {retryQueue.Count}/{retryQueueLength}",
                 ex);
         }
     }
@@ -237,7 +253,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
         catch (Exception ex)
         {
             Exception baseException = ex is AggregateException aex ? aex.GetBaseException() : ex;
-            FallbackLogger.WriteError("Error occurred during the Write operation", baseException);
+            FallbackLogger.WriteError($"Error occurred during the {nameof(TcpProvider)} write operation", baseException);
         }
     }
 

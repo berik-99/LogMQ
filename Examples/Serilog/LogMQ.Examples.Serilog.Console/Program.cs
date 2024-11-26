@@ -18,7 +18,7 @@ public static class Program
             .MinimumLevel.Verbose()
             //.UseLogMQStack(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "ConsoleApplication", "TCP_PROVIDER", LogEventLevel.Fatal, new LoggingLevelSwitch(LogEventLevel.Information))
             .Enrich.WithLogMQMetadata()
-            .WriteTo.Async(x => x.LogMQ(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "ConsoleApplication", "TCP_PROVIDER", LogEventLevel.Fatal, new LoggingLevelSwitch(LogEventLevel.Information)))
+            .WriteTo.Async(x => x.LogMQ(new TcpProvider(null, "localhost", 5563, new FallbackLogger(), 10), "ConsoleApplication", "TCP_PROVIDER", LogEventLevel.Fatal, new LoggingLevelSwitch(LogEventLevel.Information)))
             .WriteTo.Console()
             .CreateLogger();
 
