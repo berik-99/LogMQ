@@ -8,7 +8,7 @@
 - [ ] **Use multi-target framework** in LogMQ modules
 
 ## ✨ Enhancement
-- [ ] **Implement other Provider-Receiver methods** (e.g., gRPC, WebSocket, etc.)
+- [ ] **Implement other Provider-Receiver methods** (e.g., gRPC, WebSocket, SignalR, etc.)
 - [ ] **Implement new Loggers** (e.g., log4net, NLog, etc.)
 - [ ] **Add a TraceID to log metadata** (identifies the call stack)
 - [ ] **Add ASP.NET Core support** (e.g., use specific metadata for HTTP requests)
@@ -25,6 +25,7 @@
 - [ ] **Add more detailed documentation**
 - [ ] **Refactor code for better readability**
 - [ ] **Add more examples and tutorials**
+- [ ] **Replace WatsonWebSocket with standard tcp socket**
 
 ## 🔄 In Progress
 
