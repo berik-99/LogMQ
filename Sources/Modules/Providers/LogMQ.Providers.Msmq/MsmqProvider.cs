@@ -53,13 +53,22 @@ public sealed class MsmqProvider : ILogProvider, IDisposable
     /// </remarks>
     public MsmqProvider(IFormatProvider formatProvider, string queuePath, IFallbackLogProvider fallbackLogger)
     {
-        ArgumentNullException.ThrowIfNull(fallbackLogger);
-        ArgumentNullException.ThrowIfNullOrWhiteSpace(queuePath);
-        FormatProvider = formatProvider;
-        FallbackLogger = fallbackLogger;
-        if (!MessageQueue.Exists(queuePath))
-            MessageQueue.Create(queuePath);
-        queue = new MessageQueue(queuePath);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(fallbackLogger);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(queuePath);
+            FormatProvider = formatProvider;
+            FallbackLogger = fallbackLogger;
+            if (!MessageQueue.Exists(queuePath))
+                MessageQueue.Create(queuePath);
+            queue = new MessageQueue(queuePath);
+        }
+        catch (Exception ex)
+        {
+            Exception baseException = ex is AggregateException aex ? aex.GetBaseException() : ex;
+            FallbackLogger.WriteError($"Error occurred during {nameof(MsmqProvider)} initalization", baseException);
+            throw;
+        }
     }
 
     /// <inheritdoc />
@@ -90,7 +99,7 @@ public sealed class MsmqProvider : ILogProvider, IDisposable
         }
         catch (Exception ex)
         {
-            FallbackLogger.WriteError("Error occurred while writing log to LogMQ Broker", ex);
+            FallbackLogger.WriteError($"Error occurred during the {nameof(MsmqProvider)} write operation", ex);
             FallbackLogger.WriteFallback(message);
         }
     }
