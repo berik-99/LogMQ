@@ -10,16 +10,18 @@
 
 
 ## ✨ Enhancement
-- [ ] **Implement other data exchange methods** (e.g. gRPC, WebSocket, etc.)
-- [ ] **Implement new loggers** (e.g. Log4net, NLog, etc.)
+- [ ] **Implement other Provider-Receiver methods** (e.g. gRPC, WebSocket, etc.)
+- [ ] **Implement new Loggers** (e.g. Log4net, NLog, etc.)
 - [ ] **Add a TraceID to log metadata** (identifies the call stack)
 - [ ] **Add ASP.NET Core support** (e.g., use specific metadata for HTTP requests)
 - [ ] **Add support for logging to cloud services** (e.g., Azure Monitor, AWS CloudWatch)
 - [ ] **Add alerting system with email or other messaging types**
 - [ ] **Create extension method to register serilog enricher**
+- [ ] **Define Plugin protocol and create Plugin installer** to manage plugin installation (separate executable from broker and viewer)
+- [ ] **Define Viewer UI** as figma prototype
 
 ## 🟢 Low Priority
-- [ ] **Implement a custom logger**
+- [ ] **Implement a LogMQ-specific Logger**
 - [ ] **Add more detailed documentation**
 - [ ] **Refactor code for better readability**
 - [ ] **Add more examples and tutorials**
@@ -27,6 +29,7 @@
 ## 🔄 In Progress
 - [ ] **Add plugin system** in the Broker to allow the community to create new communication systems
 - [ ] **Add local storage system** for messages not sent by the log provider that goes into exception after n messages
+- [ ] **Create extension method to register serilog enricher**
 
 ## ✅ Done
 - [x] **Divide the project into multiple projects** (by log providers)
