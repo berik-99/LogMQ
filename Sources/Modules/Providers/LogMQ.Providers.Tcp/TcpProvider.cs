@@ -1,5 +1,6 @@
 ﻿using LogMQ.Core;
 using LogMQ.Providers.Contracts;
+using System.Collections.Concurrent;
 using System.Text;
 using WatsonTcp;
 
@@ -32,6 +33,10 @@ public sealed class TcpProvider : ILogProvider, IDisposable
 
 	private readonly WatsonTcpClient tcpClient;
 
+	private readonly ConcurrentQueue<LogMessage> retryQueue;
+
+	private readonly int retryQueueLength;
+
 	/// <inheritdoc />
 	public IFormatProvider FormatProvider { get; }
 
@@ -50,8 +55,10 @@ public sealed class TcpProvider : ILogProvider, IDisposable
 	{
 		try
 		{
-			FormatProvider = formatProvider;
 			FallbackLogger = fallbackLogger;
+			FormatProvider = formatProvider;
+			retryQueue = new ConcurrentQueue<LogMessage>();
+			retryQueueLength = 5;
 			tcpClient = new WatsonTcpClient(host, port);
 			tcpClient.Events.MessageReceived += (s, e) => { };
 			tcpClient.Connect();
@@ -94,6 +101,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
 	/// <exception cref="InvalidOperationException">Thrown when the log message fails to send.</exception>
 	private async Task WriteAsync(LogMessage message)
 	{
+		if (!tcpClient.Connected) tcpClient.Connect();
 		var bin = message.Serialize();
 		if (!await tcpClient.SendAsync(bin))
 			throw new InvalidOperationException("Failed to send log message to LogMQ Broker");
@@ -104,12 +112,38 @@ public sealed class TcpProvider : ILogProvider, IDisposable
 	{
 		try
 		{
+			while (retryQueue.TryPeek(out LogMessage queueMsg))
+			{
+				WriteAsync(queueMsg).Wait();
+				retryQueue.TryDequeue(out _);
+			}
+		}
+		catch (Exception ex)
+		{
+			Exception baseException = ex is AggregateException aex ? aex.GetBaseException() : ex;
+			FallbackLogger.Write(
+				retryQueue.Count >= retryQueueLength ? LogLevel.Error : LogLevel.Warning,
+				$"Error occurred while writing logs from retry queue to LogMQ Broker. Retry queue is {retryQueue.Count}/{retryQueueLength}",
+				baseException);
+		}
+
+		try
+		{
 			WriteAsync(message).Wait();
 		}
 		catch (Exception ex)
 		{
 			Exception baseException = ex is AggregateException aex ? aex.GetBaseException() : ex;
-			FallbackLogger.WriteError("Error occurred while writing log to LogMQ Broker", baseException);
+			if (retryQueue.Count >= retryQueueLength)
+			{
+				retryQueue.TryDequeue(out _);
+				FallbackLogger.WriteError("Error occurred while writing log to LogMQ Broker. Retry queue is full", baseException);
+				FallbackLogger.WriteFallback(message);
+				retryQueue.Enqueue(message);
+				return;
+			}
+			retryQueue.Enqueue(message);
+			FallbackLogger.WriteWarning($"Error occurred while writing log to LogMQ Broker. Retry queue is {retryQueue.Count}/{retryQueueLength}", baseException);
 			FallbackLogger.WriteFallback(message);
 		}
 	}
