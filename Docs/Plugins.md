@@ -1,47 +1,49 @@
-# Gestione dei Plugin in LogMQ
+# Plugin Management in LogMQ
 
-## Formato dei Plugin
+## Plugin Format
 
-I plugin avranno estensione `.lmqex`. Il formato `.lmqex` è uno zip contenente:
-- Un file `manifest.json` che conterrà tutti i metadati del plugin.
-- Una DLL che al suo interno deve implementare la classe astratta `LogMQReceiverBase`.
+Plugins will have the `.lmqex` extension. The `.lmqex` format is a zip file containing:
+- A `manifest.json` file that includes all the plugin metadata.
+- A DLL file that must implement the abstract class `LogMQReceiverBase`.
 
-## Struttura del Manifest
+## Manifest Structure
 
-Il file `manifest.json` deve avere la seguente struttura:
-```json
+The `manifest.json` file must follow this structure:
+```
 {
-  "Id": "string",          // Un identificatore univoco per il plugin (GUID)
-  "Name": "string",        // Il nome del plugin
-  "Version": "string",     // La versione del plugin (es: "1.0.0")
-  "Author": "string",      // L'autore del plugin
-  "Description": "string", // Una breve descrizione del plugin
-  "Type": "string",        // Il tipo di plugin (es: "Receiver" o "Storage")
-  "EntryPoint": "string"   // Il file DLL che contiene l'implementazione del plugin
+  "Id": "string",          // A unique identifier for the plugin (GUID)
+  "Name": "string",        // The name of the plugin
+  "Version": "string",     // The plugin version (e.g., "1.0.0")
+  "Author": "string",      // The plugin author
+  "Description": "string", // A short description of the plugin
+  "Type": "string",        // The plugin type (e.g., "Receiver" or "Storage")
+  "EntryPoint": "string"   // The DLL file that contains the plugin implementation
 }
 ```
 
-## Struttura del File System
+## File System Structure
 
-I plugin andranno salvati nel file system secondo queste variabili .NET:
-- `public static readonly string PluginFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LogMQ", "Plugins");`
-- `public static readonly string PluginConfigFile = Path.Combine(PluginFolder, "pluginconfig.json");`
-- `public static readonly string PluginBinariesFolder = Path.Combine(PluginFolder, "Binaries");`
+Plugins will be saved in the file system according to these .NET variables:
+```
+public static readonly string PluginFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LogMQ", "Plugins");
+public static readonly string PluginConfigFile = Path.Combine(PluginFolder, "pluginconfig.json");
+public static readonly string PluginBinariesFolder = Path.Combine(PluginFolder, "Binaries");
+```
 
-I plugin presenti saranno salvati nella cartella `PluginBinariesFolder`, mentre lo schema sarà rappresentato in `PluginConfigFile`.
+The plugins will be saved in the `PluginBinariesFolder`, while the schema will be represented in `PluginConfigFile`.
 
-## Configurazione dei Plugin
+## Plugin Configuration
 
-Il file `PluginConfigFile` è un file JSON che contiene una lista di oggetti del tipo:
-```json
+The `PluginConfigFile` is a JSON file containing a list of objects structured as follows:
+```
 [
     {
         "Id": "string",                    // Guid
-        "Name": "string",                  // Nome del plugin
+        "Name": "string",                  // Plugin name
         "Type": "string",                  // Enum: "Receiver" | "Storage"
-        "Versions": [                      // Array di versioni
+        "Versions": [                      // Array of versions
         {
-            "Version": "string",           // Version (es: "1.0.0")
+            "Version": "string",           // Version (e.g., "1.0.0")
             "Status": "string"             // Enum: "Enabled" | "Disabled" | "Enlisted" | "Delisted"
         }
         ]
@@ -49,72 +51,134 @@ Il file `PluginConfigFile` è un file JSON che contiene una lista di oggetti del
 ]
 ```
 
-## Installazione dei Plugin
+## Plugin Installation
 
-La pre-installazione dei plugin avverrà tramite l'interfaccia grafica nel viewer o tramite console (progetto CLI), che sfrutteranno le API della libreria condivisa `LogMQ.Services.Shared.PluginInstaller`. I plugin verranno pre-installati con lo stato di 'Enlisted'.
+Pre-installation of plugins will occur through the graphical interface in the viewer or via the console (CLI project), which will use the APIs of the shared library `LogMQ.Services.Shared.PluginInstaller`. Plugins will be pre-installed with the status `Enlisted`.
 
-I plugin verranno installati effettivamente solo dopo il riavvio del broker, il quale si occuperà di caricarli e aggiornare lo stato a `Enabled` nel config.
+Plugins will be effectively installed only after restarting the broker, which will handle loading them and updating their status to `Enabled` in the configuration.
 
-I plugin verranno disinstallati effettivamente solo dopo il riavvio del broker, il quale si occuperà di rimuovere tutti i plugin con stato `Delisted` e aggiornare il config.
+Plugins will be effectively uninstalled only after restarting the broker, which will handle removing all plugins with the status `Delisted` and updating the configuration.
 
-## Interfaccia CLI
+## Plugin Management Commands
 
-L'interfaccia CLI avrà le seguenti opzioni:
+### Install a Plugin
+Installs a `.lmqex` plugin.
 
-### Installazione
-- `-i|--install <plugin.lmqex>`: Registra il plugin previa conferma (y/n).
-- `-I|--install-force <plugin.lmqex>`: Registra il plugin e riavvia il broker per caricare immediatamente il plugin previa conferma (y/n).
+```
+logmq plugin install <plugin.lmqex> [--force]
+```
+- **`<plugin.lmqex>`**: Path to the plugin package.
+- **`--force`**: Forces installation and restarts the broker immediately.
 
+### Enable a Plugin
+Enables a plugin by name or ID. Optionally, enable a specific version.
 
-### Abilitazione, Disabilitazione e Disinstallazione
-- `-e|--enable <pluginName | pluginId>`: Abilita il plugin.
-- `-d|--disable <pluginName | pluginId>`: Disabilita il plugin.
-- `-u|--uninstall <pluginName | pluginId>`: Disinstalla il plugin previa conferma (y/n).
-- `-U|--uninstall-force <pluginName | pluginId>`: Disinstalla il plugin e riavvia il broker per rimuovere immediatamente il plugin previa conferma (y/n).
-  - `-v|--version <version>`: Esegue l'azione precedente sulla versione specifica del plugin con questo nome o guid previa conferma (y/n).
+```
+logmq plugin enable <pluginName | pluginId> [--version <version>]
+```
+- **`<pluginName | pluginId>`**: Name or ID of the plugin.
+- **`--version <version>`**: Enables a specific version of the plugin.
 
-### Riavvio del Broker
-- `-r|--restart`: Riavvia il broker.
+### Disable a Plugin
+Disables a plugin by name or ID. Optionally, disable a specific version.
 
-### Lista dei Plugin
-- `-l|--list`: Restituisce la lista di tutti i plugin.
-- `-le|--list-enabled`: Restituisce la lista solo dei plugin abilitati.
-- `-ld|--list-disabled`: Restituisce la lista solo dei plugin disabilitati.
-- `-lr|--list-registered`: Restituisce la lista solo dei plugin registrati.
-- `-lu|--list-unregistered`: Restituisce la lista solo dei plugin deregistrati.
+```
+logmq plugin disable <pluginName | pluginId> [--version <version>]
+```
+- **`<pluginName | pluginId>`**: Name or ID of the plugin.
+- **`--version <version>`**: Disables a specific version of the plugin.
 
-### Reset della Configurazione
-- `-rc|--reset-config`: Aggiorna il file `PluginConfigFile` in base a quanto presente nella cartella `PluginBinariesFolder` e restituisce un report su quanto modificato, poi chiede conferma (y/n).
+### Uninstall a Plugin
+Uninstalls a plugin by name or ID. Optionally, uninstall a specific version.
 
-### Opzioni Generali
-- `-y`: Non chiede conferma su tutte le azioni che ne hanno bisogno.
+```
+logmq plugin uninstall <pluginName | pluginId> [--version <version>] [--force]
+```
+- **`<pluginName | pluginId>`**: Name or ID of the plugin.
+- **`--version <version>`**: Uninstalls a specific version of the plugin.
+- **`--force`**: Forces uninstallation and restarts the broker immediately.
 
-### Esempi di Utilizzo
-- Installazione di un plugin:
-  ```
-  logmq -i plugin.lmqex
-  ```
-- Abilitazione di un plugin specifico:
-  ```
-  logmq -e pluginName
-  ```
-- Disabilitazione di una versione specifica di un plugin:
-  ```
-  logmq -d pluginName -v 1.0.0
-  ```
-- Riavvio del broker:
-  ```
-  logmq -r
-  ```
-- Lista dei plugin abilitati:
-  ```
-  logmq -le
-  ```
+### List Plugins
+Lists plugins with optional filters.
 
-## Ripristino dello Stato dei Plugin
+```
+logmq plugin list [--enabled | --disabled | --type <type>]
+```
+- **`--enabled`**: Shows only enabled plugins.
+- **`--disabled`**: Shows only disabled plugins.
+- **`--type <type>`**: Filters plugins by type (e.g., `Receiver`, `Storage`).
 
-In caso sia stato cambiato lo stato di un plugin, questo può essere riportato allo stato precedente senza conseguenze con la rispettiva azione, purché non sia già stato riavviato il broker.
+### Reset Plugin Configuration
+Resets the plugin configuration file based on the current binaries folder.
+
+```
+logmq plugin reset-config [--dry-run]
+```
+- **`--dry-run`**: Simulates the reset and displays a report without applying changes.
+
+---
+
+## Broker Management Commands
+
+### Restart the Broker
+Restarts the LogMQ broker.
+
+```
+logmq broker restart
+```
+
+### Check Broker Status
+Checks the status of the LogMQ broker.
+
+```
+logmq broker status
+```
+
+---
+
+## Logging Commands
+
+### View Logs
+Displays the logs of the LogMQ system.
+
+```
+logmq logs [--tail] [--verbose]
+```
+- **`--tail`**: Continuously displays the latest logs.
+- **`--verbose`**: Provides detailed log output.
+
+---
+
+## Configuration Management Commands
+
+### Backup Configuration
+Backs up the plugin configuration file to the specified path.
+
+```
+logmq config backup <path>
+```
+- **`<path>`**: Destination path for the backup file.
+
+### Restore Configuration
+Restores the plugin configuration file from a specified backup.
+
+```
+logmq config restore <path>
+```
+- **`<path>`**: Path to the backup file.
+
+---
+
+## Global Options
+
+- **`--help`**: Displays the help message for any command.
+- **`--verbose`**: Provides detailed output for commands.
+- **`-y`**: Skips confirmation prompts for all actions that require user confirmation.
+
+## Plugin State Restoration
+
+If a plugin's state has been changed, it can be reverted to its previous state without consequences with the respective action, provided the broker has not been restarted yet.
 
 ## Viewer
 
-Le stesse azioni potranno essere eseguite dal viewer.
+The same actions can be executed through the viewer.
