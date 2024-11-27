@@ -28,7 +28,7 @@ internal sealed class LogMQLogger(ILogProvider provider, string applicationName,
             Timestamp = DateTime.UtcNow,
             Message = message,
             LogLevel = (Core.LogLevel)logLevel.GetHashCode(),
-            Meta = null,// LogMetadata.GetMetadata(exception),
+            Metadata = null,// LogMetadata.GetMetadata(exception),
             Application = new()
             {
                 Category = category,

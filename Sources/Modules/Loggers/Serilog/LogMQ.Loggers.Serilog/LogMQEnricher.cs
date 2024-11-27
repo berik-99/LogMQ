@@ -1,4 +1,6 @@
-﻿using LogMQ.Loggers.Serilog.Extensions;
+﻿using LogMQ.Core;
+using LogMQ.Loggers.Serilog.Extensions;
+using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
@@ -22,7 +24,7 @@ internal sealed class LogMQEnricher : ILogEventEnricher
 	/// </param>
 	public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
 	{
-		var meta = logEvent.GetMetadata();
+		var meta = LogMetadata.GetLogMetadata(typeof(Log));
 
 		var properties = new[]
 		{
@@ -30,8 +32,7 @@ internal sealed class LogMQEnricher : ILogEventEnricher
 			propertyFactory.CreateProperty(nameof(meta.Class), meta.Class),
 			propertyFactory.CreateProperty(nameof(meta.MethodName), meta.MethodName),
 			propertyFactory.CreateProperty(nameof(meta.MethodSignature), meta.MethodSignature),
-			propertyFactory.CreateProperty(nameof(meta.Row), meta.Row),
-			propertyFactory.CreateProperty(nameof(meta.Exception), meta.Exception)
+			propertyFactory.CreateProperty(nameof(meta.Row), meta.Row)
 		};
 
 		foreach (var property in properties)

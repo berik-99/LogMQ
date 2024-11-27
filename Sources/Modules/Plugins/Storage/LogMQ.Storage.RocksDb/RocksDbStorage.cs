@@ -61,7 +61,7 @@ public class RocksDbStorage : ILogStorage, IDisposable
             byte[] message = logMessage.Serialize();
 
             db.Put(key, message, handle);
-            logger.LogInformation("{Application} - {Method} - {Message}", logMessage.Application.Name, logMessage.Meta.MethodName, logMessage.Message);
+            logger.LogInformation("{Application} - {Method} - {Message}", logMessage.Application.Name, logMessage.Metadata.MethodName, logMessage.Message);
         }
         finally
         {

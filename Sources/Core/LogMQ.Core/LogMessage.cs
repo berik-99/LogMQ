@@ -49,12 +49,18 @@ public class LogMessage : IEquatable<LogMessage>
 	/// Gets or sets additional metadata related to the log event, such as file, class, and method information.
 	/// </summary>
 	[ProtoMember(5)]
-	public LogMetadata Meta { get; set; }
+	public LogMetadata Metadata { get; set; }
 
+	/// <summary>
+	/// Gets or sets the exception message, if an exception was thrown during the log event.
+	/// </summary>
 	[ProtoMember(6)]
-	private DateTime timestampDateTime;
+	public string ExceptionMessage { get; set; }
 
 	[ProtoMember(7)]
+	private DateTime timestampDateTime;
+
+	[ProtoMember(8)]
 	private TimeSpan timestampOffset;
 
 	/// <summary>

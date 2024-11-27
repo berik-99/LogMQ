@@ -39,6 +39,7 @@ internal static class LogEventExtensions
 			Timestamp = logEvent.Timestamp,
 			LogLevel = logEvent.Level.ToLogMQLogLevel(),
 			Message = logEvent.RenderMessage(formatProvider),
+			ExceptionMessage = logEvent.Exception?.Message,
 			Application = new LogApplication()
 			{
 				Name = applicationName,
@@ -46,7 +47,7 @@ internal static class LogEventExtensions
 				Machine = Environment.MachineName,
 				Pid = Environment.ProcessId,
 			},
-			Meta = logEvent.GetMetadata()
+			Metadata = logEvent.ExtractLogMetadata()
 		};
 	}
 
@@ -59,87 +60,69 @@ internal static class LogEventExtensions
 	/// </returns>
 	/// <remarks>
 	/// This method maps LogMQ's log levels to Serilog's, reconstructs the message template, and creates a log event
-	/// with exception details and custom properties derived from the <see cref="LogMessage"/>.
+	/// with exMsg details and custom properties derived from the <see cref="LogMessage"/>.
 	/// </remarks>
 	internal static LogEvent ToLogEvent(this LogMessage logMessage)
 	{
 		var serilogLevel = logMessage.LogLevel.ToSerilogLogLevel();
 		var messageTemplate = new MessageTemplateParser().Parse(logMessage.Message ?? string.Empty);
-		var exception = new Exception(logMessage.Meta?.Exception);
+		var exMsg = logMessage.ExceptionMessage;
 		var properties = new List<LogEventProperty>
 		{
 			new(nameof(LogApplication.Name), new ScalarValue(logMessage.Application.Name)),
 			new(nameof(LogApplication.Category), new ScalarValue(logMessage.Application.Category)),
 			new(nameof(LogApplication.Machine), new ScalarValue(logMessage.Application.Machine)),
 			new(nameof(LogApplication.Pid), new ScalarValue(logMessage.Application.Pid)),
-			new(nameof(LogMetadata), new ScalarValue(logMessage.Meta))
+			new(nameof(LogMetadata), new ScalarValue(logMessage.Metadata))
 		};
 		return new LogEvent(
 			logMessage.Timestamp,
 			serilogLevel,
-			exception,
+			new Exception(exMsg),
 			messageTemplate,
 			properties
 		);
 	}
 
 	/// <summary>
-	/// Extracts metadata from the current log event properties, and if not found, generates the metadata
-	/// automatically from the stack trace and an optional log event exception.
+	/// Extracts metadata for the current log event, prioritizing pre-enriched properties.
 	/// </summary>
-	/// <param name="logEvent">The log event containing information about the current log entry, including an optional exception.</param>
+	/// <param name="logEvent">
+	/// The log event containing information about the current log entry, including optional pre-enriched metadata 
+	/// (e.g., added by <see cref="LogMQEnricher"/>) or an exception message.
+	/// </param>
 	/// <returns>
-	/// A <see cref="LogMetadata"/> object populated with details about the class, method, method signature,
-	/// file, line number, and exception (if present). If the properties are not found in the log event, the metadata
-	/// is generated automatically based on the current stack trace and any exception present.
+	/// A <see cref="LogMetadata"/> object populated with details such as class name, method name, method signature, 
+	/// file path, line number, and an optional exception message (exMsg).  
+	/// If these properties are not found in the log event, metadata is generated dynamically using 
+	/// the <see cref="LogMetadata.GetLogMetadata"/> method, which analyzes the current stack trace.
 	/// </returns>
 	/// <remarks>
-	/// The method first attempts to extract metadata from the <see cref="LogEvent"/> properties.
-	/// If any required properties are missing, it generates them using the current stack trace. The stack trace analysis
-	/// skips frames related to the logging assembly (<see cref="Log"/>). It also handles asynchronous methods,
-	/// lambda functions, and their signatures.
+	/// This method operates in two phases:
+	/// <list type="number">
+	/// <item>
+	/// It first attempts to extract metadata directly from the <see cref="LogEvent"/> properties.  
+	/// This supports scenarios where a `LogMQEnricher` or similar has pre-populated the metadata.
+	/// </item>
+	/// <item>
+	/// If the metadata properties are missing or incomplete, the method falls back to analyzing the stack trace 
+	/// via <see cref="LogMetadata.GetLogMetadata"/>. This ensures that logging is robust even in environments 
+	/// without enrichers or when enrichers fail to provide sufficient information.
+	/// </item>
+	/// </list>
+	/// <para><b>Stack Trace Analysis:</b></para>
+	/// When using <see cref="LogMetadata.GetLogMetadata"/> for dynamic metadata generation:
+	/// <list type="bullet">
+	/// <item>Frames related to the logging infrastructure (e.g., <see cref="Log"/> class) are skipped.</item>
+	/// <item>Common .NET constructs like asynchronous methods and lambdas are supported.</item>
+	/// </list>
 	/// <note type="note">
-	/// Automatic metadata generation works only within enrichers and sinks that are called synchronously.
+	/// The accuracy of stack trace-based metadata generation depends on the method being executed synchronously.  
+	/// Asynchronous logging scenarios may result in incomplete or less precise metadata.
 	/// </note>
 	/// </remarks>
-	internal static LogMetadata GetMetadata(this LogEvent logEvent)
+	internal static LogMetadata ExtractLogMetadata(this LogEvent logEvent)
 	{
-		if (logEvent.TryGetLogMetadata(out LogMetadata logMetadata))
-			return logMetadata;
-
-		var frame = EnhancedStackTrace.Current().Take(128).Skip(3)
-						  .FirstOrDefault(f => f.HasMethod() && f.MethodInfo.DeclaringType?.Assembly != typeof(Log).Assembly);
-
-		if (frame == null) return logMetadata;
-
-		var methodInfo = frame.MethodInfo;
-		logMetadata.Class = methodInfo.DeclaringType?.FullName;
-		logMetadata.MethodName = methodInfo.Name;
-		logMetadata.MethodSignature = methodInfo.IsLambda ? "Lambda [" : "";
-		logMetadata.MethodSignature += $"{(methodInfo.IsAsync ? "Async" : "")} {methodInfo.ReturnParameter?.ResolvedType?.FullName ?? "void"} {methodInfo.Name}";
-		var parameters = methodInfo.Parameters;
-		logMetadata.MethodSignature += parameters.Count > 0
-			? $"({string.Join(", ", parameters.Select(p => $"{p.ResolvedType.FullName} {p.Name}"))})"
-			: "()";
-		logMetadata.MethodSignature += methodInfo.IsLambda ? "]" : "";
-		logMetadata.File = frame.GetFileName();
-		logMetadata.Row = frame.GetFileLineNumber();
-		logMetadata.Exception = (logEvent.Exception?.ToString());
-
-		return logMetadata;
-	}
-
-	/// <summary>
-	/// Tries to extract a <see cref="LogMetadata"/> object from the provided <see cref="LogEvent"/> properties.
-	/// If any property is missing or cannot be converted, the method returns <c>false</c>.
-	/// </summary>
-	/// <param name="logEvent">The <see cref="LogEvent"/> from which the metadata should be extracted.</param>
-	/// <param name="metadata">The extracted <see cref="LogMetadata"/> if successful, otherwise the default value.</param>
-	/// <returns><c>true</c> if all properties are successfully extracted and converted, otherwise <c>false</c>.</returns>
-	private static bool TryGetLogMetadata(this LogEvent logEvent, out LogMetadata metadata)
-	{
-		metadata = new LogMetadata();
-
 		// Helper method to extract a property of a given type from the LogEvent.
 		bool TryGetProperty<T>(string propertyName, out T value)
 		{
@@ -153,25 +136,15 @@ internal static class LogEventExtensions
 			return false;
 		}
 
-		string className = null, methodName = null, methodSignature = null, exception = null;
+		string className = null, methodName = null, methodSignature = null;
 		int row = 0;
 		bool allPropertiesExtracted = TryGetProperty(nameof(LogMetadata.File), out string file) &&
 									  TryGetProperty(nameof(LogMetadata.Class), out className) &&
 									  TryGetProperty(nameof(LogMetadata.MethodName), out methodName) &&
 									  TryGetProperty(nameof(LogMetadata.MethodSignature), out methodSignature) &&
-									  TryGetProperty(nameof(LogMetadata.Row), out row) &&
-									  TryGetProperty(nameof(LogMetadata.Exception), out exception);
-
-		if (allPropertiesExtracted)
-		{
-			metadata.File = file;
-			metadata.Class = className;
-			metadata.MethodName = methodName;
-			metadata.MethodSignature = methodSignature;
-			metadata.Row = row;
-			metadata.Exception = exception;
-		}
-
-		return allPropertiesExtracted;
+									  TryGetProperty(nameof(LogMetadata.Row), out row);
+		return allPropertiesExtracted
+			? new() { File = file, Class = className, MethodName = methodName, MethodSignature = methodSignature, Row = row }
+			: LogMetadata.GetLogMetadata(typeof(Log));
 	}
 }
