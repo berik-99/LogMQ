@@ -3,8 +3,6 @@ using LogMQ.Providers;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using System.Runtime.CompilerServices;
-using System.Timers;
 using Timer = System.Timers.Timer;
 
 namespace LogMQ.Examples.Serilog.Console;

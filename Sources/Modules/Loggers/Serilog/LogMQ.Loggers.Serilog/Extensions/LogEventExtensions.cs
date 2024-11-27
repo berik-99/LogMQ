@@ -2,7 +2,6 @@
 using Serilog;
 using Serilog.Events;
 using Serilog.Parsing;
-using System.Diagnostics;
 
 namespace LogMQ.Loggers.Serilog.Extensions;
 

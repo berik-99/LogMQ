@@ -88,7 +88,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions.Logging", "Exten
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Loggers.Extensions.Logging", "Sources\Modules\Loggers\Extensions.Logging\LogMQ.Loggers.Extensions.Logging\LogMQ.Loggers.Extensions.Logging.csproj", "{687C755D-471E-4BE6-A635-89991DB60B25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Examples.Extensions.Logging", "Examples\Extensions.Logging\LogMQ.Examples.Extensions.Logging\LogMQ.Examples.Extensions.Logging.csproj", "{C04171C1-A5B6-4A9C-9BA2-8E328FBC11B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Examples.Extensions.Logging.ASPNET", "Examples\Extensions.Logging\LogMQ.Examples.Extensions.Logging.ASPNET\LogMQ.Examples.Extensions.Logging.ASPNET.csproj", "{C7A76DE4-F7FD-4824-9CF2-B0D9163AD50A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Examples.Extensions.Logging.Console", "Examples\Extensions.Logging\LogMQ.Examples.Extensions.Logging.Console\LogMQ.Examples.Extensions.Logging.Console.csproj", "{811D1123-9FBA-400F-860B-246381558564}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -160,10 +162,14 @@ Global
 		{687C755D-471E-4BE6-A635-89991DB60B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{687C755D-471E-4BE6-A635-89991DB60B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{687C755D-471E-4BE6-A635-89991DB60B25}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C04171C1-A5B6-4A9C-9BA2-8E328FBC11B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C04171C1-A5B6-4A9C-9BA2-8E328FBC11B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C04171C1-A5B6-4A9C-9BA2-8E328FBC11B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C04171C1-A5B6-4A9C-9BA2-8E328FBC11B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A76DE4-F7FD-4824-9CF2-B0D9163AD50A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A76DE4-F7FD-4824-9CF2-B0D9163AD50A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A76DE4-F7FD-4824-9CF2-B0D9163AD50A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A76DE4-F7FD-4824-9CF2-B0D9163AD50A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{811D1123-9FBA-400F-860B-246381558564}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{811D1123-9FBA-400F-860B-246381558564}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{811D1123-9FBA-400F-860B-246381558564}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{811D1123-9FBA-400F-860B-246381558564}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -206,6 +212,7 @@ Global
 		{DAD28332-D723-4EDB-A928-4DB643CC38E3} = {DA901B68-8B8B-42EA-851C-C28D68027630}
 		{14899ADF-4026-4C4B-9B95-2D27B6F1C707} = {697B6DE9-4526-41E1-A0E5-E6F872757EF8}
 		{687C755D-471E-4BE6-A635-89991DB60B25} = {14899ADF-4026-4C4B-9B95-2D27B6F1C707}
-		{C04171C1-A5B6-4A9C-9BA2-8E328FBC11B2} = {DAD28332-D723-4EDB-A928-4DB643CC38E3}
+		{C7A76DE4-F7FD-4824-9CF2-B0D9163AD50A} = {DAD28332-D723-4EDB-A928-4DB643CC38E3}
+		{811D1123-9FBA-400F-860B-246381558564} = {DAD28332-D723-4EDB-A928-4DB643CC38E3}
 	EndGlobalSection
 EndGlobal

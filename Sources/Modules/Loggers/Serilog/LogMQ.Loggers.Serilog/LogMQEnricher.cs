@@ -1,5 +1,4 @@
 ﻿using LogMQ.Core;
-using LogMQ.Loggers.Serilog.Extensions;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
