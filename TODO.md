@@ -6,6 +6,7 @@
 ## ⚠️ Important
 - [ ] **Write tests**
 - [ ] **Use multi-target framework** in LogMQ modules
+- [ ] **Improve Exception management in LogMessage serialization and deserialization**
 
 ## ✨ Enhancement
 - [ ] **Implement other Provider-Receiver methods** (e.g., gRPC, WebSocket, SignalR, etc.)
