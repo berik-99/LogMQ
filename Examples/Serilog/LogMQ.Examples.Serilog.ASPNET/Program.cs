@@ -4,14 +4,16 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Log.Logger = new LoggerConfiguration()
-	.MinimumLevel.Verbose()
-	.UseLogMQStack(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "ConsoleApplication", "TCP_PROVIDER")
-	.WriteTo.Console()
-	.CreateLogger();
+builder.Logging
+   .ClearProviders()
+   .AddSerilog(
+        new LoggerConfiguration()
+            .MinimumLevel.Verbose()
+            .UseLogMQStack(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "ConsoleApplication", "TCP_PROVIDER")
+            .WriteTo.Console()
+            .CreateLogger()
+   );
 
-builder.Logging.ClearProviders();
-builder.Services.AddSerilog();
 builder.Services.AddSingleton<ExampleHandler>();
 
 var app = builder.Build();
@@ -23,12 +25,12 @@ await app.RunAsync();
 
 partial class ExampleHandler(ILogger<ExampleHandler> logger)
 {
-	public string HandleRequest()
-	{
-		LogHandleRequest(logger);
-		return "Hello World";
-	}
+    public string HandleRequest()
+    {
+        LogHandleRequest(logger);
+        return "Hello World";
+    }
 
-	[LoggerMessage(LogLevel.Information, "ExampleHandler.HandleRequest was called")]
-	public static partial void LogHandleRequest(Microsoft.Extensions.Logging.ILogger logger);
+    [LoggerMessage(LogLevel.Information, "ExampleHandler.HandleRequest was called")]
+    public static partial void LogHandleRequest(Microsoft.Extensions.Logging.ILogger logger);
 }
