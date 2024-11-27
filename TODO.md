@@ -16,7 +16,6 @@
 - [ ] **Add support for logging to cloud services** (e.g., Azure Monitor, AWS CloudWatch)
 - [ ] **Add alerting system with email or other messaging types**
 - [ ] **Create extension method to register Serilog enricher**
-- [ ] **Define Plugin protocol and create Plugin installer** to manage plugin installation (separate executable from broker and viewer)
 - [ ] **Define Viewer UI** as Figma prototype
 - [ ] **Split documentation for each Logger** to explain in detail how to use each one
 - [ ] **Better communication error management** for eventual messages not sent by the log provider
@@ -29,7 +28,7 @@
 - [ ] **Replace WatsonWebSocket with standard tcp socket**
 
 ## 🔄 In Progress
-- [ ] **Implement new Loggers** Microsoft.Extensions.Logging
+- [ ] **Define Plugin protocol and create Plugin installer** to manage plugin installation (separate executable from broker and viewer)
 
 ## ✅ Done
 - [x] **Divide the project into multiple projects** (by log providers)
@@ -40,3 +39,4 @@
 - [x] **Create extension method to register Serilog enricher**
 - [x] **Add plugin system** in the Broker to allow the community to create new communication systems
 - [x] **Improve fallback logger management** (allow users to choose the size of the retry queue)
+- [x] **Implement new Loggers** Microsoft.Extensions.Logging
