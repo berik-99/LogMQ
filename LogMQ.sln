@@ -85,11 +85,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Presentation
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Presentation.CLI", "Sources\Services\Presentation\LogMQ.Services.Presentation.CLI\LogMQ.Services.Presentation.CLI.csproj", "{ADE68105-F308-40EA-ABE2-F9905D0BB375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Shared.PluginInstaller", "Sources\Services\Shared\LogMQ.Services.Shared.PluginInstaller\LogMQ.Services.Shared.PluginInstaller.csproj", "{1A2D6974-0EAA-417B-B86D-94C625F1B448}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Shared.PluginManager", "Sources\Services\Shared\LogMQ.Services.Shared.PluginInstaller\LogMQ.Services.Shared.PluginManager.csproj", "{1A2D6974-0EAA-417B-B86D-94C625F1B448}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{7B8181FC-7EAF-4027-848B-ACC66B3E5E2C}"
 	ProjectSection(SolutionItems) = preProject
-		Plugins.md = Plugins.md
+		Docs\Plugins.md = Docs\Plugins.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{0BDE237B-2D38-4C9C-826E-744CB53BED8D}"
