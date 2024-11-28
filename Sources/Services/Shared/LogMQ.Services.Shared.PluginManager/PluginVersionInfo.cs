@@ -1,6 +1,5 @@
 ﻿namespace LogMQ.Services.Shared.PluginManager;
 
-
 public class PluginVersionInfo
 {
     public Version Version { get; set; }

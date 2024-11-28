@@ -2,183 +2,171 @@
 
 ## Plugin Format
 
-Plugins will have the `.lmqex` extension. The `.lmqex` format is a zip file containing:
-- A `manifest.json` file that includes all the plugin metadata.
-- A DLL file that must implement the abstract class `LogMQReceiverBase`.
+Plugins use the `.lmqex` extension. A `.lmqex` file is a ZIP archive containing:
+- A `manifest.json` file with all the plugin metadata.
+- A DLL file that implements the abstract class `LogMQReceiverBase`.
 
 ## Manifest Structure
 
 The `manifest.json` file must follow this structure:
-```
+```json
 {
   "Id": "string",          // A unique identifier for the plugin (GUID)
   "Name": "string",        // The name of the plugin
   "Version": "string",     // The plugin version (e.g., "1.0.0")
   "Author": "string",      // The plugin author
   "Description": "string", // A short description of the plugin
-  "Type": "string",        // The plugin type (e.g., "Receiver" or "Storage")
+  "Type": "string",        // The plugin type (Enum: "Receiver" | "Storage")
   "EntryPoint": "string"   // The DLL file that contains the plugin implementation
 }
 ```
 
 ## File System Structure
 
-Plugins will be saved in the file system according to these .NET variables:
-```
-public static readonly string PluginFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LogMQ", "Plugins");
-public static readonly string PluginConfigFile = Path.Combine(PluginFolder, "pluginconfig.json");
-public static readonly string PluginBinariesFolder = Path.Combine(PluginFolder, "Binaries");
+Plugins are saved in the file system according to these .NET variables:
+```csharp
+public static readonly string PluginFolder = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+    "LogMQ", 
+    "Plugins"
+);
+
+public static readonly string PluginConfigFile = Path.Combine(
+    PluginFolder, 
+    "pluginconfig.json"
+);
+
+public static readonly string PluginBinariesFolder = Path.Combine(
+    PluginFolder, 
+    "Binaries"
+);
 ```
 
-The plugins will be saved in the `PluginBinariesFolder`, while the schema will be represented in `PluginConfigFile`.
+The plugins will be stored in the `PluginBinariesFolder`, while the schema will be represented in `PluginConfigFile`.
 
 ## Plugin Configuration
 
-The `PluginConfigFile` is a JSON file containing a list of objects structured as follows:
-```
+The `PluginConfigFile` is a JSON file containing a list of objects with this structure:
+```json
 [
-    {
-        "Id": "string",                    // Guid
-        "Name": "string",                  // Plugin name
-        "Type": "string",                  // Enum: "Receiver" | "Storage"
-        "Versions": [                      // Array of versions
-        {
-            "Version": "string",           // Version (e.g., "1.0.0")
-            "Status": "string"             // Enum: "Enabled" | "Disabled" | "Enlisted" | "Delisted"
-        }
-        ]
-    }
+  {
+    "Id": "string",                    // A unique identifier for the plugin (GUID)
+    "Name": "string",                  // The name of the plugin
+    "Type": "string",                  // The plugin type (Enum: "Receiver" | "Storage")
+    "Versions": [                      // Array of versions
+      {
+        "Version": "string",           // The plugin version (e.g., "1.0.0")
+        "Status": "string"             // The plugin type status (Enum: "Enabled" | "Disabled" | "Staged" | "Removed")
+      }
+    ]
+  }
 ]
 ```
 
 ## Plugin Installation
 
-Pre-installation of plugins will occur through the graphical interface in the viewer or via the console (CLI project), which will use the APIs of the shared library `LogMQ.Services.Shared.PluginInstaller`. Plugins will be pre-installed with the status `Enlisted`.
+Plugins are pre-installed through the graphical viewer or via the console (CLI project) using the APIs of the shared library `LogMQ.Services.Shared.PluginInstaller`. Initially, plugins are pre-installed with the status `Staged`.
 
-Plugins will be effectively installed only after restarting the broker, which will handle loading them and updating their status to `Enabled` in the configuration.
-
-Plugins will be effectively uninstalled only after restarting the broker, which will handle removing all plugins with the status `Delisted` and updating the configuration.
+- Plugins are fully installed only after restarting the broker, which updates their status to `Enabled` in the configuration.
+- Plugins are fully uninstalled only after restarting the broker, which removes all plugins with the status `Removed` and updates the configuration.
 
 ## Plugin Management Commands
 
 ### Install a Plugin
-Installs a `.lmqex` plugin.
-
-```
-logmq plugin install <plugin.lmqex> [--force]
+Installs a `.lmqex` plugin:
+```bash
+logmq plugin install <plugin.lmqex> [-r|--restart]
 ```
 - **`<plugin.lmqex>`**: Path to the plugin package.
-- **`--force`**: Forces installation and restarts the broker immediately.
+- **`-r|--restart`**: Installs the plugin and restarts the broker immediately.
 
 ### Enable a Plugin
-Enables a plugin by name or ID. Optionally, enable a specific version.
-
-```
-logmq plugin enable <pluginName | pluginId> [--version <version>]
+Enables a plugin by name or ID. Optionally, a specific version can be enabled:
+```bash
+logmq plugin enable <pluginName | pluginId> [-v|--version <version>]
 ```
 - **`<pluginName | pluginId>`**: Name or ID of the plugin.
-- **`--version <version>`**: Enables a specific version of the plugin.
+- **`-v|--version <version>`**: Enables a specific version of the plugin.
 
 ### Disable a Plugin
-Disables a plugin by name or ID. Optionally, disable a specific version.
-
-```
-logmq plugin disable <pluginName | pluginId> [--version <version>]
+Disables a plugin by name or ID. Optionally, a specific version can be disabled:
+```bash
+logmq plugin disable <pluginName | pluginId> [-v|--version <version>]
 ```
 - **`<pluginName | pluginId>`**: Name or ID of the plugin.
-- **`--version <version>`**: Disables a specific version of the plugin.
+- **`-v|--version <version>`**: Disables a specific version of the plugin.
 
 ### Uninstall a Plugin
-Uninstalls a plugin by name or ID. Optionally, uninstall a specific version.
-
-```
-logmq plugin uninstall <pluginName | pluginId> [--version <version>] [--force]
+Uninstalls a plugin by name or ID. Optionally, a specific version can be uninstalled:
+```bash
+logmq plugin uninstall <pluginName | pluginId> [-v|--version <version>] [-r|--restart]
 ```
 - **`<pluginName | pluginId>`**: Name or ID of the plugin.
-- **`--version <version>`**: Uninstalls a specific version of the plugin.
-- **`--force`**: Forces uninstallation and restarts the broker immediately.
+- **`-v|--version <version>`**: Uninstalls a specific version of the plugin.
+- **`-r|--restart`**: Forces uninstallation and restarts the broker immediately.
 
 ### List Plugins
-Lists plugins with optional filters.
-
+Lists plugins with optional filters:
+```bash
+logmq plugin list [-e|--enabled | -d|--disabled | -s|--staged | -r|--removed] [-t|--type <type>]
 ```
-logmq plugin list [--enabled | --disabled | --type <type>]
-```
-- **`--enabled`**: Shows only enabled plugins.
-- **`--disabled`**: Shows only disabled plugins.
-- **`--type <type>`**: Filters plugins by type (e.g., `Receiver`, `Storage`).
+- **`-e|--enabled`**: Filters plugins by _enabled_ status.
+- **`-d|--disabled`**: Filters plugins by _disabled_ status.
+- **`-s|--staged`**: Filters plugins by _staged_ status.
+- **`-r|--removed`**: Filters plugins by _removed_ status.
+- **`--type <type>`**: Filters plugins by type (`Receiver`, `Storage`).
 
 ### Reset Plugin Configuration
-Resets the plugin configuration file based on the current binaries folder.
+Resets the plugin configuration file based on the current binaries folder:
+```bash
+logmq plugin reset
+```
 
+### Get Plugin Information
+Retrieves information about a plugin:
+```bash
+logmq plugin info <pluginName | pluginId | path/to/plugin.lmqex>
 ```
-logmq plugin reset-config [--dry-run]
-```
-- **`--dry-run`**: Simulates the reset and displays a report without applying changes.
 
 ---
 
 ## Broker Management Commands
 
-### Restart the Broker
-Restarts the LogMQ broker.
-
+### Start the Broker
+Starts the LogMQ broker:
+```bash
+logmq broker start
 ```
+
+### Stop the Broker
+Stops the LogMQ broker:
+```bash
+logmq broker stop
+```
+
+### Restart the Broker
+Restarts the LogMQ broker:
+```bash
 logmq broker restart
 ```
 
 ### Check Broker Status
-Checks the status of the LogMQ broker.
-
-```
+Checks the status of the LogMQ broker:
+```bash
 logmq broker status
 ```
 
 ---
 
-## Logging Commands
-
-### View Logs
-Displays the logs of the LogMQ system.
-
-```
-logmq logs [--tail] [--verbose]
-```
-- **`--tail`**: Continuously displays the latest logs.
-- **`--verbose`**: Provides detailed log output.
-
----
-
-## Configuration Management Commands
-
-### Backup Configuration
-Backs up the plugin configuration file to the specified path.
-
-```
-logmq config backup <path>
-```
-- **`<path>`**: Destination path for the backup file.
-
-### Restore Configuration
-Restores the plugin configuration file from a specified backup.
-
-```
-logmq config restore <path>
-```
-- **`<path>`**: Path to the backup file.
-
----
-
 ## Global Options
 
-- **`--help`**: Displays the help message for any command.
-- **`--verbose`**: Provides detailed output for commands.
-- **`-y`**: Skips confirmation prompts for all actions that require user confirmation.
+- **`-h|--help`**: Displays the help message for any command.
+- **`-y`**: Skips confirmation prompts for actions requiring user confirmation.
 
 ## Plugin State Restoration
 
-If a plugin's state has been changed, it can be reverted to its previous state without consequences with the respective action, provided the broker has not been restarted yet.
+If a plugin's state is modified, it can be reverted to its previous state without consequences, provided the broker has not been restarted.
 
 ## Viewer
 
-The same actions can be executed through the viewer.
+All plugin management actions are also available through the graphical viewer.

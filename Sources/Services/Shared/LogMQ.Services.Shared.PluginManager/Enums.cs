@@ -11,6 +11,6 @@ public enum PluginStatus
     None,       // Stato nullo
     Enabled,    // Installata e attiva
     Disabled,   // Installata ma non attiva
-    Enlisted,   // Pianificata per l'installazione
-    Delisted    // Pianificata per la disinstallazione
+    Staged,   // Pianificata per l'installazione
+    Removed    // Pianificata per la disinstallazione
 }
