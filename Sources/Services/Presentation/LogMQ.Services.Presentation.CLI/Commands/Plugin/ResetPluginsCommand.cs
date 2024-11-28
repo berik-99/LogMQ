@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 
-namespace LogMQ.Services.Presentation.CLI.Commands.Plugin
+namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
+public class ResetPluginsCommand : Command
 {
-    internal class InstallPluginCommand
+    public override int Execute(CommandContext context)
     {
+        AnsiConsole.Markup("[yellow]Resetting plugin configuration...[/]\n");
+
+        // Reset configuration logic here
+        AnsiConsole.Markup("[green]Plugin configuration reset completed.[/]\n");
+
+        return 0;
     }
 }

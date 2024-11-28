@@ -1,5 +1,14 @@
-﻿namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 
-public class StopBrokerCommand
+namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
+
+public class StopBrokerCommand : Command
 {
+    public override int Execute(CommandContext context)
+    {
+        AnsiConsole.Markup("[yellow]Stopping the LogMQ broker...[/]\n");
+        // Logic to restart broker
+        return 0;
+    }
 }

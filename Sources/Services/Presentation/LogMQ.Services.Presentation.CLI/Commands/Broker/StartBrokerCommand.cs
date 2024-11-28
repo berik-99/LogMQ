@@ -1,5 +1,14 @@
-﻿namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 
-public class StartBrokerCommand
+namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
+
+public class StartBrokerCommand : Command
 {
+    public override int Execute(CommandContext context)
+    {
+        AnsiConsole.Markup("[yellow]Starting the LogMQ broker...[/]\n");
+        // Logic to restart broker
+        return 0;
+    }
 }

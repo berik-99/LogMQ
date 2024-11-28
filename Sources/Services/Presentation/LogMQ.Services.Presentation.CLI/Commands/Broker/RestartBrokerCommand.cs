@@ -1,5 +1,14 @@
-﻿namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 
-public class RestartBrokerCommand
+namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
+
+public class RestartBrokerCommand : Command
 {
+    public override int Execute(CommandContext context)
+    {
+        AnsiConsole.Markup("[yellow]Restarting the LogMQ broker...[/]\n");
+        // Logic to restart broker
+        return 0;
+    }
 }

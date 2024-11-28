@@ -12,4 +12,8 @@
 	  <PackageReference Include="Spectre.Console.Cli" Version="0.49.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Shared\LogMQ.Services.Shared.PluginManager\LogMQ.Services.Shared.PluginManager.csproj" />
+	</ItemGroup>
+
 </Project>
