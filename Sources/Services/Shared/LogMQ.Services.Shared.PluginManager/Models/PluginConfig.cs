@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace LogMQ.Services.Shared.PluginManager;
+namespace LogMQ.Services.Shared.PluginManager.Models;
 
 public class PluginConfig
 {

@@ -1,4 +1,4 @@
-﻿using LogMQ.Services.Shared.PluginManager;
+﻿using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;

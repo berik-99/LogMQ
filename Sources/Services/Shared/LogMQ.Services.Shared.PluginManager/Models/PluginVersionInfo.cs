@@ -1,4 +1,4 @@
-﻿namespace LogMQ.Services.Shared.PluginManager;
+﻿namespace LogMQ.Services.Shared.PluginManager.Models;
 
 public class PluginVersionInfo
 {

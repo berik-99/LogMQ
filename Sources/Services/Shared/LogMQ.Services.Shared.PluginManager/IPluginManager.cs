@@ -1,4 +1,6 @@
-﻿namespace LogMQ.Services.Shared.PluginManager;
+﻿using LogMQ.Services.Shared.PluginManager.Models;
+
+namespace LogMQ.Services.Shared.PluginManager;
 
 /// <summary>
 /// Interface for managing plugins and broker operations in LogMQ.
@@ -11,9 +13,8 @@ public interface IPluginManager
     /// Installs a plugin from the specified path.
     /// </summary>
     /// <param name="pluginPath">Path to the plugin file (.lmqex).</param>
-    /// <param name="forceRestart">Indicates whether the broker should be restarted after installation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task InstallPluginAsync(string pluginPath, bool forceRestart = false);
+    Task InstallPluginAsync(string pluginPath);
 
     /// <summary>
     /// Enables a plugin by its GUID, optionally targeting a specific version.
@@ -36,9 +37,8 @@ public interface IPluginManager
     /// </summary>
     /// <param name="pluginId">The GUID of the plugin.</param>
     /// <param name="version">Optional specific version of the plugin.</param>
-    /// <param name="forceRestart">Indicates whether the broker should be restarted after uninstallation.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task UninstallPluginAsync(Guid pluginId, Version version = null, bool forceRestart = false);
+    Task UninstallPluginAsync(Guid pluginId, Version version = null);
 
     /// <summary>
     /// Lists all plugins with optional filters.
@@ -65,36 +65,22 @@ public interface IPluginManager
     Task RestartBrokerAsync();
 
     /// <summary>
+    /// Starts the LogMQ broker.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task StartBrokerAsync();
+
+    /// <summary>
+    /// Stops the LogMQ broker.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    Task StopBrokerAsync();
+
+    /// <summary>
     /// Gets the current status of the LogMQ broker.
     /// </summary>
     /// <returns>The broker status as a string.</returns>
     Task<string> GetBrokerStatusAsync();
-
-    // Logging
-
-    /// <summary>
-    /// Retrieves the LogMQ logs.
-    /// </summary>
-    /// <param name="tail">If true, continuously retrieves the latest logs.</param>
-    /// <param name="verbose">If true, provides detailed log output.</param>
-    /// <returns>A list of log entries.</returns>
-    Task<IList<string>> GetLogsAsync(bool tail = false, bool verbose = false);
-
-    // Configuration Management
-
-    /// <summary>
-    /// Backs up the current configuration to the specified path.
-    /// </summary>
-    /// <param name="backupPath">Path to save the backup file.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task BackupConfigAsync(string backupPath);
-
-    /// <summary>
-    /// Restores the configuration from a specified backup file.
-    /// </summary>
-    /// <param name="backupPath">Path to the backup file.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task RestoreConfigAsync(string backupPath);
 
     // Additional Utility Methods
 
