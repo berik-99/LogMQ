@@ -1,38 +1,71 @@
 ﻿namespace LogMQ.Services.Shared.PluginManager;
 
-public static class BrokerManager
+public interface IBrokerManager
 {
-#if Windows
-    public const string BrokerSerivePlatform = "Windows";
-    public const string BrokerSeriveName = "LogMQ Broker";
-    public const string ViewerSeriveName = "LogMQ Viewer";
-#elif Linux
-    public const string BrokerSerivePlatform = "Linux";
-    public const string BrokerSeriveName = "logmq-broker";
-    public const string BrokerSeriveName = "logmq-viewer";
-#elif MacOS
-    public const string BrokerSerivePlatform = "MacOS";
-    public const string BrokerSeriveName = "logmq-broker";
-    public const string BrokerSeriveName = "logmq-viewer";
-#endif
+    public string BrokerSerivePlatform { get; }
+    public string BrokerSeriveName { get; }
+    public string ViewerSeriveName { get; }
 
-    public static async Task<string> GetBrokerStatusAsync()
+    public Task<string> GetBrokerStatusAsync();
+
+    public Task RestartBrokerAsync();
+
+    public Task StartBrokerAsync();
+
+    public Task StopBrokerAsync();
+}
+
+public class WindowsBrokerManager : IBrokerManager
+{
+    public string BrokerSerivePlatform => "Windows";
+    public string BrokerSeriveName => "LogMQ Broker";
+    public string ViewerSeriveName => "LogMQ Viewer";
+
+    public async Task<string> GetBrokerStatusAsync()
     {
         await Task.Delay(1);
-        return BrokerSeriveName;
+        return $"{BrokerSerivePlatform}_{BrokerSeriveName}";
     }
 
-    public static async Task RestartBrokerAsync()
+    public async Task RestartBrokerAsync()
     {
         throw new NotImplementedException();
     }
 
-    public static async Task StartBrokerAsync()
+    public async Task StartBrokerAsync()
     {
         throw new NotImplementedException();
     }
 
-    public static async Task StopBrokerAsync()
+    public async Task StopBrokerAsync()
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class LinuxBrokerManager : IBrokerManager
+{
+    public string BrokerSerivePlatform => "Linux";
+    public string BrokerSeriveName => "logmq-broker";
+    public string ViewerSeriveName => "logmq-viewer";
+
+    public async Task<string> GetBrokerStatusAsync()
+    {
+        await Task.Delay(1);
+        return $"{BrokerSerivePlatform}_{BrokerSeriveName}";
+    }
+
+    public async Task RestartBrokerAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task StartBrokerAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task StopBrokerAsync()
     {
         throw new NotImplementedException();
     }

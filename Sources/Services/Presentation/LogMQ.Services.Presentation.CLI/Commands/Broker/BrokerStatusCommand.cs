@@ -1,14 +1,15 @@
-﻿using Spectre.Console;
+﻿using LogMQ.Services.Shared.PluginManager;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
 
-public class BrokerStatusCommand : Command
+public class BrokerStatusCommand(IBrokerManager manager) : AsyncCommand
 {
-    public override int Execute(CommandContext context)
+    public override async Task<int> ExecuteAsync(CommandContext context)
     {
-        AnsiConsole.Markup("[green]Broker is running and healthy.[/]\n");
-        // Logic to check broker status
+        var str = await manager.GetBrokerStatusAsync();
+        AnsiConsole.WriteLine(str);
         return 0;
     }
 }

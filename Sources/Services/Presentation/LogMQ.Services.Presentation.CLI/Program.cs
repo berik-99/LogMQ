@@ -1,6 +1,9 @@
 ﻿using LogMQ.Services.Presentation.CLI.Commands.Broker;
 using LogMQ.Services.Presentation.CLI.Commands.Plugin;
+using LogMQ.Services.Shared.PluginManager;
+using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
+using System.Runtime.InteropServices;
 
 namespace LogMQ.Services.Presentation.CLI;
 
@@ -8,9 +11,18 @@ public static class Program
 {
     public static async Task Main(string[] args)
     {
-        var app = new CommandApp();
 
-        // Comando principale "plugin"
+        var services = new ServiceCollection();
+
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            services.AddSingleton<IBrokerManager, WindowsBrokerManager>();
+        else
+            services.AddSingleton<IBrokerManager, LinuxBrokerManager>();
+        var registrar = new TypeRegistrar(services);
+
+        var app = new CommandApp(registrar);
+
+        // Plugin commands
         app.Configure(config =>
         {
             config.AddBranch("plugin", c =>
@@ -34,7 +46,7 @@ public static class Program
                   .WithDescription("Resets the plugin configuration.");
             });
 
-            // Comandi relativi al broker
+            // Broker commands
             config.AddBranch("broker", c =>
             {
                 c.AddCommand<RestartBrokerCommand>("restart")
