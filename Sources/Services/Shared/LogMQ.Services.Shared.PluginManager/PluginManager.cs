@@ -4,47 +4,13 @@ using System.Text.Json;
 
 namespace LogMQ.Services.Shared.PluginManager;
 
-public static class PluginManager //: IPluginManager
+public static class PluginManager
 {
     public static readonly string PluginFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LogMQ", "Plugins");
-
     public static readonly string PluginConfigFile = Path.Combine(PluginFolder, "pluginconfig.json");
     public static readonly string PluginConfigBackupFile = $"{PluginConfigFile}.bak";
     public static readonly string PluginBinariesFolder = Path.Combine(PluginFolder, "Binaries");
     public const string PluginManifestFile = "manifest.json";
-
-    //Plugin management
-
-    private static async Task<List<PluginConfig>> LoadPluginsConfigAsync(FileStream fileStream)
-    {
-        using StreamReader reader = new(fileStream);
-        fileStream.SetLength(0);
-        fileStream.Seek(0, SeekOrigin.Begin);
-        string json = await reader.ReadToEndAsync();
-        return JsonSerializer.Deserialize<List<PluginConfig>>(json);
-    }
-
-    private static async Task SavePluginsConfig(FileStream fileStream, List<PluginConfig> plugins)
-    {
-        var json = JsonSerializer.Serialize(plugins);
-        await using StreamWriter writer = new(fileStream);
-        fileStream.SetLength(0);
-        fileStream.Seek(0, SeekOrigin.Begin);
-        await writer.WriteAsync(json);
-        await writer.FlushAsync();
-    }
-
-    private static async Task<PluginManifest> GetPluginManifestAsync(ZipArchive zip)
-    {
-        var manifestZipEntry = zip.Entries.FirstOrDefault(e => e.Name == PluginManifestFile)
-             ?? throw new FileNotFoundException("Plugin manifest not found");
-
-        await using Stream manifestStream = manifestZipEntry.Open();
-        using var reader = new StreamReader(manifestStream);
-        string manifestContent = await reader.ReadToEndAsync();
-        var manifest = JsonSerializer.Deserialize<PluginManifest>(manifestContent);
-        return manifest;
-    }
 
     public static async Task<PluginConfig> DisablePluginAsync(Guid pluginId, Version version = null)
     {
@@ -235,25 +201,34 @@ public static class PluginManager //: IPluginManager
         return plugin.Id;
     }
 
-    //Broker management
-
-    public static async Task<string> GetBrokerStatusAsync()
+    private static async Task<List<PluginConfig>> LoadPluginsConfigAsync(FileStream fileStream)
     {
-        throw new NotImplementedException();
+        using StreamReader reader = new(fileStream);
+        fileStream.SetLength(0);
+        fileStream.Seek(0, SeekOrigin.Begin);
+        string json = await reader.ReadToEndAsync();
+        return JsonSerializer.Deserialize<List<PluginConfig>>(json);
     }
 
-    public static async Task RestartBrokerAsync()
+    private static async Task SavePluginsConfig(FileStream fileStream, List<PluginConfig> plugins)
     {
-        throw new NotImplementedException();
+        var json = JsonSerializer.Serialize(plugins);
+        await using StreamWriter writer = new(fileStream);
+        fileStream.SetLength(0);
+        fileStream.Seek(0, SeekOrigin.Begin);
+        await writer.WriteAsync(json);
+        await writer.FlushAsync();
     }
 
-    public static async Task StartBrokerAsync()
+    private static async Task<PluginManifest> GetPluginManifestAsync(ZipArchive zip)
     {
-        throw new NotImplementedException();
-    }
+        var manifestZipEntry = zip.Entries.FirstOrDefault(e => e.Name == PluginManifestFile)
+             ?? throw new FileNotFoundException("Plugin manifest not found");
 
-    public static async Task StopBrokerAsync()
-    {
-        throw new NotImplementedException();
+        await using Stream manifestStream = manifestZipEntry.Open();
+        using var reader = new StreamReader(manifestStream);
+        string manifestContent = await reader.ReadToEndAsync();
+        var manifest = JsonSerializer.Deserialize<PluginManifest>(manifestContent);
+        return manifest;
     }
 }
