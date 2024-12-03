@@ -39,7 +39,6 @@ public static class Program
 			Log.Information("This is a test log message from lambda async method. args: {Arg}", arg);
 		};
 
-
 		m(1);
 		await m2(2);
 		Log.Error(new Exception("Sample exception"), "An error occurred");

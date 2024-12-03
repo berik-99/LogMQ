@@ -37,7 +37,6 @@ public static class Program
             // Comandi relativi al broker
             config.AddBranch("broker", c =>
             {
-
                 c.AddCommand<RestartBrokerCommand>("restart")
                       .WithDescription("Restarts the LogMQ broker.");
 

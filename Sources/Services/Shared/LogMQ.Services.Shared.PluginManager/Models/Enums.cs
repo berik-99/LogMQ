@@ -8,9 +8,15 @@ public enum PluginType
 
 public enum PluginStatus
 {
-    None,       // Stato nullo
-    Enabled,    // Installata e attiva
-    Disabled,   // Installata ma non attiva
-    Staged,   // Pianificata per l'installazione
-    Removed    // Pianificata per la disinstallazione
+    None,       // No specific state assigned
+    Enabled,    // Installed and active
+    Disabled,   // Installed but not active
+    Staged,     // Scheduled for installation
+    Removed     // Scheduled for uninstallation
+}
+
+public enum PluginConfigType
+{
+    Running,
+    Staged
 }

@@ -19,7 +19,6 @@ public class Program
 		};
 		timer.Elapsed += (sender, e) => logger.LogInformation("This is a test log message from Timer");
 
-
 		var serviceCollection = new ServiceCollection();
 		serviceCollection.AddLogging(loggingBuilder =>
 		{
@@ -40,7 +39,6 @@ public class Program
 			await Task.Delay(1);
 			logger.LogInformation("This is a test log message from lambda async method. args: {Arg}", arg);
 		};
-
 
 		m(1);
 		await m2(2);

@@ -110,7 +110,6 @@ public sealed class TcpProvider : ILogProvider, IDisposable
         }
     }
 
-
     /// <summary>
     /// Sends a ping message to the broker to validate the connection.
     /// </summary>
