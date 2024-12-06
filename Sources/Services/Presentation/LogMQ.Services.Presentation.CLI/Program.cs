@@ -1,6 +1,7 @@
 ﻿using LogMQ.Services.Presentation.CLI.Commands.Broker;
 using LogMQ.Services.Presentation.CLI.Commands.Plugin;
 using LogMQ.Services.Shared.PluginManager;
+using LogMQ.Services.Shared.BrokerManager;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using System.Runtime.InteropServices;

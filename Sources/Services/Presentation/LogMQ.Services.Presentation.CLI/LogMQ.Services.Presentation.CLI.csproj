@@ -14,6 +14,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\..\Shared\LogMQ.Services.Shared.BrokerManager\LogMQ.Services.Shared.BrokerManager.csproj" />
 	  <ProjectReference Include="..\..\Shared\LogMQ.Services.Shared.PluginManager\LogMQ.Services.Shared.PluginManager.csproj" />
 	</ItemGroup>
 

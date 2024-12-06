@@ -101,6 +101,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assets", "Assets", "{0BDE23
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Shared.PluginManager", "Sources\Services\Shared\LogMQ.Services.Shared.PluginManager\LogMQ.Services.Shared.PluginManager.csproj", "{08EC7A34-9C95-44F1-9D25-17912EF01F69}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Shared.BrokerManager", "Sources\Services\Shared\LogMQ.Services.Shared.BrokerManager\LogMQ.Services.Shared.BrokerManager.csproj", "{58681AC0-532F-49CC-9F6E-9D1B750FDF99}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -183,6 +185,10 @@ Global
 		{08EC7A34-9C95-44F1-9D25-17912EF01F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{08EC7A34-9C95-44F1-9D25-17912EF01F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{08EC7A34-9C95-44F1-9D25-17912EF01F69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58681AC0-532F-49CC-9F6E-9D1B750FDF99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58681AC0-532F-49CC-9F6E-9D1B750FDF99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58681AC0-532F-49CC-9F6E-9D1B750FDF99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58681AC0-532F-49CC-9F6E-9D1B750FDF99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -226,5 +232,6 @@ Global
 		{7B8181FC-7EAF-4027-848B-ACC66B3E5E2C} = {16C03A58-D6C0-405B-8D85-B96A9823D8EE}
 		{0BDE237B-2D38-4C9C-826E-744CB53BED8D} = {16C03A58-D6C0-405B-8D85-B96A9823D8EE}
 		{08EC7A34-9C95-44F1-9D25-17912EF01F69} = {EB09A69E-1C61-492C-AEA1-FC7B0E12BAA3}
+		{58681AC0-532F-49CC-9F6E-9D1B750FDF99} = {EB09A69E-1C61-492C-AEA1-FC7B0E12BAA3}
 	EndGlobalSection
 EndGlobal
