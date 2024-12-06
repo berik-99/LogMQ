@@ -1,4 +1,6 @@
-﻿namespace LogMQ.Services.Shared.PluginManager.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace LogMQ.Services.Shared.PluginManager.Models;
 
 public class PluginManifest
 {
@@ -7,6 +9,7 @@ public class PluginManifest
     public Version Version { get; set; }
     public string Author { get; set; }
     public string Description { get; set; }
-    public PluginType Type { get; set; }
+	[JsonConverter(typeof(JsonStringEnumConverter))]
+	public PluginType Type { get; set; }
     public string EntryPoint { get; set; }
 }

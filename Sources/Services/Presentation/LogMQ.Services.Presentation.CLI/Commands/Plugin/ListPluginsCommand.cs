@@ -1,66 +1,78 @@
-﻿using LogMQ.Services.Shared.PluginManager.Models;
+﻿using LogMQ.Services.Shared.PluginManager;
+using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using System.Text.Json;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
-public class ListPluginsCommand : Command<ListPluginsCommand.Settings>
+public class ListPluginsCommand(IPluginManager manager) : AsyncCommand<ListPluginsCommand.Settings>
 {
-    public class Settings : CommandSettings
-    {
-        [CommandOption("-e|--enabled")]
-        [Description("Show only enabled plugins.")]
-        public bool Enabled { get; set; }
+	private static readonly JsonSerializerOptions JsonSerializerOptions = new() { WriteIndented = true };
 
-        [CommandOption("-d|--disabled")]
-        [Description("Show only disabled plugins.")]
-        public bool Disabled { get; set; }
+	public class Settings : CommandSettings
+	{
+		[CommandOption("-i|--installed")]
+		[Description("Show only installed plugins.")]
+		public bool Installed { get; set; }
 
-        [CommandOption("-s|--staged")]
-        [Description("Show only plugins in the 'staged' state.")]
-        public bool Staged { get; set; }
+		[CommandOption("-s|--staged")]
+		[Description("Show only plugins in the 'staged' state.")]
+		public bool Staged { get; set; }
 
-        [CommandOption("-r|--removed")]
-        [Description("Show only removed plugins.")]
-        public bool Removed { get; set; }
+		[CommandOption("-r|--removed")]
+		[Description("Show only removed plugins.")]
+		public bool Removed { get; set; }
 
-        [CommandOption("-t|--type")]
-        [Description("Show plugins of the specified type.")]
-        public PluginType Type { get; set; }
-    }
+		[CommandOption("-t|--type")]
+		[Description("Show plugins of the specified type.")]
+		public PluginType? Type { get; set; }
 
-    public override int Execute(CommandContext context, Settings settings)
-    {
-        // Logic to determine which filters to apply
-        var filters = new string[4];
+		[CommandOption("-c|--config-type")]
+		[Description("Show plugins from specific configuration (Defaults to Staged).")]
+		public PluginConfigType ConfigType { get; set; } = PluginConfigType.Staged;
+	}
 
-        if (settings.Enabled) filters[0] = "Enabled";
-        if (settings.Disabled) filters[1] = "Disabled";
-        if (settings.Staged) filters[2] = "Staged";
-        if (settings.Removed) filters[3] = "Removed";
+	public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+	{
+		List<PluginVersionStatus> filters = [];
+		if (settings.Installed) filters.Add(PluginVersionStatus.Installed);
+		if (settings.Staged) filters.Add(PluginVersionStatus.Staged);
+		if (settings.Removed) filters.Add(PluginVersionStatus.Removed);
+		var plugins = await manager.ListPluginsAsync(settings.ConfigType, filters, settings.Type);
 
-        var activeFilters = filters.Where(f => f != null).ToArray();
+		if (plugins.Count > 0)
+		{
+			var tree = new Tree("[green]Plugins[/]");
+			foreach (var plugin in plugins)
+			{
+				var pluginNode = tree.AddNode($"[blue]{plugin.Name}[/]");
+				pluginNode.AddNode($"[yellow]Id:[/] {plugin.Id}");
+				pluginNode.AddNode($"[yellow]Author:[/] {plugin.Author}");
+				pluginNode.AddNode($"[yellow]Description:[/] {plugin.Description}");
+				pluginNode.AddNode($"[yellow]Type:[/] {plugin.Type}");
+				pluginNode.AddNode($"[yellow]EntryPoint:[/] {plugin.EntryPoint}");
 
-        if (activeFilters.Length == 0)
-        {
-            AnsiConsole.Markup("[yellow]No filters applied, all plugins will be shown.[/]\n");
-        }
-        else
-        {
-            AnsiConsole.Markup($"[green]Active filters:[/] {string.Join(", ", activeFilters)}\n");
-        }
-
-        // Simulated plugin list
-        var pluginList = new[] { "Plugin1", "Plugin2", "Plugin3" };
-
-        // Display the plugin list
-        AnsiConsole.Markup("[blue]Plugins:[/]\n");
-        foreach (var plugin in pluginList)
-        {
-            AnsiConsole.Markup($"[cyan]{plugin}[/]\n");
-        }
-
-        return 0;
-    }
+				var versionsNode = pluginNode.AddNode("[green]Versions[/]");
+				foreach (var version in plugin.Versions)
+				{
+					if (version == plugin.ActiveVersion)
+					{
+						versionsNode.AddNode($"* Version: [green]{version.Version}[/], Status: [magenta]{version.Status}[/]");
+					}
+					else
+					{
+						versionsNode.AddNode($"  Version: [cyan]{version.Version}[/], Status: [magenta]{version.Status}[/]");
+					}
+				}
+			}
+			AnsiConsole.Write(tree);
+		}
+		else
+		{
+			AnsiConsole.MarkupLine("[red]No plugins found.[/]");
+		}
+		return 0;
+	}
 }

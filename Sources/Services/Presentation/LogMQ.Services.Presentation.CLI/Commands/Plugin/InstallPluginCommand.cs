@@ -1,35 +1,47 @@
-﻿using Spectre.Console;
+﻿using LogMQ.Services.Shared.PluginManager;
+using LogMQ.Services.Shared.PluginManager.Models;
+using Spectre.Console;
 using Spectre.Console.Cli;
+using System.ComponentModel;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
-public class InstallPluginCommand : Command<InstallPluginCommand.Settings>
+public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<InstallPluginCommand.Settings>
 {
-    public class Settings : CommandSettings
-    {
-        [CommandArgument(0, "<PLUGIN_PATH>")]
-        public string PluginPath { get; set; }
+	public class Settings : CommandSettings
+	{
+		[CommandArgument(0, "<PLUGIN_PATH>")]
+		[Description("The path of the .lmqex plugin file.")]
+		public string PluginPath { get; set; }
 
-        [CommandOption("-r|--restart")]
-        public bool Restart { get; set; }
-    }
+		[CommandOption("-r|--restart")]
+		[Description("Automatically restarts the broker after install.")]
+		public bool Restart { get; set; }
+	}
 
-    public override int Execute(CommandContext context, Settings settings)
-    {
-        if (!File.Exists(settings.PluginPath))
-        {
-            AnsiConsole.Markup("[red]Error:[/] Plugin file not found.\n");
-            return -1;
-        }
+	public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+	{
+		var plugin = await manager.InstallPluginAsync(settings.PluginPath);
 
-        AnsiConsole.Markup($"[green]Installing plugin from:[/] {settings.PluginPath}\n");
+		AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' installed successfully![/]");
 
-        if (settings.Restart)
-        {
-            AnsiConsole.Markup("[yellow]Force flag detected. Restarting broker after installation.[/]\n");
-            // Logic to restart broker
-        }
+		var pluginTree = new Tree($"[blue]{plugin.Name}[/]");
+		pluginTree.AddNode($"[yellow]Id:[/] {plugin.Id}");
+		pluginTree.AddNode($"[yellow]Author:[/] {plugin.Author}");
+		pluginTree.AddNode($"[yellow]Description:[/] {plugin.Description}");
+		pluginTree.AddNode($"[yellow]Type:[/] {plugin.Type}");
+		pluginTree.AddNode($"[yellow]EntryPoint:[/] {plugin.EntryPoint}");
 
-        return 0;
-    }
+		var versionsNode = pluginTree.AddNode("[green]Versions[/]");
+		foreach (var version in plugin.Versions)
+		{
+			versionsNode.AddNode($"Version: [cyan]{version.Version}[/], Status: [magenta]{version.Status}[/]");
+		}
+		AnsiConsole.Write(pluginTree);
+
+		//TODO: Use shared methods to format output 
+		//TODO: Implement the restart logic
+
+		return 0;
+	}
 }

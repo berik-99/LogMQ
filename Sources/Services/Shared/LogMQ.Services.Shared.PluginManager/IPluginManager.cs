@@ -15,8 +15,9 @@ public interface IPluginManager
 	Task<PluginConfig> GetPluginConfigAsync(PluginConfigType configType, Guid pluginId);
 	Task<Guid> GetPluginIdByNameAsync(PluginConfigType configType, string pluginName);
 	Task<PluginConfig> GetPluginInfoAsync(PluginConfigType configType, string pluginPath);
-	Task<PluginConfig> InstallPluginAsync(string pluginPath);
-	Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, List<PluginStatus> statusFilter = null, PluginType? type = null);
+	Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, PluginManifest manifest = null);
+	Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, bool showAllStatus = false, PluginType? type = null);
 	Task<List<PluginConfig>> RestorePluginConfigAsync();
 	Task<PluginConfig> UninstallPluginAsync(Guid pluginId, Version version = null);
+	Task<PluginManifest> AnalyzePluginFile(string pluginPath);
 }

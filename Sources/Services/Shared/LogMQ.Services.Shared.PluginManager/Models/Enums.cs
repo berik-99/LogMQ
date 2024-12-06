@@ -2,21 +2,12 @@
 
 public enum PluginType
 {
-    Receiver,
-    Storage
-}
-
-public enum PluginStatus
-{
-    None,       // No specific state assigned
-    Enabled,    // Installed and active
-    Disabled,   // Installed but not active
-    Staged,     // Scheduled for installation
-    Removed     // Scheduled for uninstallation
+	Receiver,
+	Storage
 }
 
 public enum PluginConfigType
 {
-    Running,
-    Staged
+	Running,
+	Staged
 }

@@ -1,0 +1,12 @@
+{
+    "profiles": {
+        "CLI - Install": {
+            "commandName": "Project",
+            "commandLineArgs": "plugin install C:\\Users\\DY00307\\Desktop\\PluginTest.zip"
+        },
+        "CLI - List": {
+            "commandName": "Project",
+            "commandLineArgs": "plugin list"
+        }
+    }
+}
