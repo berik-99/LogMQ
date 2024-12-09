@@ -10,7 +10,7 @@ This document serves as a free-form space to:
 Feel free to use this space to organize thoughts and planning related to LogMQ development.
 
 
-## New logmq commandline descriptions:
+## New LogMQ commandline descriptions:
 
 ### Plugin
 
