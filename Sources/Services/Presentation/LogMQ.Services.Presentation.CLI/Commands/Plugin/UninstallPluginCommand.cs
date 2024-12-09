@@ -1,9 +1,11 @@
-﻿using Spectre.Console;
+﻿using LogMQ.Services.Shared.PluginManager;
+using LogMQ.Services.Shared.PluginManager.Models;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
-public class UninstallPluginCommand : Command<UninstallPluginCommand.Settings>
+public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<UninstallPluginCommand.Settings>
 {
     public class Settings : CommandSettings
     {
@@ -11,23 +13,40 @@ public class UninstallPluginCommand : Command<UninstallPluginCommand.Settings>
         public string PluginIdOrName { get; set; }
 
         [CommandOption("-v|--version <VERSION>")]
-        public string Version { get; set; }
+        public Version Version { get; set; }
 
         [CommandOption("-r|--restart")]
         public bool Restart { get; set; }
     }
 
-    public override int Execute(CommandContext context, Settings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        AnsiConsole.Markup($"[red]Uninstalling plugin:[/] {settings.PluginIdOrName}\n");
+        var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
-        if (settings.Restart)
+        if (plugin == null)
         {
-            AnsiConsole.Markup("[yellow]Force flag detected. Restarting broker after uninstallation.[/]\n");
-            // Logic to restart broker
+            AnsiConsole.MarkupLine($"[red]Plugin '{settings.PluginIdOrName}' not found.[/]");
+            return -1;
         }
 
-        // Logic to uninstall the plugin
+        if (!plugin.Versions.Contains(settings.Version))
+        {
+            AnsiConsole.MarkupLine($"[red]Version '{settings.Version}' not found for plugin '{plugin.Name}'[/]");
+            return -1;
+        }
+
+        settings.Version ??= plugin.EnabledVersion;
+
+        plugin = await manager.UninstallPluginAsync(plugin.Id, settings.Version);
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' uninstalled successfully![/]");
+        AnsiConsole.WriteLine();
+
+        var pluginTree = CommonCommands.BuildPluginTree(plugin, removed: [settings.Version]);
+
+        AnsiConsole.Write(pluginTree);
+
         return 0;
     }
 }

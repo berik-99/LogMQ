@@ -1,29 +1,50 @@
-﻿using Spectre.Console;
+﻿using LogMQ.Services.Shared.PluginManager;
+using LogMQ.Services.Shared.PluginManager.Models;
+using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
-public class DisablePluginCommand : Command<DisablePluginCommand.Settings>
+public class DisablePluginCommand(IPluginManager manager) : AsyncCommand<DisablePluginCommand.Settings>
 {
     public class Settings : CommandSettings
     {
         [CommandArgument(0, "<PLUGIN_ID_OR_NAME>")]
         public string PluginIdOrName { get; set; }
-
-        [CommandOption("-v|--version <VERSION>")]
-        public string Version { get; set; }
     }
 
-    public override int Execute(CommandContext context, Settings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        AnsiConsole.Markup($"[yellow]Disabling plugin:[/] {settings.PluginIdOrName}\n");
+        var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
-        if (!string.IsNullOrWhiteSpace(settings.Version))
+        if (plugin == null)
         {
-            AnsiConsole.Markup($"[yellow]Version:[/] {settings.Version}\n");
+            AnsiConsole.MarkupLine($"[red]Plugin '{settings.PluginIdOrName}' not found.[/]");
+            return -1;
         }
 
-        // Logic to disable the plugin
+
+        var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("[yellow]You are about to disable this plugin. Do you want to proceed?[/]")
+            .AddChoice(true)
+            .AddChoice(false)
+            .DefaultValue(true)
+            .WithConverter(choice => choice ? "y" : "n"));
+        if (!confirmation)
+        {
+            AnsiConsole.MarkupLine("[red]Operation aborted.[/]");
+            return -1;
+        }
+
+        plugin.EnabledVersion = null;
+
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' installed successfully![/]");
+        AnsiConsole.WriteLine();
+
+        var pluginTree = CommonCommands.BuildPluginTree(plugin);
+
+        AnsiConsole.Write(pluginTree);
+
         return 0;
     }
 }

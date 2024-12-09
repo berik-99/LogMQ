@@ -1,12 +1,16 @@
 {
-    "profiles": {
-        "CLI - Install": {
-            "commandName": "Project",
-            "commandLineArgs": "plugin install C:\\Users\\DY00307\\Desktop\\PluginTest.zip"
-        },
-        "CLI - List": {
-            "commandName": "Project",
-            "commandLineArgs": "plugin list"
-        }
+  "profiles": {
+    "CLI - Install": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin install C:\\Users\\erikb\\Desktop\\test-plugin.zip"
+    },
+    "CLI - List": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin list"
+    },
+    "CLI - Enable": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin enable \"Test Plugin\""
     }
+  }
 }
