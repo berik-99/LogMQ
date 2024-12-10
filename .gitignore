@@ -401,3 +401,5 @@ FodyWeavers.xsd
 #Project rules
 **/data/
 .github/
+.DS_store
+.idea

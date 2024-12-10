@@ -21,18 +21,18 @@ Feel free to use this space to organize thoughts and planning related to LogMQ d
 #   -y => Automatically responds yes to non-critical confirmation prompts (critical ones will abort operation).
 logmq plugin install <path/to/file.lmqex> [-e|--enable] [-r|--restart] [-y] 
 
-# Enable a plugin from his name of guid; Returns info about enabled plugin.
+# Enable a plugin from his name or guid; Returns info about enabled plugin.
 #   -v|--version => The version to enable, by default enable latest version.
 #   -r|--restart => Automatically restart the broker (not overrided by -y flag).
 #   -y => Automatically responds yes to non-critical confirmation prompts (critical ones will abort operation).
 logmq plugin enable <plugin-name/plugin-id> [-v|--version <plugin-version>] [-r|--restart] [-y] 
 
-# Disable the enabled version of plugin from his name of guid. Returns info about disabled plugin.
+# Disable the enabled version of plugin from his name or guid. Returns info about disabled plugin.
 #   -r|--restart => Automatically restart the broker (not overrided by -y flag).
 #   -y => Automatically responds yes to non-critical confirmation prompts (critical ones will abort operation).
 logmq plugin disable <plugin-name/plugin-id> [-r|--restart] [-y]
 
-# Uninstall a plugin from his name of guid; Returns info about uninstalled plugin. (can be reverted wirh restore command if broker is not yet restarted)
+# Uninstall a plugin from his name or guid; Returns info about uninstalled plugin. (can be reverted with restore command if broker is not yet restarted)
 #   -v|--version => The version to uninstall, if not provided a multi-selection prompt will be shown.
 #   -r|--restart => Automatically restart the broker (not overrided by -y flag).
 #   -y => Automatically responds yes to non-critical confirmation prompts (critical ones will abort operation).
@@ -44,7 +44,7 @@ logmq plugin uninstall <plugin-name/plugin-id> [-v|--version <plugin-version>] [
 #   -a|--active => Show only active versions for each plugin, if plugin has no active versions is not displayed. 
 logmq plugin list <plugin-name/plugin-id> [-c|--config-type <config-type>] [-t|--plugin-type <plugin-type>] [-a|--active] 
 
-# Show informations about provided plugin.
+# Show information about provided plugin.
 logmq plugin info <plugin-name/plugin-id/path/to/file.lmqex>
 
 # Restore plugin configurations from running config; Running config is compiled  from staged one at broker startup and represents the current broker configuration.
@@ -52,7 +52,7 @@ logmq plugin info <plugin-name/plugin-id/path/to/file.lmqex>
 logmq plugin restore [-y]
 ```
 
-### Serivice
+### Service
 
 ```bash
 # Start broker and viewer services. if already started don't do anything.
@@ -82,15 +82,33 @@ logmq service status
 # List all logging-registered applications
 logmq log list-applications 
 
-# Show last n logs from a application
+# Show logs from a application identified by name or guid.
+#	--count => The number of logs to show, defaults to 100.
+#	--from => The datetime from which to show logs, defaults to 1 hour ago.
+#	--to => The datetime to which to show logs, defaults to now.
+#	--type => The trace type of logs to show, defaults to all. 
 logmq log show <app-name|app-id> [--count <log-count>] [--from <datetime-from>] [--to <datetime-from>] [--type <trace-type>]
 
-# Watch logs from application in real time. CTRL-C to exit.
+# Watch logs from application identified by name or guid in real time. CTRL-C to exit.
 logmq log watch <app-name|app-id>
 
-# Same as show but writes logs to provided file instead to stdout.
+# Export logs from a application identified by name or guid to a file.
+#	--output => The path to the output file where logs will be written.
+#	--count => The number of logs to show, defaults to 100.
+#	--from => The datetime from which to show logs, defaults to 1 hour ago.
+#	--to => The datetime to which to show logs, defaults to now.
+#	--type => The trace type of logs to show, defaults to all.
 logmq log export <app-name|app-id> [-o|--output <path/to/output.log>] [--count <log-count>] [--from <datetime-from>] [--to <datetime-from>] [--type <trace-type>]
 
-# Write a small report about logs
+# Write a small report about logs from a application identified by name or guid
+#	--output => The path to the output file where report will be written.
 logmq log report <app-name|app-id> [-o|--output <path/to/output-report.pdf>] 
+
+# Clear logs from a application identified by name or guid.
+#	--older-than => The datetime from which to clear logs, defaults to 1 hour ago.
+logmq log clear <app-name|app-id> [--older-than <datatime-older-than>]
+
+# Clear all logs from all applications.
+#	--older-than => The datetime from which to clear logs, defaults to 1 hour ago.
+logmq log clear-all [--older-than <datatime-older-than>]
 ```
