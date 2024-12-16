@@ -10,7 +10,15 @@
     },
     "CLI - Enable": {
       "commandName": "Project",
-      "commandLineArgs": "plugin enable \"Test Plugin\""
+      "commandLineArgs": "plugin enable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 1.0.1"
+    },
+    "CLI - Disable": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin disable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e"
+    },
+    "CLI - Uninstall": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin uninstall 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 1.0.1"
     }
   }
 }

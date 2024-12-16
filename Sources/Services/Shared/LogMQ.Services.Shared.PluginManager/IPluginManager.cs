@@ -12,10 +12,9 @@ public interface IPluginManager
     Task<PluginManifest> AnalyzePluginFile(string pluginPath);
     Task<PluginConfig> DisablePluginAsync(Guid pluginId);
     Task<PluginConfig> EnablePluginAsync(Guid pluginId, Version version = null);
-    //Task<Guid> GetPluginIdByNameAsync(PluginConfigType configType, string pluginName);
     Task<PluginConfig> GetPluginInfo(PluginConfigType configType, string pluginId);
-    Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enble, PluginManifest manifest = null);
-    Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, bool showOnlyActive = true, PluginType? type = null);
+    Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest = null);
+    Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, PluginType? type = null);
     Task<List<PluginConfig>> RestorePluginConfigAsync();
     Task<PluginConfig> UninstallPluginAsync(Guid pluginId, Version version);
 }

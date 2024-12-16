@@ -41,8 +41,7 @@ logmq plugin uninstall <plugin-name/plugin-id> [-v|--version <plugin-version>] [
 # Show the plugins list.
 #   -c|--config-type => Select the configuration to show (Enum: Staged|Running; defaults to Staged).
 #   -t|--plugin-type => Filter plugins by type (Enum: Receiver|Storage; if not provided all are displayed).
-#   -a|--active => Show only active versions for each plugin, if plugin has no active versions is not displayed. 
-logmq plugin list <plugin-name/plugin-id> [-c|--config-type <config-type>] [-t|--plugin-type <plugin-type>] [-a|--active] 
+logmq plugin list <plugin-name/plugin-id> [-c|--config-type <config-type>] [-t|--plugin-type <plugin-type>]
 
 # Show information about provided plugin.
 logmq plugin info <plugin-name/plugin-id/path/to/file.lmqex>

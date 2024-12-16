@@ -40,19 +40,19 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
             string infoMessage = "[green]Installing plugin[/]";
             if (existingPlugin != null)
             {
-                if (existingPlugin.Versions.Contains(manifest.Version))
+                if (existingPlugin.Versions.Exists(x => x.Version == manifest.CurrentVersion))
                 {
                     infoMessage = "[red]The plugin version you are trying to install already exists. Run again this command without -y option to reinstall.[/]";
                     blockExecution = true;
                 }
-                else if (existingPlugin.Versions.Any(x => x > manifest.Version))
+                else if (existingPlugin.Versions.Exists(x => x.Version > manifest.CurrentVersion))
                 {
                     infoMessage = "[red]A newer version of this plugin is already installed. Run again this command without -y option to to install this version.[/]";
                     blockExecution = true;
                 }
                 else
                 {
-                    infoMessage = $"[green]Updating plugin: {existingPlugin.Versions.Max()} -> {manifest.Version}[/]";
+                    infoMessage = $"[green]Updating plugin: {existingPlugin.Versions.Max(x => x.Version)} -> {manifest.CurrentVersion}[/]";
                 }
             }
             AnsiConsole.MarkupLine(infoMessage);
@@ -63,11 +63,11 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
             string promptMessage = "Do you want to confirm the installation of this plugin?";
             if (existingPlugin != null)
             {
-                if (existingPlugin.Versions.Contains(manifest.Version))
+                if (existingPlugin.Versions.Exists(x => x.Version == manifest.CurrentVersion))
                 {
                     promptMessage = "The plugin version you are trying to install already exists. Do you want to reinstall it?";
                 }
-                else if (existingPlugin.Versions.Any(x => x > manifest.Version))
+                else if (existingPlugin.Versions.Exists(x => x.Version > manifest.CurrentVersion))
                 {
                     promptMessage = "A newer version of this plugin is already installed. Do you want to install this older version?";
                 }
@@ -95,7 +95,7 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
         AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' installed successfully![/]");
         AnsiConsole.WriteLine();
 
-        var pluginTree = CommonCommands.BuildPluginTree(plugin, added: [manifest.Version]);
+        var pluginTree = CommonCommands.BuildPluginTree(plugin);
 
         AnsiConsole.Write(pluginTree);
 

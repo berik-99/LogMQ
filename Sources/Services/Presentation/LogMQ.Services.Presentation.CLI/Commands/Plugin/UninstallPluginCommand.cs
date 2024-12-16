@@ -2,6 +2,7 @@
 using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System.ComponentModel;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
@@ -16,7 +17,12 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
         public Version Version { get; set; }
 
         [CommandOption("-r|--restart")]
+        [Description("Automatically restarts the broker after operation.")]
         public bool Restart { get; set; }
+
+        [CommandOption("-y")]
+        [Description("Automatically respond y to all propmts.")]
+        public bool Yes { get; set; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -29,13 +35,13 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
             return -1;
         }
 
-        if (!plugin.Versions.Contains(settings.Version))
+        if (!plugin.Versions.Exists(x => x.Version == settings.Version))
         {
             AnsiConsole.MarkupLine($"[red]Version '{settings.Version}' not found for plugin '{plugin.Name}'[/]");
             return -1;
         }
 
-        settings.Version ??= plugin.EnabledVersion;
+        settings.Version ??= plugin.CurrentVersion;
 
         plugin = await manager.UninstallPluginAsync(plugin.Id, settings.Version);
 
@@ -43,7 +49,7 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
         AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' uninstalled successfully![/]");
         AnsiConsole.WriteLine();
 
-        var pluginTree = CommonCommands.BuildPluginTree(plugin, removed: [settings.Version]);
+        var pluginTree = CommonCommands.BuildPluginTree(plugin);
 
         AnsiConsole.Write(pluginTree);
 

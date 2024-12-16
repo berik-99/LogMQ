@@ -2,6 +2,7 @@
 using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using System.ComponentModel;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
@@ -11,6 +12,14 @@ public class DisablePluginCommand(IPluginManager manager) : AsyncCommand<Disable
     {
         [CommandArgument(0, "<PLUGIN_ID_OR_NAME>")]
         public string PluginIdOrName { get; set; }
+
+        [CommandOption("-r|--restart")]
+        [Description("Automatically restarts the broker after the operation.")]
+        public bool Restart { get; set; }
+
+        [CommandOption("-y")]
+        [Description("Automatically respond 'yes' to all prompts.")]
+        public bool Yes { get; set; }
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -23,8 +32,8 @@ public class DisablePluginCommand(IPluginManager manager) : AsyncCommand<Disable
             return -1;
         }
 
-
-        var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("[yellow]You are about to disable this plugin. Do you want to proceed?[/]")
+        //TODO: implement -y option
+        var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("You are about to disable this plugin. Do you want to proceed?")
             .AddChoice(true)
             .AddChoice(false)
             .DefaultValue(true)
@@ -35,10 +44,10 @@ public class DisablePluginCommand(IPluginManager manager) : AsyncCommand<Disable
             return -1;
         }
 
-        plugin.EnabledVersion = null;
+        plugin.CurrentVersion = null;
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' installed successfully![/]");
+        AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' disabled successfully![/]");
         AnsiConsole.WriteLine();
 
         var pluginTree = CommonCommands.BuildPluginTree(plugin);

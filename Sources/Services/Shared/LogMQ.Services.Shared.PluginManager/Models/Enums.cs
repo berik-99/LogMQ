@@ -2,12 +2,18 @@
 
 public enum PluginType
 {
-	Receiver,
-	Storage
+    Receiver,
+    Storage
 }
 
 public enum PluginConfigType
 {
-	Running,
-	Staged
+    Running,
+    Staged
+}
+
+public enum VersionStatus
+{
+    Added,
+    Removed
 }

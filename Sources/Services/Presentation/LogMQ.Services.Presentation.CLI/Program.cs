@@ -44,7 +44,7 @@ public static class Program
 				c.AddCommand<ListPluginsCommand>("list")
 				  .WithDescription("Lists all plugins with optional filters.");
 
-				c.AddCommand<ResetPluginsCommand>("reset")
+				c.AddCommand<PluginInfoCommand>("reset")
 				  .WithDescription("Resets the plugin configuration.");
 			});
 

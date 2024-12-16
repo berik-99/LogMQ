@@ -13,31 +13,22 @@ public class ListPluginsCommand(IPluginManager manager) : AsyncCommand<ListPlugi
 
     public class Settings : CommandSettings
     {
-        [CommandOption("-a|--all")]
-        [Description("Show enabled and disabled plugins.")]
-        public bool All { get; set; }
+        [CommandOption("-c|--config-type")]
+        [Description("Show plugins from specific configuration (Defaults to Staged).")]
+        public PluginConfigType ConfigType { get; set; } = PluginConfigType.Staged;
 
         [CommandOption("-t|--type")]
         [Description("Show plugins of the specified type.")]
         public PluginType? Type { get; set; }
-
-        [CommandOption("-c|--config-type")]
-        [Description("Show plugins from specific configuration (Defaults to Staged).")]
-        public PluginConfigType ConfigType { get; set; } = PluginConfigType.Staged;
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var plugins = await manager.ListPluginsAsync(settings.ConfigType, settings.All, settings.Type);
+        var plugins = await manager.ListPluginsAsync(settings.ConfigType, settings.Type);
 
         if (plugins.Count > 0)
         {
-            var tree = new Tree("[green]Plugins[/]");
-            foreach (var plugin in plugins)
-            {
-                var pluginNode = CommonCommands.BuildPluginTree(plugin);
-                tree.AddNode(pluginNode);
-            }
+            var tree = CommonCommands.BuildPluginListTree(plugins);
             AnsiConsole.Write(tree);
         }
         else
