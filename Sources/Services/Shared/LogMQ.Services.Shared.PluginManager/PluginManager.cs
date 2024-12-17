@@ -13,44 +13,17 @@ public class PluginManager : IPluginManager
             Directory.CreateDirectory(PluginFolder);
         if (!Path.Exists(PluginBinariesFolder))
             Directory.CreateDirectory(PluginBinariesFolder);
-        if (!File.Exists(PluginConfigFile))
-            File.AppendAllText(PluginConfigFile, JsonSerializer.Serialize(new List<PluginConfig>()));
-        if (!File.Exists(PluginConfigBackupFile))
-            File.Copy(PluginConfigFile, PluginConfigBackupFile);
+        if (!File.Exists(PluginStagedConfigFile))
+            File.AppendAllText(PluginStagedConfigFile, JsonSerializer.Serialize(new List<PluginConfig>()));
+        if (!File.Exists(PluginRunningConfigFile))
+            File.Copy(PluginStagedConfigFile, PluginRunningConfigFile);
     }
 
-    public async Task<PluginConfig> DisablePluginAsync(Guid pluginId)
+    public async Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest)
     {
-        List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
-        PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
-        plugin.CurrentVersion = null;
-        plugin.LastChangeDate = DateTime.Now;
-        await SavePluginsConfig(plugins);
-        return plugin;
-    }
-
-    public async Task<PluginConfig> EnablePluginAsync(Guid pluginId, Version version = null)
-    {
-        List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
-        PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
-        version ??= plugin.Versions.Max(x => x.Version);
-        if (!plugin.Versions.Exists(x => x.Version == version))
-            throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
-
-        var selectedVersion = plugin.Versions.First(x => x.Version == version);
-        plugin.CurrentVersion = selectedVersion.Version;
-        selectedVersion.IsRemoved = false;
-        plugin.LastChangeDate = DateTime.Now;
-        await SavePluginsConfig(plugins);
-        return plugin;
-    }
-
-    public async Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest = null)
-    {
-        manifest ??= await AnalyzePluginFile(pluginPath);
         var destFolder = Path.Combine(PluginBinariesFolder, manifest.Id.ToString());
         Directory.CreateDirectory(destFolder);
-        var fileName = $"{manifest.CurrentVersion}.lmqex";
+        var fileName = $"{manifest.Version}.lmqex";
         File.Copy(pluginPath, Path.Combine(destFolder, fileName), overwrite);
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
         var existingConfig = plugins.Find(p => p.Id == manifest.Id);
@@ -65,59 +38,82 @@ public class PluginManager : IPluginManager
                 Type = manifest.Type,
                 EntryPoint = manifest.EntryPoint,
                 Versions = [],
-                CurrentVersion = null
             };
             plugins.Add(existingConfig);
         }
-        existingConfig.LastChangeDate = DateTime.Now;
-        existingConfig.Versions.AddOrReplace(new ConfigVersion { Version = manifest.CurrentVersion, InsallDate = existingConfig.LastChangeDate, IsAdded = true, IsRemoved = false });
-        if (enable) existingConfig.CurrentVersion = manifest.CurrentVersion;
+        existingConfig.Versions.AddOrReplace(new ConfigVersion { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed });
         plugins = SortConfig(plugins);
         await SavePluginsConfig(plugins);
         return existingConfig;
     }
 
-    public async Task<PluginConfig> UninstallPluginAsync(Guid pluginId, Version version)
+    public async Task<PluginConfig> UninstallPluginAsync(Guid pluginId, List<Version> versions)
+    {
+        List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
+        PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
+        foreach (var version in versions)
+        {
+            if (!plugin.Versions.Exists(x => x.Version == version))
+                throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
+        }
+
+        foreach (var version in versions)
+        {
+            var pluginVersion = plugin.Versions.FirstOrDefault(x => x.Version == version);
+            if (pluginVersion.Status == VersionStatus.Installed)
+            {
+                var dir = Path.Combine(PluginBinariesFolder, pluginId.ToString());
+                File.Delete(Path.Combine(dir, $"{version}.lmqex"));
+                if (Directory.GetFiles(dir).Length == 0)
+                    Directory.Delete(dir);
+                plugin.Versions.Remove(pluginVersion);
+                if (plugin.Versions.Count == 0)
+                    plugins.Remove(plugin);
+            }
+            else
+            {
+                pluginVersion.Status = VersionStatus.Removed;
+            }
+        }
+
+        plugins = SortConfig(plugins);
+        await SavePluginsConfig(plugins);
+        return plugin;
+    }
+
+    public async Task<PluginConfig> EnablePluginAsync(Guid pluginId, Version version)
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
         PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
         if (!plugin.Versions.Exists(x => x.Version == version))
             throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
-        if (plugin.CurrentVersion == version)
-            plugin.CurrentVersion = null;
-        var pluginVersion = plugin.Versions.FirstOrDefault(x => x.Version == version);
-        if (pluginVersion.IsAdded)
-        {
-            var dir = Path.Combine(PluginBinariesFolder, pluginId.ToString());
-            File.Delete(Path.Combine(dir, $"{version}.lmqex"));
-            if (Directory.GetFiles(dir).Length == 0)
-                Directory.Delete(dir);
-            plugin.Versions.Remove(pluginVersion);
-            if (plugin.Versions.Count == 0)
-                plugins.Remove(plugin);
-        }
-        else
-        {
-            pluginVersion.IsRemoved = true;
-        }
 
-        plugins = SortConfig(plugins);
-        plugin.LastChangeDate = DateTime.Now;
+        var selectedVersion = plugin.Versions.First(x => x.Version == version);
+        selectedVersion.Status = VersionStatus.Enabled;
         await SavePluginsConfig(plugins);
         return plugin;
     }
 
-    public async Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, PluginType? type = null)
+    public async Task<PluginConfig> DisablePluginAsync(Guid pluginId)
+    {
+        List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
+        PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
+        var currentActiveplugin = plugin.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled);
+        if (currentActiveplugin != null)
+            currentActiveplugin.Status = VersionStatus.Installed;
+        await SavePluginsConfig(plugins);
+        return plugin;
+    }
+
+    public async Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, List<PluginType> typeFilter)
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(configType);
-        if (type != null)
-            plugins = plugins.FindAll(x => x.Type == type);
-        return plugins;
+        return plugins.FindAll(x => typeFilter.Contains(x.Type));
     }
 
     public async Task<List<PluginConfig>> RestorePluginConfigAsync()
     {
-        File.Copy(PluginConfigBackupFile, PluginConfigFile, true);
+        File.Copy(PluginRunningConfigFile, PluginStagedConfigFile, true);
         return await ListPluginsAsync(PluginConfigType.Staged, null);
     }
 
@@ -151,7 +147,7 @@ public class PluginManager : IPluginManager
 
     private static async Task<List<PluginConfig>> LoadPluginsConfigAsync(PluginConfigType configType)
     {
-        var configFile = configType == PluginConfigType.Running ? PluginConfigBackupFile : PluginConfigFile;
+        var configFile = configType == PluginConfigType.Running ? PluginRunningConfigFile : PluginStagedConfigFile;
         string json = await File.ReadAllTextAsync(configFile);
         return JsonSerializer.Deserialize<List<PluginConfig>>(json);
     }
@@ -159,7 +155,7 @@ public class PluginManager : IPluginManager
     private static async Task SavePluginsConfig(List<PluginConfig> plugins)
     {
         var json = JsonSerializer.Serialize(plugins);
-        await File.WriteAllTextAsync(PluginConfigFile, json);
+        await File.WriteAllTextAsync(PluginStagedConfigFile, json);
     }
 
     private static List<PluginConfig> SortConfig(List<PluginConfig> config)
@@ -167,5 +163,11 @@ public class PluginManager : IPluginManager
         config = [.. config.OrderBy(x => x.Name)];
         config.ForEach(x => x.Versions = [.. x.Versions.OrderByDescending(x => x.Version)]);
         return config;
+    }
+
+    public async Task<Version> GetRunningVersion(Guid pluginId)
+    {
+        var plugins = await LoadPluginsConfigAsync(PluginConfigType.Running);
+        return plugins.FirstOrDefault(x => x.Id == pluginId)?.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled)?.Version;
     }
 }

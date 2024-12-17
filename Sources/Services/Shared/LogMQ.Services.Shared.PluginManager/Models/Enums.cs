@@ -14,6 +14,9 @@ public enum PluginConfigType
 
 public enum VersionStatus
 {
-    Added,
-    Removed
+    Enabled,        //Installed and active (check if is running)
+    //Disabled,       //Scheduled for deactivation
+    //Running,        //Installed and active
+    Installed,      //Installed but not active
+    Removed         //Scheduled for removal (is shown only for running versions till broker restarts)
 }

@@ -10,7 +10,7 @@
     },
     "CLI - Enable": {
       "commandName": "Project",
-      "commandLineArgs": "plugin enable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 1.0.1"
+      "commandLineArgs": "plugin enable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e"
     },
     "CLI - Disable": {
       "commandName": "Project",
@@ -18,7 +18,7 @@
     },
     "CLI - Uninstall": {
       "commandName": "Project",
-      "commandLineArgs": "plugin uninstall 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 1.0.1"
+      "commandLineArgs": "plugin uninstall 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e"
     },
     "CLI - InfoInstalled": {
       "commandName": "Project",

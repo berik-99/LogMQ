@@ -26,10 +26,11 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
         public bool Yes { get; set; }
     }
 
+    //TODO: Implement restart
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        //TODO: Implement restart
-        //TODO: If no version provided, prompt which version to uninstall
+        List<Version> versions = [];
+
         var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
         if (plugin == null)
@@ -38,26 +39,40 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
             return -1;
         }
 
-        if (!plugin.Versions.Exists(x => x.Version == settings.Version))
+        if (settings.Version != null)
         {
-            AnsiConsole.MarkupLine($"[red]Error: Version '{settings.Version}' not found for plugin '{plugin.Name}'.[/]");
-            return -1;
+            if (!plugin.Versions.Exists(x => x.Version == settings.Version))
+            {
+                AnsiConsole.MarkupLine($"[red]Error: Version '{settings.Version}' not found for plugin '{plugin.Name}'.[/]");
+                return -1;
+            }
+            versions.Add(settings.Version);
+        }
+        else if (plugin.Versions.Count == 1)
+        {
+            versions.Add(plugin.Versions.First().Version);
+        }
+        else
+        {
+            versions = AnsiConsole.Prompt(new MultiSelectionPrompt<Version>()
+                .Title("Select the version which you want to uninstall: (at least one is required)")
+                .InstructionsText("[grey](Press [blue]<space>[/] to toggle a version, [green]<enter>[/] to confirm)[/]")
+                .AddChoices(plugin.Versions.Select(x => x.Version)));
         }
 
-        settings.Version ??= plugin.CurrentVersion;
+        string versionsText = string.Join(", ", versions);
 
-        if (!ConfirmOperation(settings.Yes, $"You are attempting to uninstall the plugin '{plugin.Name}' version '{settings.Version}'. Do you want to proceed?"))
-        {
+        if (!ConfirmOperation(settings.Yes, $"You are attempting to uninstall the plugin '{plugin.Name}' version(s) '{versionsText}'. Do you want to proceed?"))
             return -1;
-        }
 
-        plugin = await manager.UninstallPluginAsync(plugin.Id, settings.Version);
+        plugin = await manager.UninstallPluginAsync(plugin.Id, versions);
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version '{settings.Version}' uninstalled successfully![/]");
+        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version(s) '{versionsText}' uninstalled successfully![/]");
         AnsiConsole.WriteLine();
 
-        ShowPluginTree(plugin);
+        var runningPlugin = await manager.GetRunningVersion(plugin.Id);
+        ShowPluginTree(plugin, runningPlugin);
         return 0;
     }
 }

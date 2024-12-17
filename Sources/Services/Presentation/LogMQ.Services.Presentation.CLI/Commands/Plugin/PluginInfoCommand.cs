@@ -30,7 +30,7 @@ public class PluginInfoCommand(IPluginManager manager) : AsyncCommand<PluginInfo
 
         if (manifest != null)
         {
-            otherVerison = [manifest.CurrentVersion];
+            otherVerison = [manifest.Version];
             plugin ??= new PluginConfig
             {
                 Id = manifest.Id,
@@ -39,10 +39,13 @@ public class PluginInfoCommand(IPluginManager manager) : AsyncCommand<PluginInfo
                 Description = manifest.Description,
                 Type = manifest.Type,
                 EntryPoint = manifest.EntryPoint,
-                Versions = [new() { Version = manifest.CurrentVersion }]
+                Versions = [new() { Version = manifest.Version }]
             };
         }
-        ShowPluginTree(plugin, otherVerison);
+
+        var runningPlugin = await manager.GetRunningVersion(plugin.Id);
+        ShowPluginTree(plugin, runningPlugin, otherVerison);
+
         return 0;
     }
 }

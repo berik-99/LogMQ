@@ -5,16 +5,17 @@ namespace LogMQ.Services.Shared.PluginManager;
 public interface IPluginManager
 {
     public static readonly string PluginFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LogMQ", "Plugins");
-    public static readonly string PluginConfigFile = Path.Combine(PluginFolder, "pluginconfig.json");
-    public static readonly string PluginConfigBackupFile = $"{PluginConfigFile}.bak";
+    public static readonly string PluginStagedConfigFile = Path.Combine(PluginFolder, "pluginconfig.staged.json");
+    public static readonly string PluginRunningConfigFile = Path.Combine(PluginFolder, "pluginconfig.running.json");
     public static readonly string PluginBinariesFolder = Path.Combine(PluginFolder, "Binaries");
     public const string PluginManifestFile = "manifest.json";
     Task<PluginManifest> AnalyzePluginFile(string pluginPath);
     Task<PluginConfig> DisablePluginAsync(Guid pluginId);
-    Task<PluginConfig> EnablePluginAsync(Guid pluginId, Version version = null);
+    Task<PluginConfig> EnablePluginAsync(Guid pluginId, Version version);
     Task<PluginConfig> GetPluginInfo(PluginConfigType configType, string pluginId);
-    Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest = null);
-    Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, PluginType? type = null);
+    Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest);
+    Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, List<PluginType> typeFilter);
     Task<List<PluginConfig>> RestorePluginConfigAsync();
-    Task<PluginConfig> UninstallPluginAsync(Guid pluginId, Version version);
+    Task<PluginConfig> UninstallPluginAsync(Guid pluginId, List<Version> versions);
+    Task<Version> GetRunningVersion(Guid pluginId);
 }

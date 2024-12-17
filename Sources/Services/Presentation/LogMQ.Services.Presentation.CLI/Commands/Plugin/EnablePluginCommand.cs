@@ -42,19 +42,24 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
             if (version == null)
             {
                 AnsiConsole.MarkupLine($"[red]Error: Version '{settings.Version}' not found for plugin '{plugin.Name}'.[/]");
-                //TODO: Show available versions
                 return -1;
             }
 
-            if (version.IsRemoved && !ConfirmOperation(settings.Yes, $"You are attempting to enable a removed version '{settings.Version}' of plugin '{plugin.Name}'. Do you want to proceed and undo the removal?"))
+            if (version.Status == VersionStatus.Removed && !ConfirmOperation(settings.Yes, $"You are attempting to enable a removed version '{settings.Version}' of plugin '{plugin.Name}'. Do you want to proceed and undo the removal?"))
                 return -1;
         }
-
-        if (plugin.CurrentVersion != null)
+        else
         {
-            if (plugin.CurrentVersion > settings.Version && !ConfirmOperation(settings.Yes, $"You are attempting to enable an older version '{settings.Version}' than the current enabled version '{plugin.CurrentVersion}' of plugin '{plugin.Name}'. Do you want to proceed?"))
+            settings.Version = plugin.Versions.Count > 1 ? AnsiConsole.Prompt(new SelectionPrompt<Version>()
+                    .Title("Select the version which you want to uninstall:")
+                    .AddChoices(plugin.Versions.Select(x => x.Version))) : plugin.Versions.First().Version;
+        }
+        var currentActive = plugin.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled)?.Version;
+        if (currentActive != null)
+        {
+            if (currentActive > settings.Version && !ConfirmOperation(settings.Yes, $"You are attempting to enable an older version '{settings.Version}' than the current enabled version '{currentActive}' of plugin '{plugin.Name}'. Do you want to proceed?"))
                 return -1;
-            else if (plugin.CurrentVersion < settings.Version)
+            else if (currentActive < settings.Version)
                 settings.Version = plugin.Versions.Max(x => x.Version);
         }
 
@@ -64,10 +69,11 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
         plugin = await manager.EnablePluginAsync(plugin.Id, settings.Version);
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name} v{plugin.CurrentVersion}' enabled successfully![/]");
+        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name} v{currentActive}' enabled successfully![/]");
         AnsiConsole.WriteLine();
 
-        ShowPluginTree(plugin);
+        var runningPlugin = await manager.GetRunningVersion(plugin.Id);
+        ShowPluginTree(plugin, runningPlugin);
 
         return 0;
     }

@@ -1,4 +1,5 @@
 ﻿using LogMQ.Services.Shared.PluginManager;
+using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console.Cli;
 using System.ComponentModel;
 using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
@@ -13,6 +14,7 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
         public bool Yes { get; set; }
     }
 
+    //TODO: implement keep-installed mode which will keep the installed plugins and only restore the configuration of active/inactive plugins
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         if (!ConfirmOperation(settings.Yes, "This operation is not reversible. Do you want to continue?"))
@@ -21,7 +23,12 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
         }
 
         var plugins = await manager.RestorePluginConfigAsync();
-        ShowPluginListTree(plugins);
+
+        Dictionary<PluginConfig, Version> dict = [];
+        foreach (var plugin in plugins)
+            dict.Add(plugin, await manager.GetRunningVersion(plugin.Id));
+
+        ShowPluginListTree(dict);
         return 0;
     }
 }

@@ -5,13 +5,13 @@ namespace LogMQ.Services.Presentation.CLI.Commands;
 
 internal static class CommonCommands
 {
-    public static void ShowPluginListTree(List<PluginConfig> plugins)
+    public static void ShowPluginListTree(Dictionary<PluginConfig, Version> plugins)
     {
         if (plugins.Count > 0)
         {
             var pluginListTree = new Tree("[green]Plugins[/]");
             foreach (var plugin in plugins)
-                pluginListTree.AddNode(BuildPluginTree(plugin));
+                pluginListTree.AddNode(BuildPluginTree(plugin.Key, plugin.Value, null));
             AnsiConsole.Write(pluginListTree);
         }
         else
@@ -20,9 +20,9 @@ internal static class CommonCommands
         }
     }
 
-    public static void ShowPluginTree(PluginConfig pluginConfig, List<Version> otherVerison = null)
+    public static void ShowPluginTree(PluginConfig pluginConfig, Version running, List<Version> otherVerison = null)
     {
-        AnsiConsole.Write(BuildPluginTree(pluginConfig, otherVerison));
+        AnsiConsole.Write(BuildPluginTree(pluginConfig, running, otherVerison));
     }
 
     public static bool ConfirmOperation(bool autoConfirm, string message)
@@ -46,7 +46,7 @@ internal static class CommonCommands
         return confirmation;
     }
 
-    private static Tree BuildPluginTree(PluginConfig pluginConfig, List<Version> otherVerison = null)
+    private static Tree BuildPluginTree(PluginConfig pluginConfig, Version running, List<Version> otherVerison)
     {
         otherVerison ??= [];
         var pluginTree = new Tree($"[blue]{pluginConfig.Id}[/]");
@@ -54,10 +54,9 @@ internal static class CommonCommands
         pluginTree.AddNode($"[yellow]Author:[/] {pluginConfig.Author}");
         pluginTree.AddNode($"[yellow]Description:[/] {pluginConfig.Description}");
         pluginTree.AddNode($"[yellow]Type:[/] {pluginConfig.Type}");
-        pluginTree.AddNode($"[yellow]Last change:[/] {pluginConfig.LastChangeDate}");
         pluginTree.AddNode($"[yellow]Entry point:[/] {pluginConfig.EntryPoint}");
 
-        var versionsNode = pluginTree.AddNode(pluginConfig.CurrentVersion == null ? "[cyan]Versions[/]" : "[green]Versions[/]");
+        var versionsNode = pluginTree.AddNode("[yellow]Versions[/]");
 
         HashSet<ConfigVersion> mergedVersions = new(pluginConfig.Versions);
         foreach (var v in otherVerison)
@@ -66,31 +65,44 @@ internal static class CommonCommands
         foreach (var version in mergedVersions)
         {
             string color = "cyan";
-            string post = "   ";
-            string pre = "[[ ]]";
-            string installDate = version.InsallDate == default ? "NO DATE" : version.InsallDate.ToString();
-            if (version.IsAdded)
+            string status = "INSTALLED";
+            switch (version.Status)
             {
-                post = "(+)";
-                color = "yellow";
-            }
-            if (pluginConfig.CurrentVersion == version.Version)
-            {
-                pre = "[[*]]";
-                color = "green";
-            }
-            if (version.IsRemoved)
-            {
-                post = "(-)";
-                color = "red";
+                case VersionStatus.Installed:
+                    if (version.Version == running)
+                    {
+                        color = "yellow4_1";
+                        status = "DISABLED";
+                    }
+                    else
+                    {
+                        color = "cyan";
+                        status = "INSTALLED";
+                    }
+                    break;
+                case VersionStatus.Enabled:
+                    if (version.Version == running)
+                    {
+                        color = "green";
+                        status = "RUNNING";
+                    }
+                    else
+                    {
+                        color = "yellow";
+                        status = "ENABLED";
+                    }
+                    break;
+                case VersionStatus.Removed:
+                    color = "red";
+                    status = "REMOVED";
+                    break;
             }
             if (!pluginConfig.Versions.Contains(version) && otherVerison.Contains(version.Version))
             {
-                post = "(X)";
                 color = "white";
-                installDate = "NOT INSTALLED";
+                status = "NOT INSTALLED";
             }
-            string markup = $"[{color}]{pre} {version.Version} {post} INSTALLED: {installDate}[/]";
+            string markup = $"[{color}]{version.Version} - STATUS: {status}[/]";
             versionsNode.AddNode(markup);
         }
         return pluginTree;

@@ -21,8 +21,18 @@ public class ListPluginsCommand(IPluginManager manager) : AsyncCommand<ListPlugi
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var plugins = await manager.ListPluginsAsync(settings.ConfigType, settings.Type);
-        ShowPluginListTree(plugins);
+        List<PluginType> typefilter = [];
+        if (settings.Type == null)
+            typefilter.AddRange([PluginType.Receiver, PluginType.Storage]);
+        else
+            typefilter.Add((PluginType)settings.Type);
+        var plugins = await manager.ListPluginsAsync(settings.ConfigType, typefilter);
+
+        Dictionary<PluginConfig, Version> dict = [];
+        foreach (var plugin in plugins)
+            dict.Add(plugin, await manager.GetRunningVersion(plugin.Id));
+
+        ShowPluginListTree(dict);
         return 0;
     }
 }

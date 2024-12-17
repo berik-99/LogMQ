@@ -9,7 +9,7 @@ namespace LogMQ.Services.Shared.PluginManager.Models
         public string Author { get; set; }
         public string Description { get; set; }
         public string EntryPoint { get; set; }
-        public Version CurrentVersion { get; set; }
+        public Version Version { get; set; }
         public DateTime PublicationDate { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]

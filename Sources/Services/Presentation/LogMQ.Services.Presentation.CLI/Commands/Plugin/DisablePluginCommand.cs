@@ -46,7 +46,8 @@ public class DisablePluginCommand(IPluginManager manager) : AsyncCommand<Disable
         AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' disabled successfully![/]");
         AnsiConsole.WriteLine();
 
-        ShowPluginTree(plugin);
+        var runningPlugin = await manager.GetRunningVersion(plugin.Id);
+        ShowPluginTree(plugin, runningPlugin);
 
         return 0;
     }
