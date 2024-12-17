@@ -15,7 +15,7 @@ public interface IPluginManager
     Task<PluginConfig> GetPluginInfo(PluginConfigType configType, string pluginId);
     Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest);
     Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, List<PluginType> typeFilter);
-    Task<List<PluginConfig>> RestorePluginConfigAsync();
+    Task<List<PluginConfig>> RestorePluginConfigAsync(bool hardCopy);
     Task<PluginConfig> UninstallPluginAsync(Guid pluginId, List<Version> versions);
     Task<Version> GetRunningVersion(Guid pluginId);
 }

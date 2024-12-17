@@ -9,6 +9,10 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
 {
     public class Settings : CommandSettings
     {
+        [CommandOption("-H|--hard-copy")]
+        [Description("Will make an hard copy of running config, removing also new installed plugins.")]
+        public bool Erase { get; set; }
+
         [CommandOption("-y")]
         [Description("Automatically respond y to all propmts.")]
         public bool Yes { get; set; }
@@ -22,7 +26,7 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
             return -1;
         }
 
-        var plugins = await manager.RestorePluginConfigAsync();
+        var plugins = await manager.RestorePluginConfigAsync(settings.Erase);
 
         Dictionary<PluginConfig, Version> dict = [];
         foreach (var plugin in plugins)

@@ -70,9 +70,9 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version(s) '{versionsText}' uninstalled successfully![/]");
         AnsiConsole.WriteLine();
-
         var runningPlugin = await manager.GetRunningVersion(plugin.Id);
         ShowPluginTree(plugin, runningPlugin);
+
         return 0;
     }
 }

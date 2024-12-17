@@ -62,48 +62,55 @@ internal static class CommonCommands
         foreach (var v in otherVerison)
             mergedVersions.Add(new ConfigVersion { Version = v });
 
-        foreach (var version in mergedVersions)
+        if (mergedVersions.Count > 0)
         {
-            string color = "cyan";
-            string status = "INSTALLED";
-            switch (version.Status)
+            foreach (var version in mergedVersions)
             {
-                case VersionStatus.Installed:
-                    if (version.Version == running)
-                    {
-                        color = "yellow4_1";
-                        status = "DISABLED";
-                    }
-                    else
-                    {
-                        color = "cyan";
-                        status = "INSTALLED";
-                    }
-                    break;
-                case VersionStatus.Enabled:
-                    if (version.Version == running)
-                    {
-                        color = "green";
-                        status = "RUNNING";
-                    }
-                    else
-                    {
-                        color = "yellow";
-                        status = "ENABLED";
-                    }
-                    break;
-                case VersionStatus.Removed:
-                    color = "red";
-                    status = "REMOVED";
-                    break;
+                string color = "cyan";
+                string status = "INSTALLED";
+                switch (version.Status)
+                {
+                    case VersionStatus.Installed:
+                        if (version.Version == running)
+                        {
+                            color = "yellow4_1";
+                            status = "DISABLED";
+                        }
+                        else
+                        {
+                            color = "cyan";
+                            status = "INSTALLED";
+                        }
+                        break;
+                    case VersionStatus.Enabled:
+                        if (version.Version == running)
+                        {
+                            color = "green";
+                            status = "RUNNING";
+                        }
+                        else
+                        {
+                            color = "yellow";
+                            status = "ENABLED";
+                        }
+                        break;
+                    case VersionStatus.Removed:
+                        color = "red";
+                        status = "REMOVED";
+                        break;
+                }
+                if (!pluginConfig.Versions.Contains(version) && otherVerison.Contains(version.Version))
+                {
+                    color = "white";
+                    status = "NOT INSTALLED";
+                }
+                string markup = $"[{color}]{version.Version} - STATUS: {status}[/]";
+                versionsNode.AddNode(markup);
             }
-            if (!pluginConfig.Versions.Contains(version) && otherVerison.Contains(version.Version))
-            {
-                color = "white";
-                status = "NOT INSTALLED";
-            }
-            string markup = $"[{color}]{version.Version} - STATUS: {status}[/]";
-            versionsNode.AddNode(markup);
+        }
+        else
+        {
+            versionsNode.AddNode("[red]No versions installed[/]");
         }
         return pluginTree;
     }

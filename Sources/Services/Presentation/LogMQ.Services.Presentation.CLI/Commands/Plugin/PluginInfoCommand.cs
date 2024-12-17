@@ -20,7 +20,15 @@ public class PluginInfoCommand(IPluginManager manager) : AsyncCommand<PluginInfo
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        var manifest = await manager.AnalyzePluginFile(settings.PluginIdentifier);
+        PluginManifest manifest;
+        try
+        {
+            manifest = await manager.AnalyzePluginFile(settings.PluginIdentifier);
+        }
+        catch (Exception)
+        {
+            manifest = null;
+        }
         string pluginId = settings.PluginIdentifier;
         if (manifest != null) pluginId = manifest.Id.ToString();
 

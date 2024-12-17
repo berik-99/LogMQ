@@ -111,10 +111,21 @@ public class PluginManager : IPluginManager
         return plugins.FindAll(x => typeFilter.Contains(x.Type));
     }
 
-    public async Task<List<PluginConfig>> RestorePluginConfigAsync()
+    public async Task<List<PluginConfig>> RestorePluginConfigAsync(bool hardCopy)
     {
+        var filter = new List<PluginType> { PluginType.Receiver, PluginType.Storage };
+        if (hardCopy)
+        {
+            File.Copy(PluginRunningConfigFile, PluginStagedConfigFile, true);
+            return await ListPluginsAsync(PluginConfigType.Staged, filter);
+        }
+
+        var plugins = await ListPluginsAsync(PluginConfigType.Staged, filter);
+        foreach (var version in plugins.SelectMany(plugin => plugin.Versions))
+            version.Status = VersionStatus.Installed;
         File.Copy(PluginRunningConfigFile, PluginStagedConfigFile, true);
-        return await ListPluginsAsync(PluginConfigType.Staged, null);
+        await SavePluginsConfig(plugins);
+        return plugins;
     }
 
     public async Task<PluginManifest> AnalyzePluginFile(string pluginPath)

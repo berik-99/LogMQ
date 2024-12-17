@@ -91,7 +91,7 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
         AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version '{manifest.Version}' installed successfully![/]");
         AnsiConsole.WriteLine();
 
-        //TODO: Implement the restart logic
+        //TODO: Implement restart
 
         var runningPlugin = await manager.GetRunningVersion(plugin.Id);
         ShowPluginTree(plugin, runningPlugin);
