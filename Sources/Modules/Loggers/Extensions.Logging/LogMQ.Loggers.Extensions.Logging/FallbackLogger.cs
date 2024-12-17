@@ -28,7 +28,7 @@ public sealed class FallbackLogger(ILogger fallback = null) : FallbackLogProvide
 	/// The default fallback logger uses <see cref="LoggerFactory"/> to create a logger that writes
 	/// log events to the console. If no other logger is specified, this will be the logger used.
 	/// </remarks>
-	private static readonly Lazy<ILogger> defaultFallback = new(() => LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger(nameof(Logging.FallbackLogger)));
+	private static readonly Lazy<ILogger> defaultFallback = new(() => LoggerFactory.Create(builder => builder.AddConsole()).CreateLogger(nameof(FallbackLogger)));
 
 	/// <summary>
 	/// Gets the fallback logger that will be used to log messages. If a custom logger is provided,

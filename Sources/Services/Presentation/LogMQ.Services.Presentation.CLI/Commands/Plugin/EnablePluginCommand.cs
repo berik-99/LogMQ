@@ -3,6 +3,7 @@ using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePluginCommand.Settings>
@@ -26,11 +27,12 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
+        //TODO: Implement restart
         var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
         if (plugin == null)
         {
-            AnsiConsole.MarkupLine($"[red]Plugin '{settings.PluginIdOrName}' not found.[/]");
+            AnsiConsole.MarkupLine($"[red]Error: Plugin '{settings.PluginIdOrName}' not found.[/]");
             return -1;
         }
 
@@ -39,56 +41,33 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
             var version = plugin.Versions.FirstOrDefault(x => x.Version == settings.Version);
             if (version == null)
             {
-                AnsiConsole.MarkupLine($"[red]Version '{settings.Version}' not found for plugin '{plugin.Name}'[/]");
+                AnsiConsole.MarkupLine($"[red]Error: Version '{settings.Version}' not found for plugin '{plugin.Name}'.[/]");
+                //TODO: Show available versions
                 return -1;
             }
-            if (version.IsRemoved)
-            {
-                var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("Tou are trying to enable a removed version of this plugin. Do you want to proceed and undo removing operation?")
-                    .AddChoice(true)
-                    .AddChoice(false)
-                    .DefaultValue(true)
-                    .WithConverter(choice => choice ? "y" : "n"));
-                if (!confirmation)
-                {
-                    AnsiConsole.MarkupLine("[red]Operation aborted.[/]");
-                    return -1;
-                }
-            }
+
+            if (version.IsRemoved && !ConfirmOperation(settings.Yes, $"You are attempting to enable a removed version '{settings.Version}' of plugin '{plugin.Name}'. Do you want to proceed and undo the removal?"))
+                return -1;
         }
 
         if (plugin.CurrentVersion != null)
         {
-            if (plugin.CurrentVersion > settings.Version)
-            {
-                if (!settings.Yes)
-                {
-                    var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("You are trying to enable an older version than current enabled. Do you want to proceed?")
-                        .AddChoice(true)
-                        .AddChoice(false)
-                        .DefaultValue(true)
-                        .WithConverter(choice => choice ? "y" : "n"));
-                    if (!confirmation)
-                    {
-                        AnsiConsole.MarkupLine("[red]Operation aborted.[/]");
-                        return -1;
-                    }
-                }
-            }
-            else
-            {
+            if (plugin.CurrentVersion > settings.Version && !ConfirmOperation(settings.Yes, $"You are attempting to enable an older version '{settings.Version}' than the current enabled version '{plugin.CurrentVersion}' of plugin '{plugin.Name}'. Do you want to proceed?"))
+                return -1;
+            else if (plugin.CurrentVersion < settings.Version)
                 settings.Version = plugin.Versions.Max(x => x.Version);
-            }
         }
+
+        if (!ConfirmOperation(settings.Yes, $"Are you sure you want to enable the plugin '{plugin.Name}' version '{settings.Version}'?"))
+            return -1;
+
         plugin = await manager.EnablePluginAsync(plugin.Id, settings.Version);
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' installed successfully![/]");
+        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name} v{plugin.CurrentVersion}' enabled successfully![/]");
         AnsiConsole.WriteLine();
 
-        var pluginTree = CommonCommands.BuildPluginTree(plugin);
-
-        AnsiConsole.Write(pluginTree);
+        ShowPluginTree(plugin);
 
         return 0;
     }

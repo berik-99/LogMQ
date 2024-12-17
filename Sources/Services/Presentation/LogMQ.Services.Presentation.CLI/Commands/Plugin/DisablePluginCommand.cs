@@ -3,6 +3,7 @@ using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
@@ -24,35 +25,28 @@ public class DisablePluginCommand(IPluginManager manager) : AsyncCommand<Disable
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
+        //TODO: Implement restart
         var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
         if (plugin == null)
         {
-            AnsiConsole.MarkupLine($"[red]Plugin '{settings.PluginIdOrName}' not found.[/]");
+            AnsiConsole.MarkupLine($"[red]Error: Plugin '{settings.PluginIdOrName}' not found.[/]");
             return -1;
         }
 
-        //TODO: implement -y option
-        var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("You are about to disable this plugin. Do you want to proceed?")
-            .AddChoice(true)
-            .AddChoice(false)
-            .DefaultValue(true)
-            .WithConverter(choice => choice ? "y" : "n"));
-        if (!confirmation)
+        // Prompt for confirmation if -y option is not set
+        if (!ConfirmOperation(settings.Yes, $"You are attempting to disable the plugin '{plugin.Name}'. Do you want to proceed?"))
         {
-            AnsiConsole.MarkupLine("[red]Operation aborted.[/]");
             return -1;
         }
 
         plugin = await manager.DisablePluginAsync(plugin.Id);
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' disabled successfully![/]");
+        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' disabled successfully![/]");
         AnsiConsole.WriteLine();
 
-        var pluginTree = CommonCommands.BuildPluginTree(plugin);
-
-        AnsiConsole.Write(pluginTree);
+        ShowPluginTree(plugin);
 
         return 0;
     }

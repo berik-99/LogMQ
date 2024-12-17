@@ -85,13 +85,22 @@ public class PluginManager : IPluginManager
             throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
         if (plugin.CurrentVersion == version)
             plugin.CurrentVersion = null;
-        plugin.Versions.FirstOrDefault(x => x.Version == version).IsRemoved = true;
+        var pluginVersion = plugin.Versions.FirstOrDefault(x => x.Version == version);
+        if (pluginVersion.IsAdded)
+        {
+            var dir = Path.Combine(PluginBinariesFolder, pluginId.ToString());
+            File.Delete(Path.Combine(dir, $"{version}.lmqex"));
+            if (Directory.GetFiles(dir).Length == 0)
+                Directory.Delete(dir);
+            plugin.Versions.Remove(pluginVersion);
+            if (plugin.Versions.Count == 0)
+                plugins.Remove(plugin);
+        }
+        else
+        {
+            pluginVersion.IsRemoved = true;
+        }
 
-        //TODO: run this at broker startup
-        //var dir = Path.Combine(PluginBinariesFolder, pluginId.ToString());
-        //File.Delete(Path.Combine(dir, $"{version}.lmqex"));
-        //if (Directory.GetFiles(dir).Length == 0)
-        //    Directory.Delete(dir);
         plugins = SortConfig(plugins);
         plugin.LastChangeDate = DateTime.Now;
         await SavePluginsConfig(plugins);

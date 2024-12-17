@@ -1,7 +1,7 @@
 ﻿using LogMQ.Services.Shared.PluginManager;
-using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<RestorePluginsCommand.Settings>
@@ -15,30 +15,13 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        if (!settings.Yes)
+        if (!ConfirmOperation(settings.Yes, "This operation is not reversible. Do you want to continue?"))
         {
-            var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("This operation is not reversible. Do you want to continue?")
-            .AddChoice(true)
-            .AddChoice(false)
-            .DefaultValue(true)
-            .WithConverter(choice => choice ? "y" : "n"));
-            if (!confirmation)
-            {
-                AnsiConsole.MarkupLine("[red]Installation aborted.[/]");
-                return -1;
-            }
+            return -1;
         }
-        var plugins = await manager.RestorePluginConfigAsync();
 
-        if (plugins.Count > 0)
-        {
-            var tree = CommonCommands.BuildPluginListTree(plugins);
-            AnsiConsole.Write(tree);
-        }
-        else
-        {
-            AnsiConsole.MarkupLine("[red]No plugins found.[/]");
-        }
+        var plugins = await manager.RestorePluginConfigAsync();
+        ShowPluginListTree(plugins);
         return 0;
     }
 }

@@ -44,7 +44,8 @@ logmq plugin uninstall <plugin-name/plugin-id> [-v|--version <plugin-version>] [
 logmq plugin list <plugin-name/plugin-id> [-c|--config-type <config-type>] [-t|--plugin-type <plugin-type>]
 
 # Show information about provided plugin.
-logmq plugin info <plugin-name/plugin-id/path/to/file.lmqex>
+#   -c|--config-type => Select the configuration to show (Enum: Staged|Running; defaults to Staged).
+logmq plugin info <plugin-name/plugin-id/path/to/file.lmqex> [-c|--config-type <config-type>]
 
 # Restore plugin configurations from running config; Running config is compiled  from staged one at broker startup and represents the current broker configuration.
 #   -y => Automatically responds yes to non-critical confirmation prompts (critical ones will abort operation).

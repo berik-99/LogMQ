@@ -56,7 +56,7 @@ public sealed class MsmqProvider : ILogProvider, IDisposable
         try
         {
             ArgumentNullException.ThrowIfNull(fallbackLogger);
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(queuePath);
+            ArgumentException.ThrowIfNullOrWhiteSpace(queuePath);
             FormatProvider = formatProvider;
             FallbackLogger = fallbackLogger;
             if (!MessageQueue.Exists(queuePath))

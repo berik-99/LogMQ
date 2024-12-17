@@ -3,6 +3,7 @@ using LogMQ.Services.Shared.PluginManager.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
+using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
@@ -30,7 +31,6 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         var manifest = await manager.AnalyzePluginFile(settings.PluginPath);
-
         var existingPlugin = await manager.GetPluginInfo(PluginConfigType.Staged, manifest.Id.ToString());
 
         if (settings.Yes)
@@ -41,17 +41,19 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
             {
                 if (existingPlugin.Versions.Exists(x => x.Version == manifest.CurrentVersion))
                 {
-                    infoMessage = "[red]The plugin version you are trying to install already exists. Run again this command without -y option to reinstall.[/]";
+                    infoMessage = $"[red]Error: The plugin '{manifest.Name}' version '{manifest.CurrentVersion}' you are attempting to install already exists. Run this command again without the -y option to reinstall.[/]";
                     blockExecution = true;
                 }
                 else if (existingPlugin.Versions.Exists(x => x.Version > manifest.CurrentVersion))
                 {
-                    infoMessage = "[red]A newer version of this plugin is already installed. Run again this command without -y option to to install this version.[/]";
+                    var newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.CurrentVersion).Max(x => x.Version);
+                    infoMessage = $"[red]Error: A newer version '{newerVersion}' of the plugin '{manifest.Name}' is already installed. Run this command again without the -y option to install version '{manifest.CurrentVersion}'.[/]";
                     blockExecution = true;
                 }
                 else
                 {
-                    infoMessage = $"[green]Updating plugin: {existingPlugin.Versions.Max(x => x.Version)} -> {manifest.CurrentVersion}[/]";
+                    var olderVersion = existingPlugin.Versions.Max(x => x.Version);
+                    infoMessage = $"[green]Updating plugin '{manifest.Name}': {olderVersion} -> {manifest.CurrentVersion}[/]";
                 }
             }
             AnsiConsole.MarkupLine(infoMessage);
@@ -59,31 +61,26 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
         }
         else
         {
-            string promptMessage = "Do you want to confirm the installation of this plugin?";
+            string promptMessage = $"Do you want to confirm the installation of the plugin '{manifest.Name}' version '{manifest.CurrentVersion}'?";
             if (existingPlugin != null)
             {
                 if (existingPlugin.Versions.Exists(x => x.Version == manifest.CurrentVersion))
                 {
-                    promptMessage = "The plugin version you are trying to install already exists. Do you want to reinstall it?";
+                    promptMessage = $"The plugin '{manifest.Name}' version '{manifest.CurrentVersion}' you are attempting to install already exists. Do you want to reinstall it?";
                 }
                 else if (existingPlugin.Versions.Exists(x => x.Version > manifest.CurrentVersion))
                 {
-                    promptMessage = "A newer version of this plugin is already installed. Do you want to install this older version?";
+                    var newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.CurrentVersion).Max(x => x.Version);
+                    promptMessage = $"A newer version '{newerVersion}' of the plugin '{manifest.Name}' is already installed. Do you want to install the older version '{manifest.CurrentVersion}'?";
                 }
                 else
                 {
-                    promptMessage = "An older version of this plugin is already installed. Do you want to update?";
+                    var olderVersion = existingPlugin.Versions.Max(x => x.Version);
+                    promptMessage = $"An older version '{olderVersion}' of the plugin '{manifest.Name}' is already installed. Do you want to update to version '{manifest.CurrentVersion}'?";
                 }
             }
-
-            var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>(promptMessage)
-            .AddChoice(true)
-            .AddChoice(false)
-            .DefaultValue(true)
-            .WithConverter(choice => choice ? "y" : "n"));
-            if (!confirmation)
+            if (!ConfirmOperation(settings.Yes, promptMessage))
             {
-                AnsiConsole.MarkupLine("[red]Installation aborted.[/]");
                 return -1;
             }
         }
@@ -91,14 +88,12 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
         var plugin = await manager.InstallPluginAsync(settings.PluginPath, true, settings.Enable, manifest);
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[green]Plugin '{plugin.Name}' installed successfully![/]");
+        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version '{plugin.CurrentVersion}' installed successfully![/]");
         AnsiConsole.WriteLine();
 
-        var pluginTree = CommonCommands.BuildPluginTree(plugin);
-
-        AnsiConsole.Write(pluginTree);
-
         //TODO: Implement the restart logic
+
+        ShowPluginTree(plugin);
 
         return 0;
     }

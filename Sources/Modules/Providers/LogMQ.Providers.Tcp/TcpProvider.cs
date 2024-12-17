@@ -90,7 +90,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
         try
         {
             ArgumentNullException.ThrowIfNull(fallbackLogger);
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(host);
+            ArgumentException.ThrowIfNullOrWhiteSpace(host);
             ArgumentOutOfRangeException.ThrowIfNegative(retryQueueSize);
             FallbackLogger = fallbackLogger;
             FormatProvider = formatProvider;
