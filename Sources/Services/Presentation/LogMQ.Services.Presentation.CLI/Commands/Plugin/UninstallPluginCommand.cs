@@ -29,7 +29,7 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         //TODO: Implement restart
-        //TODO: Implement -all flag to uninstall all versions 
+        //TODO: If no version provided, prompt which version to uninstall
         var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
         if (plugin == null)
