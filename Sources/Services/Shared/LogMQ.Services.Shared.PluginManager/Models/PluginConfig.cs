@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace LogMQ.Services.Shared.PluginManager.Models;
+﻿namespace LogMQ.Services.Shared.PluginManager.Models;
 
 public class PluginConfig : PluginManifest
 {
@@ -21,18 +19,12 @@ public class ConfigVersion : IEquatable<ConfigVersion>
 {
     public Version Version { get; set; }
     public DateTime InsallDate { get; set; }
-
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public VersionStatus Status { get; set; }
+    public bool IsAdded { get; set; }
+    public bool IsRemoved { get; set; }
 
     public bool Equals(ConfigVersion other) => Version == other.Version;
-
     public override bool Equals(object obj) => Equals(obj as ConfigVersion);
-
-    public override int GetHashCode()
-    {
-        return Version.GetHashCode();
-    }
+    public override int GetHashCode() => Version.GetHashCode();
 }
 
 public static class HashSetExtensions
@@ -44,6 +36,4 @@ public static class HashSetExtensions
         hashSet.Remove(newValue);
         return hashSet.Add(newValue);
     }
-
-
 }

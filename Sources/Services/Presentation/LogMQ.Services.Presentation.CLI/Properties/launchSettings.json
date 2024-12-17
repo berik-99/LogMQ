@@ -19,6 +19,18 @@
     "CLI - Uninstall": {
       "commandName": "Project",
       "commandLineArgs": "plugin uninstall 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 1.0.1"
+    },
+    "CLI - InfoInstalled": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin info 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e"
+    },
+    "CLI - InfoPackage": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin info C:\\Users\\erikb\\Desktop\\test-plugin.zip"
+    },
+    "CLI - Restore": {
+      "commandName": "Project",
+      "commandLineArgs": "plugin restore"
     }
   }
 }

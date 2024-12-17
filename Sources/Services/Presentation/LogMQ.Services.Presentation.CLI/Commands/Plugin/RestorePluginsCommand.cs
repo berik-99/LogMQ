@@ -17,7 +17,6 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
     {
         if (!settings.Yes)
         {
-
             var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("This operation is not reversible. Do you want to continue?")
             .AddChoice(true)
             .AddChoice(false)

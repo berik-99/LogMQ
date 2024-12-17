@@ -34,7 +34,7 @@ internal static class CommonCommands
             string color = "cyan";
             string post = "   ";
             string pre = "[[ ]]";
-            if (version.Status == VersionStatus.Added)
+            if (version.IsAdded)
             {
                 post = "(+)";
                 color = "yellow";
@@ -44,7 +44,7 @@ internal static class CommonCommands
                 pre = "[[*]]";
                 color = "green";
             }
-            if (version.Status == VersionStatus.Removed)
+            if (version.IsRemoved)
             {
                 post = "(-)";
                 color = "red";
@@ -62,7 +62,7 @@ internal static class CommonCommands
         pluginTree.AddNode($"[yellow]Author:[/] {pluginConfig.Author}");
         pluginTree.AddNode($"[yellow]Description:[/] {pluginConfig.Description}");
         pluginTree.AddNode($"[yellow]Type:[/] {pluginConfig.Type}");
-        pluginTree.AddNode($"[yellow]Last change:[/] NOT INSTALLED");
+        pluginTree.AddNode("[yellow]Last change:[/] NOT INSTALLED");
         pluginTree.AddNode($"[yellow]Entry point:[/] {pluginConfig.EntryPoint}");
         var versionsNode = pluginTree.AddNode("[cyan]Versions[/]");
         versionsNode.AddNode($"[cyan] {pluginConfig.CurrentVersion} [/]");

@@ -33,7 +33,6 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
 
         var existingPlugin = await manager.GetPluginInfo(PluginConfigType.Staged, manifest.Id.ToString());
 
-
         if (settings.Yes)
         {
             bool blockExecution = false;

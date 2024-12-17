@@ -36,7 +36,10 @@ public class PluginManager : IPluginManager
         version ??= plugin.Versions.Max(x => x.Version);
         if (!plugin.Versions.Exists(x => x.Version == version))
             throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
-        plugin.CurrentVersion = version;
+
+        var selectedVersion = plugin.Versions.First(x => x.Version == version);
+        plugin.CurrentVersion = selectedVersion.Version;
+        selectedVersion.IsRemoved = false;
         plugin.LastChangeDate = DateTime.Now;
         await SavePluginsConfig(plugins);
         return plugin;
@@ -67,7 +70,7 @@ public class PluginManager : IPluginManager
             plugins.Add(existingConfig);
         }
         existingConfig.LastChangeDate = DateTime.Now;
-        existingConfig.Versions.AddOrReplace(new ConfigVersion { Version = manifest.CurrentVersion, InsallDate = existingConfig.LastChangeDate, Status = VersionStatus.Added });
+        existingConfig.Versions.AddOrReplace(new ConfigVersion { Version = manifest.CurrentVersion, InsallDate = existingConfig.LastChangeDate, IsAdded = true, IsRemoved = false });
         if (enable) existingConfig.CurrentVersion = manifest.CurrentVersion;
         plugins = SortConfig(plugins);
         await SavePluginsConfig(plugins);
@@ -82,7 +85,7 @@ public class PluginManager : IPluginManager
             throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
         if (plugin.CurrentVersion == version)
             plugin.CurrentVersion = null;
-        plugin.Versions.FirstOrDefault(x => x.Version == version).Status = VersionStatus.Removed;
+        plugin.Versions.FirstOrDefault(x => x.Version == version).IsRemoved = true;
 
         //TODO: run this at broker startup
         //var dir = Path.Combine(PluginBinariesFolder, pluginId.ToString());
@@ -105,7 +108,7 @@ public class PluginManager : IPluginManager
 
     public async Task<List<PluginConfig>> RestorePluginConfigAsync()
     {
-        File.Copy(PluginConfigFile, PluginConfigBackupFile);
+        File.Copy(PluginConfigBackupFile, PluginConfigFile, true);
         return await ListPluginsAsync(PluginConfigType.Staged, null);
     }
 

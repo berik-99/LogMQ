@@ -42,32 +42,44 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
                 AnsiConsole.MarkupLine($"[red]Version '{settings.Version}' not found for plugin '{plugin.Name}'[/]");
                 return -1;
             }
-            if (version.Status == VersionStatus.Removed)
+            if (version.IsRemoved)
             {
-                AnsiConsole.MarkupLine($"[red]Version '{settings.Version}' is marked for removing and is no longer be enabled[/]");
-                return -1;
+                var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("Tou are trying to enable a removed version of this plugin. Do you want to proceed and undo removing operation?")
+                    .AddChoice(true)
+                    .AddChoice(false)
+                    .DefaultValue(true)
+                    .WithConverter(choice => choice ? "y" : "n"));
+                if (!confirmation)
+                {
+                    AnsiConsole.MarkupLine("[red]Operation aborted.[/]");
+                    return -1;
+                }
             }
         }
 
-        if (plugin.CurrentVersion > settings.Version)
+        if (plugin.CurrentVersion != null)
         {
-            //TODO: implement -y option
-            var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("You are trying to enable an older version than current enabled. Do you want to proceed?")
-                .AddChoice(true)
-                .AddChoice(false)
-                .DefaultValue(true)
-                .WithConverter(choice => choice ? "y" : "n"));
-            if (!confirmation)
+            if (plugin.CurrentVersion > settings.Version)
             {
-                AnsiConsole.MarkupLine("[red]Operation aborted.[/]");
-                return -1;
+                if (!settings.Yes)
+                {
+                    var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>("You are trying to enable an older version than current enabled. Do you want to proceed?")
+                        .AddChoice(true)
+                        .AddChoice(false)
+                        .DefaultValue(true)
+                        .WithConverter(choice => choice ? "y" : "n"));
+                    if (!confirmation)
+                    {
+                        AnsiConsole.MarkupLine("[red]Operation aborted.[/]");
+                        return -1;
+                    }
+                }
+            }
+            else
+            {
+                settings.Version = plugin.Versions.Max(x => x.Version);
             }
         }
-        else
-        {
-            settings.Version = plugin.Versions.Max(x => x.Version);
-        }
-
         plugin = await manager.EnablePluginAsync(plugin.Id, settings.Version);
 
         AnsiConsole.WriteLine();

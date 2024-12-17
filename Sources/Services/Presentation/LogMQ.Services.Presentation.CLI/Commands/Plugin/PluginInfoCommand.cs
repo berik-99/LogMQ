@@ -14,6 +14,7 @@ public class PluginInfoCommand(IPluginManager manager) : AsyncCommand<PluginInfo
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
+        //TODO: when is plugin file parse with installed versions and merge informations
         var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdentifier);
         if (plugin != null)
         {
@@ -25,7 +26,8 @@ public class PluginInfoCommand(IPluginManager manager) : AsyncCommand<PluginInfo
         var manifest = await manager.AnalyzePluginFile(settings.PluginIdentifier);
         if (manifest != null)
         {
-            CommonCommands.BuildPluginTree(manifest);
+            var tree = CommonCommands.BuildPluginTree(manifest);
+            AnsiConsole.Write(tree);
             return 0;
         }
 
