@@ -7,6 +7,10 @@ namespace LogMQ.Services.Shared.PluginManager;
 
 public class PluginManager : IPluginManager
 {
+    /// <summary>
+    /// Initializes a new instance of the PluginManager class.
+    /// Creates necessary directories and configuration files if they don't exist.
+    /// </summary>
     public PluginManager()
     {
         if (!Path.Exists(PluginFolder))
@@ -19,6 +23,37 @@ public class PluginManager : IPluginManager
             File.Copy(PluginStagedConfigFile, PluginRunningConfigFile);
     }
 
+    /// <inheritdoc/>
+    public async Task<PluginManifest> AnalyzePluginFile(string pluginPath)
+    {
+        if (!Path.Exists(pluginPath))
+            throw new FileNotFoundException($"Plugin {pluginPath} not found");
+        await using var file = File.OpenRead(pluginPath);
+        using var zip = new ZipArchive(file, ZipArchiveMode.Read);
+        var manifestZipEntry = zip.Entries.FirstOrDefault(e => e.Name == PluginManifestFile)
+             ?? throw new FileNotFoundException("Plugin manifest not found");
+        await using Stream manifestStream = manifestZipEntry.Open();
+        using var reader = new StreamReader(manifestStream);
+        string manifestContent = await reader.ReadToEndAsync();
+        var manifest = JsonSerializer.Deserialize<PluginManifest>(manifestContent);
+        _ = zip.Entries.FirstOrDefault(x => x.Name == manifest.EntryPoint)
+            ?? throw new FileNotFoundException("Plugin entry point not found");
+        //TODO: Verify entrypoint
+        return manifest;
+    }
+
+    /// <inheritdoc/>
+    public async Task<PluginConfig> GetPluginInfo(PluginConfigType configType, string pluginReference)
+    {
+        var plugins = await LoadPluginsConfigAsync(configType);
+        if (Guid.TryParse(pluginReference, out Guid guid))
+            return plugins.Find(x => x.Id == guid);
+        else if (plugins.Exists(x => x.Name == pluginReference))
+            return plugins.Find(x => x.Name == pluginReference);
+        return null;
+    }
+
+    /// <inheritdoc/>
     public async Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest)
     {
         var destFolder = Path.Combine(PluginBinariesFolder, manifest.Id.ToString());
@@ -47,6 +82,7 @@ public class PluginManager : IPluginManager
         return existingConfig;
     }
 
+    /// <inheritdoc/>
     public async Task<PluginConfig> UninstallPluginAsync(Guid pluginId, List<Version> versions)
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
@@ -81,6 +117,7 @@ public class PluginManager : IPluginManager
         return plugin;
     }
 
+    /// <inheritdoc/>
     public async Task<PluginConfig> EnablePluginAsync(Guid pluginId, Version version)
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
@@ -94,6 +131,7 @@ public class PluginManager : IPluginManager
         return plugin;
     }
 
+    /// <inheritdoc/>
     public async Task<PluginConfig> DisablePluginAsync(Guid pluginId)
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
@@ -105,12 +143,14 @@ public class PluginManager : IPluginManager
         return plugin;
     }
 
+    /// <inheritdoc/>
     public async Task<List<PluginConfig>> ListPluginsAsync(PluginConfigType configType, List<PluginType> typeFilter)
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(configType);
         return plugins.FindAll(x => typeFilter.Contains(x.Type));
     }
 
+    /// <inheritdoc/>
     public async Task<List<PluginConfig>> RestorePluginConfigAsync(bool hardCopy)
     {
         var filter = new List<PluginType> { PluginType.Receiver, PluginType.Storage };
@@ -128,34 +168,18 @@ public class PluginManager : IPluginManager
         return plugins;
     }
 
-    public async Task<PluginManifest> AnalyzePluginFile(string pluginPath)
+    /// <inheritdoc/>
+    public async Task<Version> GetRunningVersion(Guid pluginId)
     {
-        if (!Path.Exists(pluginPath))
-            throw new FileNotFoundException($"Plugin {pluginPath} not found");
-        await using var file = File.OpenRead(pluginPath);
-        using var zip = new ZipArchive(file, ZipArchiveMode.Read);
-        var manifestZipEntry = zip.Entries.FirstOrDefault(e => e.Name == PluginManifestFile)
-             ?? throw new FileNotFoundException("Plugin manifest not found");
-        await using Stream manifestStream = manifestZipEntry.Open();
-        using var reader = new StreamReader(manifestStream);
-        string manifestContent = await reader.ReadToEndAsync();
-        var manifest = JsonSerializer.Deserialize<PluginManifest>(manifestContent);
-        _ = zip.Entries.FirstOrDefault(x => x.Name == manifest.EntryPoint)
-            ?? throw new FileNotFoundException("Plugin entry point not found");
-        //TODO: Verify entrypoint
-        return manifest;
+        var plugins = await LoadPluginsConfigAsync(PluginConfigType.Running);
+        return plugins.FirstOrDefault(x => x.Id == pluginId)?.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled)?.Version;
     }
 
-    public async Task<PluginConfig> GetPluginInfo(PluginConfigType configType, string pluginReference)
-    {
-        var plugins = await LoadPluginsConfigAsync(configType);
-        if (Guid.TryParse(pluginReference, out Guid guid))
-            return plugins.Find(x => x.Id == guid);
-        else if (plugins.Exists(x => x.Name == pluginReference))
-            return plugins.Find(x => x.Name == pluginReference);
-        return null;
-    }
-
+    /// <summary>
+    /// Loads plugin configurations from the specified configuration file.
+    /// </summary>
+    /// <param name="configType">The type of configuration to load.</param>
+    /// <returns>List of plugin configurations.</returns>
     private static async Task<List<PluginConfig>> LoadPluginsConfigAsync(PluginConfigType configType)
     {
         var configFile = configType == PluginConfigType.Running ? PluginRunningConfigFile : PluginStagedConfigFile;
@@ -163,12 +187,21 @@ public class PluginManager : IPluginManager
         return JsonSerializer.Deserialize<List<PluginConfig>>(json);
     }
 
+    /// <summary>
+    /// Saves plugin configurations to the staged configuration file.
+    /// </summary>
+    /// <param name="plugins">List of plugin configurations to save.</param>
     private static async Task SavePluginsConfig(List<PluginConfig> plugins)
     {
         var json = JsonSerializer.Serialize(plugins);
         await File.WriteAllTextAsync(PluginStagedConfigFile, json);
     }
 
+    /// <summary>
+    /// Sorts plugin configurations by name and their versions in descending order.
+    /// </summary>
+    /// <param name="config">List of plugin configurations to sort.</param>
+    /// <returns>Sorted list of plugin configurations.</returns>
     private static List<PluginConfig> SortConfig(List<PluginConfig> config)
     {
         config = [.. config.OrderBy(x => x.Name)];
@@ -176,9 +209,4 @@ public class PluginManager : IPluginManager
         return config;
     }
 
-    public async Task<Version> GetRunningVersion(Guid pluginId)
-    {
-        var plugins = await LoadPluginsConfigAsync(PluginConfigType.Running);
-        return plugins.FirstOrDefault(x => x.Id == pluginId)?.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled)?.Version;
-    }
 }
