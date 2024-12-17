@@ -1,5 +1,6 @@
 ﻿using LogMQ.Services.Presentation.CLI.Commands.Broker;
 using LogMQ.Services.Presentation.CLI.Commands.Plugin;
+using LogMQ.Services.Presentation.CLI.DependencyInjection;
 using LogMQ.Services.Shared.BrokerManager;
 using LogMQ.Services.Shared.PluginManager;
 using Microsoft.Extensions.DependencyInjection;

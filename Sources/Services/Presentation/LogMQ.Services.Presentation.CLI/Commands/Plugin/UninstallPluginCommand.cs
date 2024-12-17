@@ -7,26 +7,69 @@ using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
+/// <summary>
+/// Command to uninstall specified versions of a plugin.
+/// Handles plugin uninstallation, version management, and optional automatic broker restart.
+/// </summary>
+/// <remarks>
+/// This command supports:
+/// - Uninstalling specific versions of a plugin
+/// - Handling multiple versions through user prompts
+/// - Automatic confirmation for batch operations
+/// - Optional broker restart after the uninstallation
+/// </remarks>
+/// <param name="manager">The plugin manager instance used to handle plugin operations.</param>
 public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<UninstallPluginCommand.Settings>
 {
+    /// <summary>
+    /// Settings class that defines the command-line arguments and options for the plugin uninstallation command.
+    /// </summary>
     public class Settings : CommandSettings
     {
+        /// <summary>
+        /// The identifier used to locate a plugin. Can be either:
+        /// - Plugin ID (GUID)
+        /// - Plugin Name
+        /// </summary>
         [CommandArgument(0, "<PLUGIN_ID_OR_NAME>")]
+        [Description("Specify the plugin by its ID (GUID) or name.")]
         public string PluginIdOrName { get; set; }
 
+        /// <summary>
+        /// The specific version of the plugin to uninstall.
+        /// </summary>
         [CommandOption("-v|--version <VERSION>")]
+        [Description("Specify the version of the plugin to uninstall.")]
         public Version Version { get; set; }
 
+        /// <summary>
+        /// When true, automatically restarts the broker after the uninstallation.
+        /// </summary>
         [CommandOption("-r|--restart")]
         [Description("Automatically restarts the broker after operation.")]
         public bool Restart { get; set; }
 
+        /// <summary>
+        /// When true, skips all confirmation prompts with automatic 'yes' responses.
+        /// </summary>
         [CommandOption("-y")]
-        [Description("Automatically respond y to all propmts.")]
+        [Description("Automatically respond y to all prompts.")]
         public bool Yes { get; set; }
     }
 
-    //TODO: Implement restart
+    /// <summary>
+    /// Executes the plugin uninstallation command asynchronously.
+    /// </summary>
+    /// <param name="context">The command execution context.</param>
+    /// <param name="settings">The command settings containing uninstallation options and plugin identifier.</param>
+    /// <returns>
+    /// Returns 0 if the uninstallation was successful, -1 if the operation was cancelled or failed.
+    /// The command will:
+    /// - Retrieve plugin information based on the provided identifier
+    /// - Handle version selection and confirmation prompts
+    /// - Perform the uninstallation of specified versions
+    /// - Display the updated plugin status
+    /// </returns>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         List<Version> versions = [];
@@ -70,6 +113,9 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version(s) '{versionsText}' uninstalled successfully![/]");
         AnsiConsole.WriteLine();
+
+        //TODO: Implement restart
+
         var runningPlugin = await manager.GetRunningVersion(plugin.Id);
         ShowPluginTree(plugin, runningPlugin);
 

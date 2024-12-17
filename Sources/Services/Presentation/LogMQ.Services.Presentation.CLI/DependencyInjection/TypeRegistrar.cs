@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 
-namespace LogMQ.Services.Presentation.CLI;
+namespace LogMQ.Services.Presentation.CLI.DependencyInjection;
 
-public sealed class TypeRegistrar(IServiceCollection builder) : ITypeRegistrar
+internal sealed class TypeRegistrar(IServiceCollection builder) : ITypeRegistrar
 {
     public ITypeResolver Build()
     {

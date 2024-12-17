@@ -6,28 +6,71 @@ using System.ComponentModel;
 using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
+/// <summary>
+/// Command to enable a specified version of a plugin.
+/// Handles plugin enabling, version management, and optional automatic broker restart.
+/// </summary>
+/// <remarks>
+/// This command supports:
+/// - Enabling specific versions of a plugin
+/// - Handling multiple versions through user prompts
+/// - Automatic confirmation for batch operations
+/// - Optional broker restart after enabling the plugin
+/// </remarks>
+/// <param name="manager">The plugin manager instance used to handle plugin operations.</param>
 public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePluginCommand.Settings>
 {
+    /// <summary>
+    /// Settings class that defines the command-line arguments and options for the plugin enabling command.
+    /// </summary>
     public class Settings : CommandSettings
     {
+        /// <summary>
+        /// The identifier used to locate a plugin. Can be either:
+        /// - Plugin ID (GUID)
+        /// - Plugin Name
+        /// </summary>
         [CommandArgument(0, "<PLUGIN_ID_OR_NAME>")]
+        [Description("Specify the plugin by its ID (GUID) or name.")]
         public string PluginIdOrName { get; set; }
 
+        /// <summary>
+        /// The specific version of the plugin to enable.
+        /// </summary>
         [CommandOption("-v|--version <VERSION>")]
+        [Description("Specify the version of the plugin to enable.")]
         public Version Version { get; set; }
 
+        /// <summary>
+        /// When true, automatically restarts the broker after the operation.
+        /// </summary>
         [CommandOption("-r|--restart")]
         [Description("Automatically restarts the broker after operation.")]
         public bool Restart { get; set; }
 
+        /// <summary>
+        /// When true, skips all confirmation prompts with automatic 'yes' responses.
+        /// </summary>
         [CommandOption("-y")]
-        [Description("Automatically respond y to all propmts.")]
+        [Description("Automatically respond y to all prompts.")]
         public bool Yes { get; set; }
     }
 
+    /// <summary>
+    /// Executes the plugin enabling command asynchronously.
+    /// </summary>
+    /// <param name="context">The command execution context.</param>
+    /// <param name="settings">The command settings containing enabling options and plugin identifier.</param>
+    /// <returns>
+    /// Returns 0 if the enabling was successful, -1 if the operation was cancelled or failed.
+    /// The command will:
+    /// - Retrieve plugin information based on the provided identifier
+    /// - Handle version selection and confirmation prompts
+    /// - Perform the enabling of the specified version
+    /// - Display the updated plugin status
+    /// </returns>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        //TODO: Implement restart
         var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
         if (plugin == null)
@@ -71,6 +114,8 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name} v{currentActive}' enabled successfully![/]");
         AnsiConsole.WriteLine();
+
+        //TODO: Implement restart
 
         var runningPlugin = await manager.GetRunningVersion(plugin.Id);
         ShowPluginTree(plugin, runningPlugin);

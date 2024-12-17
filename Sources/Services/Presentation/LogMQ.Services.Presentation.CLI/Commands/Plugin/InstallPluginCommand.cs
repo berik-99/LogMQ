@@ -7,27 +7,70 @@ using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Plugin;
 
+/// <summary>
+/// Command to install or update a plugin from a .lmqex file.
+/// Handles plugin installation, version management, and optional automatic enabling.
+/// </summary>
+/// <remarks>
+/// This command supports:
+/// - Installing new plugins
+/// - Updating existing plugins
+/// - Reinstalling specific versions
+/// - Automatic plugin enabling after installation
+/// - Version conflict resolution
+/// - Automatic confirmation for batch operations
+/// </remarks>
+/// <param name="manager">The plugin manager instance used to handle plugin operations.</param>
 public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<InstallPluginCommand.Settings>
 {
+    /// <summary>
+    /// Settings class that defines the command-line arguments and options for the plugin installation command.
+    /// </summary>
     public class Settings : CommandSettings
     {
+        /// <summary>
+        /// The file system path to the plugin package file (.lmqex).
+        /// </summary>
         [CommandArgument(0, "<PLUGIN_PATH>")]
         [Description("The path of the .lmqex plugin file.")]
         public string PluginPath { get; set; }
 
+        /// <summary>
+        /// When true, the plugin will be enabled immediately after installation.
+        /// </summary>
         [CommandOption("-e|--enable")]
-        [Description("Enable the plugin immediatelly.")]
+        [Description("Enable the plugin immediately.")]
         public bool Enable { get; set; }
 
+        /// <summary>
+        /// When true, automatically restarts the broker after installation.
+        /// </summary>
         [CommandOption("-r|--restart")]
         [Description("Automatically restarts the broker after install.")]
         public bool Restart { get; set; }
 
+        /// <summary>
+        /// When true, skips all confirmation prompts with automatic 'yes' responses.
+        /// </summary>
         [CommandOption("-y")]
-        [Description("Automatically respond y to all propmts.")]
+        [Description("Automatically respond y to all prompts.")]
         public bool Yes { get; set; }
     }
 
+    /// <summary>
+    /// Executes the plugin installation command asynchronously.
+    /// </summary>
+    /// <param name="context">The command execution context.</param>
+    /// <param name="settings">The command settings containing installation options and plugin path.</param>
+    /// <returns>
+    /// Returns 0 if the installation was successful, -1 if the operation was cancelled or failed.
+    /// The command will:
+    /// - Analyze the plugin package
+    /// - Check for version conflicts
+    /// - Handle existing installations
+    /// - Perform the installation/update
+    /// - Display the updated plugin status
+    /// </returns>
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
         var manifest = await manager.AnalyzePluginFile(settings.PluginPath);

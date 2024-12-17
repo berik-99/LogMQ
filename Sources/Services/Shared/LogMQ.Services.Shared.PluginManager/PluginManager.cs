@@ -56,10 +56,6 @@ public class PluginManager : IPluginManager
     /// <inheritdoc/>
     public async Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest)
     {
-        var destFolder = Path.Combine(PluginBinariesFolder, manifest.Id.ToString());
-        Directory.CreateDirectory(destFolder);
-        var fileName = $"{manifest.Version}.lmqex";
-        File.Copy(pluginPath, Path.Combine(destFolder, fileName), overwrite);
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
         var existingConfig = plugins.Find(p => p.Id == manifest.Id);
         if (existingConfig == null)
@@ -77,7 +73,12 @@ public class PluginManager : IPluginManager
             plugins.Add(existingConfig);
         }
         existingConfig.Versions.RemoveWhere(x => x.Version == manifest.Version);
-        existingConfig.Versions.Add(new PluginVersion { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed });
+        var installedVersion = new PluginVersion { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed };
+        existingConfig.Versions.Add(installedVersion);
+
+        var destFileName = existingConfig.GetInstalledPath(installedVersion.Version);
+        Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
+        File.Copy(pluginPath, destFileName, overwrite);
 
         plugins = SortConfig(plugins);
         await SavePluginsConfig(plugins);
@@ -100,8 +101,10 @@ public class PluginManager : IPluginManager
             var pluginVersion = plugin.Versions.FirstOrDefault(x => x.Version == version);
             if (pluginVersion.Status == VersionStatus.Installed)
             {
-                var dir = Path.Combine(PluginBinariesFolder, pluginId.ToString());
-                File.Delete(Path.Combine(dir, $"{version}.lmqex"));
+                var destFileName = plugin.GetInstalledPath(pluginVersion.Version);
+                var dir = Path.GetDirectoryName(destFileName);
+
+                File.Delete(destFileName);
                 if (Directory.GetFiles(dir).Length == 0)
                     Directory.Delete(dir);
                 plugin.Versions.Remove(pluginVersion);

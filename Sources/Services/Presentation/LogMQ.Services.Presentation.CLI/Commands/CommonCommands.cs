@@ -3,8 +3,15 @@ using Spectre.Console;
 
 namespace LogMQ.Services.Presentation.CLI.Commands;
 
+/// <summary>
+/// Contains common commands and utility methods for displaying plugin information in the CLI.
+/// </summary>
 internal static class CommonCommands
 {
+    /// <summary>
+    /// Displays a tree of plugins and their details in the console.
+    /// </summary>
+    /// <param name="plugins">A dictionary containing plugin configurations and their current running versions.</param>
     public static void ShowPluginListTree(Dictionary<PluginConfig, Version> plugins)
     {
         if (plugins.Count > 0)
@@ -20,11 +27,23 @@ internal static class CommonCommands
         }
     }
 
+    /// <summary>
+    /// Displays detailed information about a single plugin in a tree format.
+    /// </summary>
+    /// <param name="pluginConfig">The configuration of the plugin to display.</param>
+    /// <param name="running">The currently running version of the plugin.</param>
+    /// <param name="otherVerison">A list of other versions of the plugin, if any.</param>
     public static void ShowPluginTree(PluginConfig pluginConfig, Version running, List<Version> otherVerison = null)
     {
         AnsiConsole.Write(BuildPluginTree(pluginConfig, running, otherVerison));
     }
 
+    /// <summary>
+    /// Prompts the user for confirmation before proceeding with an operation.
+    /// </summary>
+    /// <param name="autoConfirm">If true, automatically confirms the operation without prompting the user.</param>
+    /// <param name="message">The confirmation message to display to the user.</param>
+    /// <returns>True if the operation is confirmed, false otherwise.</returns>
     public static bool ConfirmOperation(bool autoConfirm, string message)
     {
         if (autoConfirm)
@@ -46,9 +65,16 @@ internal static class CommonCommands
         return confirmation;
     }
 
-    private static Tree BuildPluginTree(PluginConfig pluginConfig, Version running, List<Version> otherVerison)
+    /// <summary>
+    /// Builds a tree structure representing the details of a plugin, including its versions and status.
+    /// </summary>
+    /// <param name="pluginConfig">The configuration of the plugin.</param>
+    /// <param name="running">The currently running version of the plugin.</param>
+    /// <param name="externalVersions">A list of other versions of the plugin, if any.</param>
+    /// <returns>A tree structure representing the plugin details.</returns>
+    private static Tree BuildPluginTree(PluginConfig pluginConfig, Version running, List<Version> externalVersions)
     {
-        otherVerison ??= [];
+        externalVersions ??= [];
         var pluginTree = new Tree($"[blue]{pluginConfig.Id}[/]");
         pluginTree.AddNode($"[yellow]Name:[/] {pluginConfig.Name}");
         pluginTree.AddNode($"[yellow]Author:[/] {pluginConfig.Author}");
@@ -59,7 +85,7 @@ internal static class CommonCommands
         var versionsNode = pluginTree.AddNode("[yellow]Versions[/]");
 
         HashSet<PluginVersion> mergedVersions = new(pluginConfig.Versions);
-        foreach (var v in otherVerison)
+        foreach (var v in externalVersions)
             mergedVersions.Add(new PluginVersion { Version = v });
 
         if (mergedVersions.Count > 0)
@@ -99,7 +125,7 @@ internal static class CommonCommands
                         status = "REMOVED";
                         break;
                 }
-                if (!pluginConfig.Versions.Contains(version) && otherVerison.Contains(version.Version))
+                if (!pluginConfig.Versions.Contains(version) && externalVersions.Contains(version.Version))
                 {
                     color = "white";
                     status = "NOT INSTALLED";
