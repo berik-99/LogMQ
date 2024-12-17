@@ -76,7 +76,9 @@ public class PluginManager : IPluginManager
             };
             plugins.Add(existingConfig);
         }
-        existingConfig.Versions.AddOrReplace(new ConfigVersion { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed });
+        existingConfig.Versions.RemoveWhere(x => x.Version == manifest.Version);
+        existingConfig.Versions.Add(new PluginVersion { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed });
+
         plugins = SortConfig(plugins);
         await SavePluginsConfig(plugins);
         return existingConfig;
@@ -89,7 +91,7 @@ public class PluginManager : IPluginManager
         PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
         foreach (var version in versions)
         {
-            if (!plugin.Versions.Exists(x => x.Version == version))
+            if (!plugin.Versions.Any(x => x.Version == version))
                 throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
         }
 
@@ -122,7 +124,7 @@ public class PluginManager : IPluginManager
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
         PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
-        if (!plugin.Versions.Exists(x => x.Version == version))
+        if (!plugin.Versions.Any(x => x.Version == version))
             throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
 
         var selectedVersion = plugin.Versions.First(x => x.Version == version);
@@ -208,5 +210,4 @@ public class PluginManager : IPluginManager
         config.ForEach(x => x.Versions = [.. x.Versions.OrderByDescending(x => x.Version)]);
         return config;
     }
-
 }

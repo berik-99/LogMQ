@@ -39,12 +39,12 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
             string infoMessage = "[green]Installing plugin[/]";
             if (existingPlugin != null)
             {
-                if (existingPlugin.Versions.Exists(x => x.Version == manifest.Version))
+                if (existingPlugin.Versions.Any(x => x.Version == manifest.Version))
                 {
                     infoMessage = $"[red]Error: The plugin '{manifest.Name}' version '{manifest.Version}' you are attempting to install already exists. Run this command again without the -y option to reinstall.[/]";
                     blockExecution = true;
                 }
-                else if (existingPlugin.Versions.Exists(x => x.Version > manifest.Version))
+                else if (existingPlugin.Versions.Any(x => x.Version > manifest.Version))
                 {
                     var newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.Version).Max(x => x.Version);
                     infoMessage = $"[red]Error: A newer version '{newerVersion}' of the plugin '{manifest.Name}' is already installed. Run this command again without the -y option to install version '{manifest.Version}'.[/]";
@@ -64,11 +64,11 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
             string promptMessage = $"Do you want to confirm the installation of the plugin '{manifest.Name}' version '{manifest.Version}'?";
             if (existingPlugin != null)
             {
-                if (existingPlugin.Versions.Exists(x => x.Version == manifest.Version))
+                if (existingPlugin.Versions.Any(x => x.Version == manifest.Version))
                 {
                     promptMessage = $"The plugin '{manifest.Name}' version '{manifest.Version}' you are attempting to install already exists. Do you want to reinstall it?";
                 }
-                else if (existingPlugin.Versions.Exists(x => x.Version > manifest.Version))
+                else if (existingPlugin.Versions.Any(x => x.Version > manifest.Version))
                 {
                     var newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.Version).Max(x => x.Version);
                     promptMessage = $"A newer version '{newerVersion}' of the plugin '{manifest.Name}' is already installed. Do you want to install the older version '{manifest.Version}'?";

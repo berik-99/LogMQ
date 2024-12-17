@@ -41,7 +41,7 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
 
         if (settings.Version != null)
         {
-            if (!plugin.Versions.Exists(x => x.Version == settings.Version))
+            if (!plugin.Versions.Any(x => x.Version == settings.Version))
             {
                 AnsiConsole.MarkupLine($"[red]Error: Version '{settings.Version}' not found for plugin '{plugin.Name}'.[/]");
                 return -1;

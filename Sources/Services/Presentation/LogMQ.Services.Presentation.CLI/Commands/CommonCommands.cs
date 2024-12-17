@@ -58,9 +58,9 @@ internal static class CommonCommands
 
         var versionsNode = pluginTree.AddNode("[yellow]Versions[/]");
 
-        HashSet<ConfigVersion> mergedVersions = new(pluginConfig.Versions);
+        HashSet<PluginVersion> mergedVersions = new(pluginConfig.Versions);
         foreach (var v in otherVerison)
-            mergedVersions.Add(new ConfigVersion { Version = v });
+            mergedVersions.Add(new PluginVersion { Version = v });
 
         if (mergedVersions.Count > 0)
         {
