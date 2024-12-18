@@ -7,7 +7,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\Providers\LogMQ.Providers.Tcp\LogMQ.Providers.Tcp.csproj" />
+		<ProjectReference Include="..\..\..\..\..\Modules\Providers\LogMQ.Providers.Tcp\LogMQ.Providers.Tcp.csproj" />
 		<ProjectReference Include="..\Contracts\LogMQ.Receivers.Contracts\LogMQ.Receivers.Contracts.csproj" />
 	</ItemGroup>
 

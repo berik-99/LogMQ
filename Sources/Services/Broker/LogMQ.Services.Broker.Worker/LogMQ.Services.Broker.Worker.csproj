@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Modules\Plugins\Receivers\LogMQ.Receivers.Msmq\LogMQ.Receivers.Msmq.csproj" />
-    <ProjectReference Include="..\..\..\Modules\Plugins\Receivers\LogMQ.Receivers.Tcp\LogMQ.Receivers.Tcp.csproj" />
-    <ProjectReference Include="..\..\..\Modules\Plugins\Storage\LogMQ.Storage.RocksDb\LogMQ.Storage.RocksDb.csproj" />
+    <ProjectReference Include="..\Plugins\Receivers\LogMQ.Receivers.Msmq\LogMQ.Receivers.Msmq.csproj" />
+    <ProjectReference Include="..\Plugins\Receivers\LogMQ.Receivers.Tcp\LogMQ.Receivers.Tcp.csproj" />
+    <ProjectReference Include="..\Plugins\Storage\LogMQ.Storage.RocksDb\LogMQ.Storage.RocksDb.csproj" />
   </ItemGroup>
 </Project>
