@@ -5,31 +5,6 @@ namespace LogMQ.Services.Shared.PluginManager;
 public interface IPluginManager
 {
     /// <summary>
-    /// The folder where all the plugins are stored.
-    /// </summary>
-    public static readonly string PluginFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LogMQ", "Plugins");
-
-    /// <summary>
-    /// The file path for the staged plugin configuration file.
-    /// </summary>
-    public static readonly string PluginStagedConfigFile = Path.Combine(PluginFolder, "pluginconfig.staged.json");
-
-    /// <summary>
-    /// The file path for the running plugin configuration file.
-    /// </summary>
-    public static readonly string PluginRunningConfigFile = Path.Combine(PluginFolder, "pluginconfig.running.json");
-
-    /// <summary>
-    /// The folder where the plugin binaries are stored.
-    /// </summary>
-    public static readonly string PluginBinariesFolder = Path.Combine(PluginFolder, "Binaries");
-
-    /// <summary>
-    /// The filename used for the plugin manifest.
-    /// </summary>
-    public const string PluginManifestFile = "manifest.json";
-
-    /// <summary>
     /// Analyzes a plugin file and extracts its manifest information.
     /// </summary>
     /// <param name="pluginPath">Path to the plugin file.</param>

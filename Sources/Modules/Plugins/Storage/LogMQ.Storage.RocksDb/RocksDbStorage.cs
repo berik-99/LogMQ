@@ -34,7 +34,7 @@ public class RocksDbStorage : ILogStorage, IDisposable
         this.logger = logger;
         logger.LogInformation("Init RocksDB Storage");
 
-        var dbPath = Path.Combine(Directory.GetCurrentDirectory(), "data/logmq-db");
+        var dbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "db");
         Directory.CreateDirectory(dbPath);
 
         var options = new DbOptions()

@@ -43,11 +43,4 @@ public abstract class PluginBase
     /// </summary>
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public PluginType Type { get; set; }
-
-    /// <summary>
-    /// Gets the installed path of the plugin for a specific version.
-    /// </summary>
-    /// <param name="version">The version of the plugin.</param>
-    /// <returns>The installed path of the plugin.</returns>
-    public string GetInstalledPath(Version version) => Path.Combine(IPluginManager.PluginBinariesFolder, Id.ToString(), $"{version}.lmqex");
 }

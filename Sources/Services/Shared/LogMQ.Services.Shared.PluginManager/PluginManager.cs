@@ -1,7 +1,7 @@
 ﻿using LogMQ.Services.Shared.PluginManager.Models;
 using System.IO.Compression;
 using System.Text.Json;
-using static LogMQ.Services.Shared.PluginManager.IPluginManager;
+using static LogMQ.Services.Shared.PluginManager.Defaults;
 
 namespace LogMQ.Services.Shared.PluginManager;
 
@@ -76,7 +76,7 @@ public class PluginManager : IPluginManager
         var installedVersion = new PluginVersion { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed };
         existingConfig.Versions.Add(installedVersion);
 
-        var destFileName = existingConfig.GetInstalledPath(installedVersion.Version);
+        var destFileName = GetInstalledPath(existingConfig.Id, installedVersion.Version);
         Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
         File.Copy(pluginPath, destFileName, overwrite);
 
@@ -101,7 +101,7 @@ public class PluginManager : IPluginManager
             var pluginVersion = plugin.Versions.FirstOrDefault(x => x.Version == version);
             if (pluginVersion.Status == VersionStatus.Installed)
             {
-                var destFileName = plugin.GetInstalledPath(pluginVersion.Version);
+                var destFileName = GetInstalledPath(plugin.Id, pluginVersion.Version);
                 var dir = Path.GetDirectoryName(destFileName);
 
                 File.Delete(destFileName);
