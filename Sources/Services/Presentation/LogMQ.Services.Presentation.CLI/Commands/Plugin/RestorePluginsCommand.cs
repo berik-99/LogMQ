@@ -1,5 +1,6 @@
 ﻿using LogMQ.Services.Shared.PluginManager;
 using LogMQ.Services.Shared.PluginManager.Models;
+using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
 using static LogMQ.Services.Presentation.CLI.Commands.CommonCommands;
@@ -63,6 +64,13 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
         Dictionary<PluginConfig, Version> dict = [];
         foreach (var plugin in plugins)
             dict.Add(plugin, await manager.GetRunningVersion(plugin.Id));
+
+        AnsiConsole.WriteLine();
+        if (settings.Erase)
+            AnsiConsole.MarkupLine("[green]Success: The plugin configuration has been restored and newly installed plugins have been removed![/]");
+        else
+            AnsiConsole.MarkupLine("[green]Success: The plugin configuration has been restored![/]");
+        AnsiConsole.WriteLine();
 
         ShowPluginListTree(dict);
         return 0;

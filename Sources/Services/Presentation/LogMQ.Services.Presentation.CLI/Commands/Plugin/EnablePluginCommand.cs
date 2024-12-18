@@ -112,7 +112,7 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
         plugin = await manager.EnablePluginAsync(plugin.Id, settings.Version);
 
         AnsiConsole.WriteLine();
-        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name} v{currentActive}' enabled successfully![/]");
+        AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name} v{settings.Version}' enabled successfully![/]");
         AnsiConsole.WriteLine();
 
         //TODO: Implement restart

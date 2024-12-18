@@ -130,8 +130,9 @@ public class PluginManager : IPluginManager
         if (!plugin.Versions.Any(x => x.Version == version))
             throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
 
-        var selectedVersion = plugin.Versions.First(x => x.Version == version);
-        selectedVersion.Status = VersionStatus.Enabled;
+        foreach (var item in plugin.Versions)
+            item.Status = item.Version == version ? VersionStatus.Enabled : VersionStatus.Installed;
+
         await SavePluginsConfig(plugins);
         return plugin;
     }
