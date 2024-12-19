@@ -107,6 +107,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Storage.RocksDb", "So
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Storage.Contracts", "Sources\Services\Broker\Plugins\Storage\Contracts\LogMQ.Storage.Contracts\LogMQ.Storage.Contracts.csproj", "{2ED1712B-BDC8-475F-BD7E-5AA32DA6C827}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Shared.LogManager", "Sources\Services\Shared\LogMQ.Services.Shared.LogManager\LogMQ.Services.Shared.LogManager.csproj", "{EC0FE405-D308-4972-87C7-7A688F7C6953}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -197,6 +199,10 @@ Global
 		{2ED1712B-BDC8-475F-BD7E-5AA32DA6C827}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2ED1712B-BDC8-475F-BD7E-5AA32DA6C827}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2ED1712B-BDC8-475F-BD7E-5AA32DA6C827}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC0FE405-D308-4972-87C7-7A688F7C6953}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC0FE405-D308-4972-87C7-7A688F7C6953}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC0FE405-D308-4972-87C7-7A688F7C6953}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC0FE405-D308-4972-87C7-7A688F7C6953}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -243,5 +249,6 @@ Global
 		{E66E3602-CBA2-418F-9B26-71C5C3CC05F2} = {2F1FF550-C12F-42FD-9077-141D9D654DC3}
 		{1108EBFB-BF22-4F1A-84A5-03223E2B2D8E} = {8335D9E0-F69D-4ACB-BF34-2172BE34FB08}
 		{2ED1712B-BDC8-475F-BD7E-5AA32DA6C827} = {21A22F58-08BC-4F39-A594-C250C54F4474}
+		{EC0FE405-D308-4972-87C7-7A688F7C6953} = {EB09A69E-1C61-492C-AEA1-FC7B0E12BAA3}
 	EndGlobalSection
 EndGlobal

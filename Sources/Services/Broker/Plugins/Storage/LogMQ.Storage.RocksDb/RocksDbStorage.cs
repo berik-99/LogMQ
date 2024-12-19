@@ -25,6 +25,15 @@ public class RocksDbStorage : ILogStorage, IDisposable
     /// </summary>
     private readonly ILogger<RocksDbStorage> logger;
 
+    private readonly DbOptions dbOptions = new DbOptions()
+            .SetCreateIfMissing(true)
+            .SetCreateMissingColumnFamilies(true)
+            .SetWriteBufferSize(64 * 1024 * 1024)
+            .SetMaxWriteBufferNumber(3)
+            .SetCompression(Compression.Snappy);
+
+    private readonly string dbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "db");
+
     /// <summary>
     /// Initializes a new instance of the <see cref="RocksDbStorage"/> class.
     /// </summary>
@@ -33,19 +42,9 @@ public class RocksDbStorage : ILogStorage, IDisposable
     {
         this.logger = logger;
         logger.LogInformation("Init RocksDB Storage");
-
-        var dbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "db");
         Directory.CreateDirectory(dbPath);
-
-        var options = new DbOptions()
-            .SetCreateIfMissing(true)
-            .SetCreateMissingColumnFamilies(true)
-            .SetWriteBufferSize(64 * 1024 * 1024)
-            .SetMaxWriteBufferNumber(3)
-            .SetCompression(Compression.Snappy);
-
-        var families = GetColumnFamilies(options, dbPath);
-        db = RocksDb.Open(options, dbPath, families);
+        var families = GetColumnFamilies();
+        db = RocksDb.Open(dbOptions, dbPath, families);
     }
 
     /// <inheritdoc />
@@ -61,7 +60,54 @@ public class RocksDbStorage : ILogStorage, IDisposable
             byte[] message = logMessage.Serialize();
 
             db.Put(key, message, handle);
-            logger.LogInformation("{Application} - {Method} - {Message}", logMessage.Application.Name, logMessage.Metadata.MethodName, logMessage.Message);
+            //logger.LogInformation("{Application} - {Method} - {Message}", logMessage.Application.Name, logMessage.Metadata.MethodName, logMessage.Message);
+        }
+        finally
+        {
+            semaphoreSlim.Release();
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<List<LogMessage>> GetLogMessages(DateTimeOffset start, DateTimeOffset end, int count)
+    {
+        await semaphoreSlim.WaitAsync();
+        try
+        {
+            var logMessages = new List<LogMessage>();
+
+            // Recupera tutte le column family dal database
+            var columnFamilies = GetColumnFamilies();
+            foreach (var columnFamily in columnFamilies)
+            {
+                var handle = db.GetColumnFamily(columnFamily.Name);
+                if (handle == null)
+                {
+                    logger.LogWarning("Column family {ColumnFamilyName} not found.", columnFamily.Name);
+                    continue;
+                }
+
+                using var iterator = db.NewIterator(handle);
+                iterator.SeekToFirst();
+
+                while (iterator.Valid() && logMessages.Count < count)
+                {
+                    var keyBytes = iterator.Key();
+                    var valueBytes = iterator.Value();
+
+                    var (timestamp, _) = DeserializeKey(keyBytes);
+
+                    if (timestamp >= start && timestamp <= end)
+                    {
+                        var logMessage = LogMessage.Deserialize(new MemoryStream(valueBytes));
+                        logMessages.Add(logMessage);
+                    }
+
+                    iterator.Next();
+                }
+            }
+
+            return logMessages.OrderBy(msg => msg.Timestamp).Take(count).ToList();
         }
         finally
         {
@@ -110,16 +156,14 @@ public class RocksDbStorage : ILogStorage, IDisposable
     /// <summary>
     /// Retrieves the column families for a RocksDB instance.
     /// </summary>
-    /// <param name="options">The RocksDB options.</param>
-    /// <param name="dbPath">The path to the RocksDB database.</param>
     /// <returns>A <see cref="ColumnFamilies"/> collection representing the column families in the database.</returns>
-    private static ColumnFamilies GetColumnFamilies(DbOptions options, string dbPath)
+    private ColumnFamilies GetColumnFamilies()
     {
         ColumnFamilies families = [];
         List<string> familiesStr = [];
 
         if (Directory.GetFiles(dbPath).Length > 0)
-            familiesStr = RocksDb.ListColumnFamilies(options, dbPath).ToList();
+            familiesStr = RocksDb.ListColumnFamilies(dbOptions, dbPath).ToList();
 
         foreach (var family in familiesStr)
             families.Add(family, new());
