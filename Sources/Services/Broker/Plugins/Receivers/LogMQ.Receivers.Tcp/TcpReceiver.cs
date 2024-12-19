@@ -33,7 +33,7 @@ public class TcpReceiver(ILogger<TcpReceiver> logger, ILogStorage storage) : Log
     /// <summary>
     /// Processes the received log message, deserializes it, and writes it to storage.
     /// </summary>
-    /// <param name="e">The event arguments containing the message data.</param>
+    /// <param name="data">The message data.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task MessageReceived(byte[] data)
     {

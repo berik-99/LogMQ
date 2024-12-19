@@ -88,7 +88,7 @@ public class LogMessage : IEquatable<LogMessage>
     /// <summary>
     /// Deserializes a log message from the specified stream using Protocol Buffers (protobuf).
     /// </summary>
-    /// <param name="stream">The stream from which the log message will be deserialized.</param>
+    /// <param name="message">The byte array containing the log message previously serialized.</param>
     /// <returns>The deserialized log message.</returns>
     public static LogMessage Deserialize(byte[] message)
     {
