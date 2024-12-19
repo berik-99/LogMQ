@@ -5,11 +5,12 @@ using System.Text;
 
 namespace LightTcp
 {
-    public class LightTcpServer(string ipAddress, int port)
+    public class LightTcpServer(string ipAddress, int port) : IDisposable
     {
         private readonly TcpListener listener = new(IPAddress.Parse(ipAddress), port);
         private bool isRunning;
         private readonly ConcurrentDictionary<Guid, TcpClient> clients = new();
+        private bool disposed = false;
 
         public event EventHandler<byte[]> MessageReceived;
         public event EventHandler<Guid> ClientConnected;
@@ -160,5 +161,29 @@ namespace LightTcp
         protected virtual void OnClientConnected(Guid clientId) => ClientConnected?.Invoke(this, clientId);
 
         protected virtual void OnClientDisconnected(Guid clientId) => ClientDisconnected?.Invoke(this, clientId);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+
+            if (disposing)
+            {
+                foreach (var client in clients.Values)
+                {
+                    client.Close();
+                }
+                listener.Stop();
+            }
+            disposed = true;
+        }
+
+        ~LightTcpServer() => Dispose(false);
     }
 }

@@ -1,12 +1,14 @@
-﻿using System.Net.Sockets;
+﻿using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Text;
 
 namespace LightTcp
 {
-    public class LightTcpClient(string ipAddress, int port)
+    public class LightTcpClient(string ipAddress, int port) : IDisposable
     {
         private TcpClient client;
         private NetworkStream stream;
+        private bool disposed = false;
 
         public event EventHandler<byte[]> MessageReceived;
         public event EventHandler Connected;
@@ -52,28 +54,45 @@ namespace LightTcp
             }
         }
 
-        public byte[] Receive()
+        //public byte[] Receive()
+        //{
+        //    if (stream == null)
+        //        throw new InvalidOperationException("Stream is not available.");
+
+        //    byte[] buffer = new byte[1024];
+        //    int bytesRead = stream.Read(buffer, 0, buffer.Length);
+        //    byte[] receivedData = new byte[bytesRead];
+        //    Array.Copy(buffer, receivedData, bytesRead);
+        //    return receivedData;
+        //}
+
+        //public async Task<byte[]> ReceiveAsync()
+        //{
+        //    if (stream == null)
+        //        throw new InvalidOperationException("Stream is not available.");
+
+        //    byte[] buffer = new byte[1024];
+        //    int bytesRead = await stream.ReadAsync(buffer);
+        //    byte[] receivedData = new byte[bytesRead];
+        //    Array.Copy(buffer, receivedData, bytesRead);
+        //    return receivedData;
+        //}
+
+        public PingReply Ping()
         {
-            if (stream == null)
-                throw new InvalidOperationException("Stream is not available.");
-
-            byte[] buffer = new byte[1024];
-            int bytesRead = stream.Read(buffer, 0, buffer.Length);
-            byte[] receivedData = new byte[bytesRead];
-            Array.Copy(buffer, receivedData, bytesRead);
-            return receivedData;
-        }
-
-        public async Task<byte[]> ReceiveAsync()
-        {
-            if (stream == null)
-                throw new InvalidOperationException("Stream is not available.");
-
-            byte[] buffer = new byte[1024];
-            int bytesRead = await stream.ReadAsync(buffer);
-            byte[] receivedData = new byte[bytesRead];
-            Array.Copy(buffer, receivedData, bytesRead);
-            return receivedData;
+            using Ping pingSender = new();
+            PingOptions options = new(4, true);
+            byte[] buffer = Encoding.ASCII.GetBytes("PING");
+            const int timeout = 120;
+            try
+            {
+                PingReply reply = pingSender.Send(IPAddress, timeout, buffer, options);
+                return reply;
+            }
+            catch (PingException ex)
+            {
+                throw new InvalidOperationException($"Ping failed: {ex.Message}", ex);
+            }
         }
 
         private async Task ReceiveMessages()
@@ -106,7 +125,7 @@ namespace LightTcp
 
         private void CheckIfConnected()
         {
-            if (client?.Connected != true)
+            if (!IsConnected)
                 throw new InvalidOperationException("Client is not connected.");
         }
 
@@ -115,5 +134,25 @@ namespace LightTcp
         protected virtual void OnConnected() => Connected?.Invoke(this, EventArgs.Empty);
 
         protected virtual void OnDisconnected() => Disconnected?.Invoke(this, EventArgs.Empty);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+            if (disposing)
+            {
+                stream?.Close();
+                client?.Close();
+            }
+            disposed = true;
+        }
+
+        ~LightTcpClient() => Dispose(false);
     }
 }
