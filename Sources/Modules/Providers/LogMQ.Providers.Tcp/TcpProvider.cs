@@ -1,8 +1,7 @@
-﻿using LogMQ.Core;
+﻿using LightTcp;
+using LogMQ.Core;
 using LogMQ.Providers.Contracts;
 using System.Collections.Concurrent;
-using System.Text;
-using WatsonTcp;
 
 namespace LogMQ.Providers;
 
@@ -14,22 +13,12 @@ public sealed class TcpProvider : ILogProvider, IDisposable
     /// <summary>
     /// Default TCP host address used for the connection.
     /// </summary>
-    public const string DefaultTcpHost = "localhost";
+    public const string DefaultTcpHost = "127.0.0.1";
 
     /// <summary>
     /// Default TCP port used for the connection.
     /// </summary>
     public const int DefaultTcpPort = 5563;
-
-    /// <summary>
-    /// Default ping message sent to the broker for connection validation.
-    /// </summary>
-    public const string DefaultTcpPingMsg = "PING";
-
-    /// <summary>
-    /// Default pong message expected from the broker as a response to the ping.
-    /// </summary>
-    public const string DefaultTcpPongMsg = "PONG";
 
     /// <summary>
     /// Default maximum number of slots in the retry queue for storing log messages that failed to send.
@@ -40,7 +29,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
     /// The TCP client used for communicating with the LogMQ Broker.
     /// Responsible for establishing and maintaining the TCP connection.
     /// </summary>
-    private readonly WatsonTcpClient tcpClient;
+    private readonly LightTcpClient tcpClient;
 
     /// <summary>
     /// The retry queue for storing log messages that failed to send, used for retrying the send operation.
@@ -96,11 +85,12 @@ public sealed class TcpProvider : ILogProvider, IDisposable
             FormatProvider = formatProvider;
             retryQueue = new ConcurrentQueue<LogMessage>();
             retryQueueLength = retryQueueSize;
-            tcpClient = new WatsonTcpClient(host, port);
-            tcpClient.Events.ServerDisconnected += (s, e) => TryReconnect();
-            tcpClient.Events.MessageReceived += (s, e) => { };
+            tcpClient = new LightTcpClient(host, port);
+            tcpClient.Disconnected += (_, _) => TryReconnect();
+            tcpClient.MessageReceived += (_, _) => { };
             tcpClient.Connect();
-            Task.Run(Ping).Wait();
+            tcpClient.Ping();
+            //Task.Run(Ping).Wait();
         }
         catch (Exception ex)
         {
@@ -111,34 +101,13 @@ public sealed class TcpProvider : ILogProvider, IDisposable
     }
 
     /// <summary>
-    /// Sends a ping message to the broker to validate the connection.
-    /// </summary>
-    /// <returns>A task that represents the asynchronous ping operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the broker returns an invalid pong message or the operation fails.</exception>
-    private async Task Ping()
-    {
-        try
-        {
-            byte[] message = Encoding.ASCII.GetBytes(DefaultTcpPingMsg);
-            var res = await tcpClient.SendAndWaitAsync(2000, message);
-            string pong = Encoding.UTF8.GetString(res.Data);
-            if (pong != DefaultTcpPongMsg)
-                throw new InvalidOperationException("Invalid pong message from broker");
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException("Ping operation failed", ex);
-        }
-    }
-
-    /// <summary>
     /// Attempts to reconnect to the LogMQ Broker if the connection is lost.
     /// Retries indefinitely unless a retry limit is set elsewhere.
     /// </summary>
     private void TryReconnect()
     {
         int retryCount = 0;
-        while (!tcpClient.Connected)
+        while (!tcpClient.IsConnected)
         {
             try
             {
@@ -182,8 +151,9 @@ public sealed class TcpProvider : ILogProvider, IDisposable
         try
         {
             var bin = message.Serialize();
-            if (!await tcpClient.SendAsync(bin))
-                throw new InvalidOperationException("Failed to send log message to LogMQ Broker");
+            await tcpClient.SendAsync(bin);
+            //if (!await tcpClient.SendAsync(bin))
+            //    throw new InvalidOperationException("Failed to send log message to LogMQ Broker");
         }
         catch (Exception ex) when (enqueueErrors)
         {
@@ -264,7 +234,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
     {
         try
         {
-            if (tcpClient?.Connected == true)
+            if (tcpClient?.IsConnected == true)
                 tcpClient.Disconnect();
             tcpClient?.Dispose();
             retryQueue.Clear();

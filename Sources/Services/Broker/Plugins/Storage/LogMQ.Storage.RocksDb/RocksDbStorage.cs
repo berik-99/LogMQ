@@ -99,7 +99,7 @@ public class RocksDbStorage : ILogStorage, IDisposable
 
                     if (timestamp >= start && timestamp <= end)
                     {
-                        var logMessage = LogMessage.Deserialize(new MemoryStream(valueBytes));
+                        var logMessage = LogMessage.Deserialize(valueBytes);
                         logMessages.Add(logMessage);
                     }
 

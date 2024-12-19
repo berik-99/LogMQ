@@ -40,6 +40,8 @@ namespace LightTcp
         public void Send(byte[] data)
         {
             CheckIfConnected();
+            byte[] lengthPrefix = BitConverter.GetBytes(data.Length);
+            stream?.Write(lengthPrefix, 0, lengthPrefix.Length);
             stream?.Write(data, 0, data.Length);
         }
 
@@ -50,33 +52,11 @@ namespace LightTcp
             CheckIfConnected();
             if (stream != null)
             {
+                byte[] lengthPrefix = BitConverter.GetBytes(data.Length);
+                await stream.WriteAsync(lengthPrefix);
                 await stream.WriteAsync(data);
             }
         }
-
-        //public byte[] Receive()
-        //{
-        //    if (stream == null)
-        //        throw new InvalidOperationException("Stream is not available.");
-
-        //    byte[] buffer = new byte[1024];
-        //    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-        //    byte[] receivedData = new byte[bytesRead];
-        //    Array.Copy(buffer, receivedData, bytesRead);
-        //    return receivedData;
-        //}
-
-        //public async Task<byte[]> ReceiveAsync()
-        //{
-        //    if (stream == null)
-        //        throw new InvalidOperationException("Stream is not available.");
-
-        //    byte[] buffer = new byte[1024];
-        //    int bytesRead = await stream.ReadAsync(buffer);
-        //    byte[] receivedData = new byte[bytesRead];
-        //    Array.Copy(buffer, receivedData, bytesRead);
-        //    return receivedData;
-        //}
 
         public PingReply Ping()
         {
@@ -102,19 +82,30 @@ namespace LightTcp
                 throw new InvalidOperationException("Stream is not available.");
             }
 
-            byte[] buffer = new byte[1024];
+            byte[] lengthBuffer = new byte[sizeof(int)];
+            //byte[] buffer = new byte[1024];
 
             try
             {
                 while (client?.Connected == true)
                 {
-                    int bytesRead = await stream.ReadAsync(buffer);
-                    if (bytesRead > 0)
+                    int bytesRead = await stream.ReadAsync(lengthBuffer);
+                    if (bytesRead == 0)
+                        break;
+
+                    int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
+
+                    int totalBytesRead = 0;
+                    byte[] messageBuffer = new byte[messageLength];
+                    while (totalBytesRead < messageLength)
                     {
-                        byte[] receivedData = new byte[bytesRead];
-                        Array.Copy(buffer, receivedData, bytesRead);
-                        OnMessageReceived(receivedData);
+                        bytesRead = await stream.ReadAsync(messageBuffer.AsMemory(totalBytesRead, messageLength - totalBytesRead));
+                        if (bytesRead == 0)
+                            break;
+                        totalBytesRead += bytesRead;
                     }
+
+                    OnMessageReceived(messageBuffer);
                 }
             }
             finally

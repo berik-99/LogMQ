@@ -46,6 +46,8 @@ namespace LightTcp
                 if (client?.Connected == true)
                 {
                     NetworkStream stream = client.GetStream();
+                    byte[] lengthPrefix = BitConverter.GetBytes(data.Length);
+                    stream.Write(lengthPrefix, 0, lengthPrefix.Length);
                     stream.Write(data, 0, data.Length);
                 }
                 else
@@ -76,6 +78,8 @@ namespace LightTcp
                 if (client?.Connected == true)
                 {
                     NetworkStream stream = client.GetStream();
+                    byte[] lengthPrefix = BitConverter.GetBytes(data.Length);
+                    await stream.WriteAsync(lengthPrefix);
                     await stream.WriteAsync(data);
                 }
                 else
@@ -135,19 +139,41 @@ namespace LightTcp
         private void HandleClient(Guid clientId, TcpClient client)
         {
             NetworkStream stream = client.GetStream();
-            byte[] buffer = new byte[1024];
+            byte[] lengthBuffer = new byte[sizeof(int)];
+            //byte[] buffer = new byte[1024];
             int bytesRead;
-
             try
             {
-                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)
+                while (client.Connected)
                 {
-                    byte[] receivedData = new byte[bytesRead];
-                    Array.Copy(buffer, receivedData, bytesRead);
-                    OnMessageReceived(receivedData);
+                    bytesRead = stream.Read(lengthBuffer, 0, lengthBuffer.Length);
+                    if (bytesRead == 0)
+                        break;
+
+                    int messageLength = BitConverter.ToInt32(lengthBuffer, 0);
+
+                    int totalBytesRead = 0;
+                    byte[] messageBuffer = new byte[messageLength];
+                    while (totalBytesRead < messageLength)
+                    {
+                        bytesRead = stream.Read(messageBuffer, totalBytesRead, messageLength - totalBytesRead);
+                        if (bytesRead == 0)
+                            break;
+                        totalBytesRead += bytesRead;
+                    }
+
+                    OnMessageReceived(messageBuffer);
                 }
             }
-            catch (IOException ex) when (ex.InnerException is SocketException socketEx && socketEx.SocketErrorCode == SocketError.ConnectionAborted) { }
+            catch (IOException ex)
+            {
+                if (ex.InnerException is SocketException)
+                {
+                    var error = (ex.InnerException as SocketException).SocketErrorCode;
+                    if (error != SocketError.ConnectionAborted && error != SocketError.ConnectionReset)
+                        return;
+                }
+            }
             finally
             {
                 client.Close();

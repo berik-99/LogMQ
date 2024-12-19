@@ -92,8 +92,8 @@ public class LogMessage : IEquatable<LogMessage>
     /// <returns>The deserialized log message.</returns>
     public static LogMessage Deserialize(byte[] message)
     {
-        using MemoryStream stream = new(message);
-        return Serializer.Deserialize<LogMessage>(stream);
+        ReadOnlySpan<byte> bytes = new(message);
+        return Serializer.Deserialize<LogMessage>(bytes);
     }
 
     /// <inheritdoc/>

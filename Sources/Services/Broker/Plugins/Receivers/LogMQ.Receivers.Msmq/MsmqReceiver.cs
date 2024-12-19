@@ -19,27 +19,28 @@ namespace LogMQ.Receivers;
 [SupportedOSPlatform("windows")]
 public class MsmqReceiver(ILogger<MsmqReceiver> logger, ILogStorage storage) : LogReceiverBase(storage)
 {
-	/// <summary>
-	/// The path to the MSMQ queue being used.
-	/// </summary>
-	private readonly string queuePath = DefaultQueuePath;
+    /// <summary>
+    /// The path to the MSMQ queue being used.
+    /// </summary>
+    private readonly string queuePath = DefaultQueuePath;
 
-	/// <inheritdoc />
-	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-	{
-		logger.LogInformation("Init MSMQ Receiver");
-		if (!MessageQueue.Exists(queuePath))
-			MessageQueue.Create(queuePath);
-		using MessageQueue queue = new(queuePath);
-		while (!stoppingToken.IsCancellationRequested)
-		{
-			await Task.Run(async () =>
-			{
-				Message message = queue.Receive();
-				var stream = message.BodyStream;
-				var logMessage = LogMessage.Deserialize(stream);
-				await Storage.WriteLogMessage(logMessage);
-			}, stoppingToken);
-		}
-	}
+    /// <inheritdoc />
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        logger.LogInformation("Init MSMQ Receiver");
+        if (!MessageQueue.Exists(queuePath))
+            MessageQueue.Create(queuePath);
+        using MessageQueue queue = new(queuePath);
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await Task.Run(async () =>
+            {
+                Message message = queue.Receive();
+                MemoryStream stream = new();
+                message.BodyStream.CopyTo(stream);
+                LogMessage logMessage = LogMessage.Deserialize(stream.ToArray());
+                await Storage.WriteLogMessage(logMessage);
+            }, stoppingToken);
+        }
+    }
 }
