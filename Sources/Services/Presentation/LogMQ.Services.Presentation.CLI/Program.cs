@@ -1,4 +1,5 @@
 ﻿using LogMQ.Services.Presentation.CLI.Commands.Broker;
+using LogMQ.Services.Presentation.CLI.Commands.Log;
 using LogMQ.Services.Presentation.CLI.Commands.Plugin;
 using LogMQ.Services.Presentation.CLI.DependencyInjection;
 using LogMQ.Services.Shared.BrokerManager;
@@ -67,7 +68,14 @@ public static class Program
                 c.AddCommand<BrokerStatusCommand>("status")
                       .WithDescription("Checks the status of the LogMQ broker.");
             });
-        });
+
+			// Log commands
+			config.AddBranch("log", c =>
+			{
+				c.AddCommand<ShowLogsCommand>("show")
+					  .WithDescription("Show logs from an application.");
+			});
+		});
 
         await app.RunAsync(args);
     }

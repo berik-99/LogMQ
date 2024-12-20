@@ -113,6 +113,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helpers", "Helpers", "{2E1B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightTcp", "Sources\Helpers\LightTcp\LightTcp.csproj", "{DD781EF2-1A07-45AC-8B6A-D15A05E544E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Presentation.API", "LogMQ.Services.Presentation.API\LogMQ.Services.Presentation.API.csproj", "{02E4EF19-E992-4244-8FA9-706CE752B170}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogMQ.Services.Presentation.GrpcContracts", "Sources\Services\Presentation\LogMQ.Services.Presentation.GrpcProtos\LogMQ.Services.Presentation.GrpcContracts.csproj", "{7A3E5469-51FF-4750-8E89-777A798CCBB4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -211,6 +215,14 @@ Global
 		{DD781EF2-1A07-45AC-8B6A-D15A05E544E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD781EF2-1A07-45AC-8B6A-D15A05E544E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD781EF2-1A07-45AC-8B6A-D15A05E544E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02E4EF19-E992-4244-8FA9-706CE752B170}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02E4EF19-E992-4244-8FA9-706CE752B170}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02E4EF19-E992-4244-8FA9-706CE752B170}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02E4EF19-E992-4244-8FA9-706CE752B170}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A3E5469-51FF-4750-8E89-777A798CCBB4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A3E5469-51FF-4750-8E89-777A798CCBB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A3E5469-51FF-4750-8E89-777A798CCBB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A3E5469-51FF-4750-8E89-777A798CCBB4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -260,5 +272,7 @@ Global
 		{EC0FE405-D308-4972-87C7-7A688F7C6953} = {EB09A69E-1C61-492C-AEA1-FC7B0E12BAA3}
 		{2E1B2195-1C7A-4553-8B17-8B1D9AA78D5B} = {70FF315F-1C6D-476C-9ACF-FA88862D2C0D}
 		{DD781EF2-1A07-45AC-8B6A-D15A05E544E1} = {2E1B2195-1C7A-4553-8B17-8B1D9AA78D5B}
+		{02E4EF19-E992-4244-8FA9-706CE752B170} = {FCAD264E-7639-4AD8-900A-6EE3DE432F3D}
+		{7A3E5469-51FF-4750-8E89-777A798CCBB4} = {FCAD264E-7639-4AD8-900A-6EE3DE432F3D}
 	EndGlobalSection
 EndGlobal

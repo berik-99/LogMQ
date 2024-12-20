@@ -1,36 +1,41 @@
 {
-  "profiles": {
-    "CLI - Install": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin install C:\\Users\\erikb\\Desktop\\test-plugin.zip -y"
-    },
-    "CLI - List": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin list"
-    },
-    "CLI - Enable": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin enable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 1.0.1 -y"
-    },
-    "CLI - Disable": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin disable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -y"
-    },
-    "CLI - Uninstall": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin uninstall 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 2.0.1 -y"
-    },
-    "CLI - InfoInstalled": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin info 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e"
-    },
-    "CLI - InfoPackage": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin info C:\\Users\\erikb\\Desktop\\test-plugin.zip"
-    },
-    "CLI - Restore": {
-      "commandName": "Project",
-      "commandLineArgs": "plugin restore -H -y"
+    "profiles": {
+        //"CLI - Install": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin install C:\\Users\\erikb\\Desktop\\test-plugin.zip -y"
+        //},
+        //"CLI - List": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin list"
+        //},
+        //"CLI - Enable": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin enable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 1.0.1 -y"
+        //},
+        //"CLI - Disable": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin disable 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -y"
+        //},
+        //"CLI - Uninstall": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin uninstall 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e -v 2.0.1 -y"
+        //},
+        //"CLI - InfoInstalled": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin info 5678c5e2-2d3b-4f99-b7e4-6b9ed5b33a8e"
+        //},
+        //"CLI - InfoPackage": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin info C:\\Users\\erikb\\Desktop\\test-plugin.zip"
+        //},
+        //"CLI - Restore": {
+        //  "commandName": "Project",
+        //  "commandLineArgs": "plugin restore -H -y"
+        //}
+
+        "CLI - Logs": {
+            "commandName": "Project",
+            "commandLineArgs": "log show app1"
+        }
     }
-  }
 }
