@@ -1,8 +1,7 @@
 using LogMQ.Core;
-using LogMQ.Services.Shared.LogManager;
 using ProtoBuf.Grpc;
 
-namespace LogMQ.Services.Presentation.API.Services;
+namespace LogMQ.Services.Shared.LogManager;
 
 public class LogService : ILogService
 {

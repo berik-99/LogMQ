@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sources\Services\Presentation\LogMQ.Services.Presentation.GrpcProtos\LogMQ.Services.Presentation.GrpcContracts.csproj" />
+    <ProjectReference Include="..\..\Shared\LogMQ.Services.Shared.LogManager\LogMQ.Services.Shared.LogManager.csproj" />
   </ItemGroup>
 
 </Project>

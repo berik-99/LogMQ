@@ -3,7 +3,7 @@ using ProtoBuf.Grpc;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 
-namespace LogMQ.Services.Presentation.GrpcContracts;
+namespace LogMQ.Services.Shared.LogManager;
 
 [DataContract]
 public class LogResponse

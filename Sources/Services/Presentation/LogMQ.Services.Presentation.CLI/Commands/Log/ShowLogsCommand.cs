@@ -1,12 +1,11 @@
-﻿using Grpc.Net.Client;
-using LogMQ.Services.Presentation.GrpcContracts;
-using ProtoBuf.Grpc.Client;
+﻿using Grpc.Core;
+using LogMQ.Services.Shared.LogManager;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.Log;
 
-public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
+public class ShowLogsCommand(ILogManager manager) : AsyncCommand<ShowLogsCommand.Settings>
 {
 	public class Settings : CommandSettings
 	{
@@ -16,14 +15,18 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
 
 	public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 	{
-		using var channel = GrpcChannel.ForAddress("http://localhost:5000");
-		var client = channel.CreateGrpcService<ILogService>();
-
-		var reply = await client.ShowLogAsync(new ShowLogRequest { ApplicationName = settings.ApplicationName });
-
-		foreach (var message in reply.MessageList)
+		try
 		{
-			AnsiConsole.MarkupLine($"[bold]Message:[/] {message.Message}");
+			var logs = await manager.ShowLogAsync("http://localhost:5000", settings.ApplicationName);
+
+			foreach (var message in logs)
+			{
+				AnsiConsole.MarkupLine($"[bold]Message:[/] {message.Message}");
+			}
+		}
+		catch (RpcException ex) when (ex.Status.StatusCode == StatusCode.Unavailable)
+		{
+			AnsiConsole.Markup("[red]Error: Cannot connect to broker api service.[/]");
 		}
 		return 0;
 	}

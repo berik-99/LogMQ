@@ -2,8 +2,8 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace LightTcp
-{
+namespace LightTcp;
+
     public class LightTcpClient(string ipAddress, int port) : IDisposable
     {
         private TcpClient client;
@@ -146,4 +146,3 @@ namespace LightTcp
 
         ~LightTcpClient() => Dispose(false);
     }
-}

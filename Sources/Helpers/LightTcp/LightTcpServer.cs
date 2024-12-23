@@ -3,8 +3,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace LightTcp
-{
+namespace LightTcp;
+
     public class LightTcpServer(string ipAddress, int port) : IDisposable
     {
         private readonly TcpListener listener = new(IPAddress.Parse(ipAddress), port);
@@ -212,4 +212,3 @@ namespace LightTcp
 
         ~LightTcpServer() => Dispose(false);
     }
-}
