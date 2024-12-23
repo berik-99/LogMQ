@@ -39,7 +39,7 @@ public class MsmqReceiver(ILogger<MsmqReceiver> logger, ILogStorage storage) : L
                 MemoryStream stream = new();
                 message.BodyStream.CopyTo(stream);
                 LogMessage logMessage = LogMessage.Deserialize(stream.ToArray());
-                await Storage.WriteLogMessage(logMessage);
+                await Storage.WriteLogMessageAsync(logMessage);
             }, stoppingToken);
         }
     }

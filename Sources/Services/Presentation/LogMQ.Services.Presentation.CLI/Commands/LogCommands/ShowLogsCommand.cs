@@ -3,7 +3,7 @@ using LogMQ.Services.Shared.LogManager;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-namespace LogMQ.Services.Presentation.CLI.Commands.Log;
+namespace LogMQ.Services.Presentation.CLI.Commands.LogCommands;
 
 public class ShowLogsCommand(ILogManager manager) : AsyncCommand<ShowLogsCommand.Settings>
 {
@@ -17,7 +17,7 @@ public class ShowLogsCommand(ILogManager manager) : AsyncCommand<ShowLogsCommand
 	{
 		try
 		{
-			var logs = await manager.ShowLogAsync("http://localhost:5000", settings.ApplicationName);
+			var logs = await manager.GetLogsByFilterAsync("http://localhost:5000", settings.ApplicationName);
 
 			foreach (var message in logs)
 			{

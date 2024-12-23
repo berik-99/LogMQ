@@ -1,13 +1,13 @@
-﻿using LogMQ.Services.Presentation.CLI.Commands.Broker;
-using LogMQ.Services.Presentation.CLI.Commands.Log;
-using LogMQ.Services.Presentation.CLI.Commands.Plugin;
-using LogMQ.Services.Presentation.CLI.DependencyInjection;
+﻿using LogMQ.Services.Presentation.CLI.DependencyInjection;
 using LogMQ.Services.Shared.BrokerManager;
 using LogMQ.Services.Shared.PluginManager;
 using LogMQ.Services.Shared.LogManager;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console.Cli;
 using System.Runtime.InteropServices;
+using LogMQ.Services.Presentation.CLI.Commands.BrokerCommands;
+using LogMQ.Services.Presentation.CLI.Commands.LogCommands;
+using LogMQ.Services.Presentation.CLI.Commands.PluginCommands;
 
 namespace LogMQ.Services.Presentation.CLI;
 
@@ -73,6 +73,9 @@ public static class Program
 			{
 				c.AddCommand<ShowLogsCommand>("show")
 					  .WithDescription("Show logs from an application.");
+
+				c.AddCommand<WatchLogsCommand>("watch")
+					  .WithDescription("Watch logs from an application.");
 			});
 		});
 

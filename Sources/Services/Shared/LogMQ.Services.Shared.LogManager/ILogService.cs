@@ -1,40 +1,29 @@
 ﻿using LogMQ.Core;
+using ProtoBuf;
 using ProtoBuf.Grpc;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 
 namespace LogMQ.Services.Shared.LogManager;
 
-[DataContract]
-public class LogResponse
+[ProtoContract]
+public class LastLogsFilter
 {
-	[DataMember(Order = 1)]
-	public List<LogMessage> MessageList { get; set; }
-}
-
-[DataContract]
-public class ShowLogRequest
-{
-	[DataMember(Order = 1)]
-	public string ApplicationName { get; set; }
-}
-
-[DataContract]
-public class WatchLogRequest
-{
-	[DataMember(Order = 1)]
+	[ProtoMember(1)]
 	public string ApplicationName { get; set; }
 
-	[DataMember(Order = 2)]
-	public Guid GetAfterId { get; set; }
+	[ProtoMember(2)]
+	public Guid StartFromId { get; set; }
+
+	[ProtoMember(3)]
+	public int Count { get; set; }
 }
 
 [ServiceContract]
 public interface ILogService
 {
 	[OperationContract]
-	Task<LogResponse> ShowLogAsync(ShowLogRequest request, CallContext context = default);
+	Task<List<LogMessage>> GetLogsByFilterAsync(LogFilter filter, CallContext context = default);
 
 	[OperationContract]
-	Task<LogResponse> WatchLogAsync(WatchLogRequest request, CallContext context = default);
+	Task<List<LogMessage>> GetLastLogsAsync(LastLogsFilter filter, CallContext context = default);
 }

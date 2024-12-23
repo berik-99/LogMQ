@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Broker\Plugins\Storage\LogMQ.Storage.RocksDb\LogMQ.Storage.RocksDb.csproj" />
     <ProjectReference Include="..\..\Shared\LogMQ.Services.Shared.LogManager\LogMQ.Services.Shared.LogManager.csproj" />
   </ItemGroup>
 

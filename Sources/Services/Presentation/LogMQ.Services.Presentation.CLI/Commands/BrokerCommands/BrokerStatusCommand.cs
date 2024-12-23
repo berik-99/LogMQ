@@ -2,7 +2,7 @@
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-namespace LogMQ.Services.Presentation.CLI.Commands.Broker;
+namespace LogMQ.Services.Presentation.CLI.Commands.BrokerCommands;
 
 public class BrokerStatusCommand(IBrokerManager manager) : AsyncCommand
 {

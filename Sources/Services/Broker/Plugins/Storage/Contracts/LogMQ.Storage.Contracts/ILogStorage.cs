@@ -1,4 +1,5 @@
 ﻿using LogMQ.Core;
+using LogMQ.Services.Shared.LogManager;
 
 namespace LogMQ.Storage.Contracts;
 
@@ -12,7 +13,9 @@ public interface ILogStorage
     /// </summary>
     /// <param name="logMessage">The <see cref="LogMessage"/> to be stored.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task WriteLogMessage(LogMessage logMessage);
+    Task WriteLogMessageAsync(LogMessage logMessage);
 
-    Task<List<LogMessage>> GetLogMessages(DateTimeOffset start, DateTimeOffset end, int count);
+    Task<List<LogMessage>> GetLogsByFilterAsync(LogFilter filter);
+
+	Task<List<LogMessage>> GetLastLogsAsync(LastLogsFilter filter);
 }

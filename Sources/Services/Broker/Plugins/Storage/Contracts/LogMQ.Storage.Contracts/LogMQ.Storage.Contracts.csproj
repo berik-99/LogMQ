@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\..\..\Core\LogMQ.Core\LogMQ.Core.csproj" />
     <ProjectReference Include="..\..\..\..\..\Shared\LogMQ.Services.Shared.Common\LogMQ.Services.Shared.Common.csproj" />
+    <ProjectReference Include="..\..\..\..\..\Shared\LogMQ.Services.Shared.LogManager\LogMQ.Services.Shared.LogManager.csproj" />
   </ItemGroup>
 
 </Project>
