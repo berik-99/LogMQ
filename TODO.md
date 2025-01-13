@@ -7,7 +7,6 @@
 - [ ] **Write tests**
 - [ ] **Use multi-target framework** in LogMQ modules
 - [ ] **Improve Exception management in LogMessage serialization and deserialization**
-- [ ] **Replace WatsonWebSocket with standard tcp socket**
 
 ## ✨ Enhancement
 - [ ] **Implement other Provider-Receiver methods** (e.g., gRPC, WebSocket, SignalR, etc.)
@@ -40,3 +39,4 @@
 - [x] **Improve fallback logger management** (allow users to choose the size of the retry queue)
 - [x] **Implement new Loggers** Microsoft.Extensions.Logging
 - [x] **Create extension method to register Serilog enricher**
+- [x] **Replace WatsonTcp with standard tcp socket**
