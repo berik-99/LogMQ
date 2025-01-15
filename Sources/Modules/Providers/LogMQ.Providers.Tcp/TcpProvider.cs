@@ -1,7 +1,7 @@
-﻿using LightTcp;
+﻿using System.Collections.Concurrent;
+using LightTcp;
 using LogMQ.Core;
 using LogMQ.Providers.Contracts;
-using System.Collections.Concurrent;
 
 namespace LogMQ.Providers;
 
@@ -13,7 +13,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
     /// <summary>
     /// Default TCP host address used for the connection.
     /// </summary>
-    public const string DefaultTcpHost = "127.0.0.1";
+    public const string DefaultTcpHost = "localhost";
 
     /// <summary>
     /// Default TCP port used for the connection.

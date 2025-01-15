@@ -20,10 +20,11 @@ public class TcpReceiver(ILogger<TcpReceiver> logger, ILogStorage storage) : Log
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Init Tcp Receiver");
+        logger.LogInformation("Initializing TCP Receiver...");
         using LightTcpServer tcpServer = new(tcpHost, tcpPort);
         tcpServer.MessageReceived += async (_, e) => await MessageReceived(e);
         tcpServer.Start();
+        logger.LogInformation("Initialized TCP Receiver at {Host}:{Port}", tcpHost, tcpPort);
         while (!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(100, stoppingToken);

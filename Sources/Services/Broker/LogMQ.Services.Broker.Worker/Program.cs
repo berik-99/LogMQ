@@ -1,9 +1,9 @@
+using System.Runtime.InteropServices;
 using LogMQ.Receivers;
 using LogMQ.Services.Broker.Worker;
 using LogMQ.Storage;
 using LogMQ.Storage.Contracts;
 using Serilog;
-using System.Runtime.InteropServices;
 
 var builder = Host.CreateApplicationBuilder(args);
 

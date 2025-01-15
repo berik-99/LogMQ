@@ -1,5 +1,4 @@
 ﻿using LogMQ.Core;
-using LogMQ.Services.Shared.LogManager;
 
 namespace LogMQ.Storage.Contracts;
 
@@ -15,7 +14,7 @@ public interface ILogStorage
     /// <returns>A task representing the asynchronous operation.</returns>
     Task WriteLogMessageAsync(LogMessage logMessage);
 
-    Task<List<LogMessage>> GetLogsByFilterAsync(LogFilter filter);
+    Task<List<LogMessage>> GetLogsAsync(LogFilter filter);
 
-	Task<List<LogMessage>> GetLastLogsAsync(LastLogsFilter filter);
+    Task<long> GetLogsCountAsync(string applicationName);
 }

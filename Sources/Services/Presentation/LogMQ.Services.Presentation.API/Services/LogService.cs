@@ -9,7 +9,7 @@ public class LogService(ILogStorage storage) : ILogService
 {
 	public async Task<List<LogMessage>> GetLogsByFilterAsync(LogFilter filter, CallContext context = default)
 	{
-		return await storage.GetLogsByFilterAsync(filter);
+		return await storage.GetLogsAsync(filter);
 		//await Task.Delay(1);
 		//return [
 		//	new LogMessage { Message = "Message1", Application = new() { Name = filter.ApplicationName }},
