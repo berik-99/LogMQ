@@ -74,7 +74,7 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
 	{
 		List<Version> versions = [];
 
-		var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
+        PluginConfig plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
 		if (plugin == null)
 		{
@@ -114,9 +114,9 @@ public class UninstallPluginCommand(IPluginManager manager) : AsyncCommand<Unins
 		AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version(s) '{versionsText}' uninstalled successfully![/]");
 		AnsiConsole.WriteLine();
 
-		//TODO: Implement restart
+        //TODO: Implement restart
 
-		var runningPlugin = await manager.GetRunningVersion(plugin.Id);
+        Version runningPlugin = await manager.GetRunningVersion(plugin.Id);
 		ShowPluginTree(plugin, runningPlugin);
 
 		return 0;

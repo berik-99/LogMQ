@@ -1,16 +1,16 @@
 using LogMQ.Extensions.Logging;
 using LogMQ.Providers;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddLogMQ(new TcpProvider(null, "localhost", 5563, new FallbackLogger()), "MS-EXT-LOGGING");
 
 builder.Services.AddSingleton<ExampleHandler>();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
-var handler = app.Services.GetRequiredService<ExampleHandler>();
+ExampleHandler handler = app.Services.GetRequiredService<ExampleHandler>();
 app.MapGet("/", handler.HandleRequest);
 
 await app.RunAsync();

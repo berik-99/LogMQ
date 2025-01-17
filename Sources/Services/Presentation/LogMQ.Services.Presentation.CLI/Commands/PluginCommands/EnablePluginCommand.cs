@@ -71,7 +71,7 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
 	/// </returns>
 	public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 	{
-		var plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
+        PluginConfig plugin = await manager.GetPluginInfo(PluginConfigType.Staged, settings.PluginIdOrName);
 
 		if (plugin == null)
 		{
@@ -81,7 +81,7 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
 
 		if (settings.Version != null)
 		{
-			var version = plugin.Versions.FirstOrDefault(x => x.Version == settings.Version);
+            PluginVersion version = plugin.Versions.FirstOrDefault(x => x.Version == settings.Version);
 			if (version == null)
 			{
 				AnsiConsole.MarkupLine($"[red]Error: Version '{settings.Version}' not found for plugin '{plugin.Name}'.[/]");
@@ -97,7 +97,7 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
 					.Title("Select the version which you want to uninstall:")
 					.AddChoices(plugin.Versions.Select(x => x.Version))) : plugin.Versions.First().Version;
 		}
-		var currentActive = plugin.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled)?.Version;
+        Version currentActive = plugin.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled)?.Version;
 		if (currentActive != null)
 		{
 			if (currentActive > settings.Version && !ConfirmOperation(settings.Yes, $"You are attempting to enable an older version '{settings.Version}' than the current enabled version '{currentActive}' of plugin '{plugin.Name}'. Do you want to proceed?"))
@@ -115,9 +115,9 @@ public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePl
 		AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name} v{settings.Version}' enabled successfully![/]");
 		AnsiConsole.WriteLine();
 
-		//TODO: Implement restart
+        //TODO: Implement restart
 
-		var runningPlugin = await manager.GetRunningVersion(plugin.Id);
+        Version runningPlugin = await manager.GetRunningVersion(plugin.Id);
 		ShowPluginTree(plugin, runningPlugin);
 
 		return 0;

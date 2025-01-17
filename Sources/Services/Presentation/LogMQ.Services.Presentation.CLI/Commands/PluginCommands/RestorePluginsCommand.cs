@@ -59,10 +59,10 @@ public class RestorePluginsCommand(IPluginManager manager) : AsyncCommand<Restor
 			return -1;
 		}
 
-		var plugins = await manager.RestorePluginConfigAsync(settings.Erase);
+        List<PluginConfig> plugins = await manager.RestorePluginConfigAsync(settings.Erase);
 
 		Dictionary<PluginConfig, Version> dict = [];
-		foreach (var plugin in plugins)
+		foreach (PluginConfig plugin in plugins)
 			dict.Add(plugin, await manager.GetRunningVersion(plugin.Id));
 
 		AnsiConsole.WriteLine();

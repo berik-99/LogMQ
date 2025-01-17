@@ -8,7 +8,7 @@ public class BrokerStatusCommand(IBrokerManager manager) : AsyncCommand
 {
 	public override async Task<int> ExecuteAsync(CommandContext context)
 	{
-		var str = await manager.GetBrokerStatusAsync();
+        string str = await manager.GetBrokerStatusAsync();
 		AnsiConsole.WriteLine(str);
 		return 0;
 	}

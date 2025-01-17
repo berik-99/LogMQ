@@ -5,7 +5,7 @@ using LogMQ.Storage;
 using LogMQ.Storage.Contracts;
 using Serilog;
 
-var builder = Host.CreateApplicationBuilder(args);
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
 builder.Logging
    .ClearProviders()
@@ -27,6 +27,6 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     builder.Services.AddHostedService<MsmqReceiver>();
 builder.Services.AddHostedService<TestDbReaderService>();
 
-var host = builder.Build();
+IHost host = builder.Build();
 
 await host.RunAsync();

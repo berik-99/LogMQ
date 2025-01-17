@@ -150,7 +150,7 @@ public sealed class TcpProvider : ILogProvider, IDisposable
     {
         try
         {
-            var bin = message.Serialize();
+            byte[] bin = message.Serialize();
             await tcpClient.SendAsync(bin);
             //if (!await tcpClient.SendAsync(bin))
             //    throw new InvalidOperationException("Failed to send log message to LogMQ Broker");

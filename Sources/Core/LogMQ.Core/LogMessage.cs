@@ -15,53 +15,40 @@ public class LogMessage : IEquatable<LogMessage>
     public Guid Guid { get; set; }
 
     /// <summary>
-    /// Gets or sets the timestamp of when the log event occurred.
+    /// Gets or sets the UTC timestamp of when the log event occurred.
     /// </summary>
-    public DateTimeOffset Timestamp
-    {
-        get => new(timestampDateTime, timestampOffset);
-        set
-        {
-            timestampDateTime = value.DateTime;
-            timestampOffset = value.Offset;
-        }
-    }
+    [ProtoMember(2)]
+    public UniversalDateTime Timestamp { get; set; }
 
     /// <summary>
     /// Gets or sets the severity level of the log message.
     /// </summary>
-    [ProtoMember(2)]
+    [ProtoMember(3)]
     public LogLevel LogLevel { get; set; }
 
     /// <summary>
     /// Gets or sets the actual log message describing the event or action.
     /// </summary>
-    [ProtoMember(3)]
+    [ProtoMember(4)]
     public string Message { get; set; }
 
     /// <summary>
     /// Gets or sets the application generating the log message.
     /// </summary>
-    [ProtoMember(4)]
+    [ProtoMember(5)]
     public LogApplication Application { get; set; }
 
     /// <summary>
     /// Gets or sets additional metadata related to the log event, such as file, class, and method information.
     /// </summary>
-    [ProtoMember(5)]
+    [ProtoMember(6)]
     public LogMetadata Metadata { get; set; }
 
     /// <summary>
     /// Gets or sets the exception message, if an exception was thrown during the log event.
     /// </summary>
-    [ProtoMember(6)]
-    public string ExceptionMessage { get; set; }
-
     [ProtoMember(7)]
-    private DateTime timestampDateTime;
-
-    [ProtoMember(8)]
-    private TimeSpan timestampOffset;
+    public string ExceptionMessage { get; set; }
 
     /// <summary>
     /// Serializes the log message to the specified stream using Protocol Buffers (protobuf).

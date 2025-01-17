@@ -31,8 +31,8 @@ public static class Program
         Log.Information("This is a test log message from Main");
         TestSyncMethod(23, 8646);
         await TestAsyncMethod("ciao", false);
-        var m = (int arg) => Log.Information("This is a test log message from lambda sync method. args: {Arg}", arg);
-        var m2 = async (int arg) =>
+        Action<int> m = (int arg) => Log.Information("This is a test log message from lambda sync method. args: {Arg}", arg);
+        Func<int, Task> m2 = async (int arg) =>
         {
             await Task.Delay(1);
             Log.Information("This is a test log message from lambda async method. args: {Arg}", arg);

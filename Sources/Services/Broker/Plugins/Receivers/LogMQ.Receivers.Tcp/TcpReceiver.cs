@@ -38,7 +38,7 @@ public class TcpReceiver(ILogger<TcpReceiver> logger, ILogStorage storage) : Log
     /// <returns>A task representing the asynchronous operation.</returns>
     private async Task MessageReceived(byte[] data)
     {
-        var logMessage = LogMessage.Deserialize(data);
+        LogMessage logMessage = LogMessage.Deserialize(data);
         await Storage.WriteLogMessageAsync(logMessage);
     }
 }

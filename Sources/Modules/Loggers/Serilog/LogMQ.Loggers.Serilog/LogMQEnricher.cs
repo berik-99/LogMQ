@@ -23,9 +23,9 @@ internal sealed class LogMQEnricher : ILogEventEnricher
 	/// </param>
 	public void Enrich(LogEvent logEvent, ILogEventPropertyFactory propertyFactory)
 	{
-		var meta = LogMetadata.GetLogMetadata(typeof(Log));
+        LogMetadata meta = LogMetadata.GetLogMetadata(typeof(Log));
 
-		var properties = new[]
+        LogEventProperty[] properties = new[]
 		{
 			propertyFactory.CreateProperty(nameof(meta.File), meta.File),
 			propertyFactory.CreateProperty(nameof(meta.Class), meta.Class),
@@ -34,7 +34,7 @@ internal sealed class LogMQEnricher : ILogEventEnricher
 			propertyFactory.CreateProperty(nameof(meta.Row), meta.Row)
 		};
 
-		foreach (var property in properties)
+		foreach (LogEventProperty property in properties)
 		{
 			logEvent.AddPropertyIfAbsent(property);
 		}

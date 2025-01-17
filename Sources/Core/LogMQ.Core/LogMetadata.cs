@@ -62,11 +62,11 @@ public class LogMetadata
 	/// </remarks>
 	public static LogMetadata GetLogMetadata(Type filterType)
 	{
-		var logMetadata = new LogMetadata();
-		var stackTrace = EnhancedStackTrace.Current().Take(128).Skip(3);
-		var frame = stackTrace.FirstOrDefault(f => f.HasMethod() && f.MethodInfo.DeclaringType?.Assembly != filterType.Assembly);
+        LogMetadata logMetadata = new();
+        IEnumerable<EnhancedStackFrame> stackTrace = EnhancedStackTrace.Current().Take(128).Skip(3);
+        EnhancedStackFrame frame = stackTrace.FirstOrDefault(f => f.HasMethod() && f.MethodInfo.DeclaringType?.Assembly != filterType.Assembly);
 		if (frame == null) return logMetadata;
-		var methodInfo = frame.MethodInfo;
+        ResolvedMethod methodInfo = frame.MethodInfo;
 		logMetadata.Class = methodInfo.DeclaringType?.FullName;
 		logMetadata.MethodName = methodInfo.Name;
 		logMetadata.MethodSignature = methodInfo.ToString();

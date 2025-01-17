@@ -73,8 +73,8 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
 	/// </returns>
 	public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 	{
-		var manifest = await manager.AnalyzePluginFile(settings.PluginPath);
-		var existingPlugin = await manager.GetPluginInfo(PluginConfigType.Staged, manifest.Id.ToString());
+        PluginManifest manifest = await manager.AnalyzePluginFile(settings.PluginPath);
+        PluginConfig existingPlugin = await manager.GetPluginInfo(PluginConfigType.Staged, manifest.Id.ToString());
 
 		if (settings.Yes)
 		{
@@ -89,13 +89,13 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
 				}
 				else if (existingPlugin.Versions.Any(x => x.Version > manifest.Version))
 				{
-					var newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.Version).Max(x => x.Version);
+                    Version newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.Version).Max(x => x.Version);
 					infoMessage = $"[red]Error: A newer version '{newerVersion}' of the plugin '{manifest.Name}' is already installed. Run this command again without the -y option to install version '{manifest.Version}'.[/]";
 					blockExecution = true;
 				}
 				else
 				{
-					var olderVersion = existingPlugin.Versions.Max(x => x.Version);
+                    Version olderVersion = existingPlugin.Versions.Max(x => x.Version);
 					infoMessage = $"[green]Updating plugin '{manifest.Name}': {olderVersion} -> {manifest.Version}[/]";
 				}
 			}
@@ -113,12 +113,12 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
 				}
 				else if (existingPlugin.Versions.Any(x => x.Version > manifest.Version))
 				{
-					var newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.Version).Max(x => x.Version);
+                    Version newerVersion = existingPlugin.Versions.Where(x => x.Version > manifest.Version).Max(x => x.Version);
 					promptMessage = $"A newer version '{newerVersion}' of the plugin '{manifest.Name}' is already installed. Do you want to install the older version '{manifest.Version}'?";
 				}
 				else
 				{
-					var olderVersion = existingPlugin.Versions.Max(x => x.Version);
+                    Version olderVersion = existingPlugin.Versions.Max(x => x.Version);
 					promptMessage = $"Do you want to update the plugin '{manifest.Name}' from version '{olderVersion}' to '{manifest.Version}'?";
 				}
 			}
@@ -128,15 +128,15 @@ public class InstallPluginCommand(IPluginManager manager) : AsyncCommand<Install
 			}
 		}
 
-		var plugin = await manager.InstallPluginAsync(settings.PluginPath, true, settings.Enable, manifest);
+        PluginConfig plugin = await manager.InstallPluginAsync(settings.PluginPath, true, settings.Enable, manifest);
 
 		AnsiConsole.WriteLine();
 		AnsiConsole.MarkupLine($"[green]Success: Plugin '{plugin.Name}' version '{manifest.Version}' installed successfully![/]");
 		AnsiConsole.WriteLine();
 
-		//TODO: Implement restart
+        //TODO: Implement restart
 
-		var runningPlugin = await manager.GetRunningVersion(plugin.Id);
+        Version runningPlugin = await manager.GetRunningVersion(plugin.Id);
 		ShowPluginTree(plugin, runningPlugin);
 
 		return 0;

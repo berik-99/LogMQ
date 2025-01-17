@@ -6,7 +6,7 @@ public static class Common
 {
     public static void EnableKeepAlive(TcpClient client)
     {
-        var socket = client.Client;
+        Socket socket = client.Client;
         socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
         if (OperatingSystem.IsWindows())

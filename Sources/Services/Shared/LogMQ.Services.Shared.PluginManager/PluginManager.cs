@@ -28,14 +28,14 @@ public class PluginManager : IPluginManager
     {
         if (!Path.Exists(pluginPath))
             throw new FileNotFoundException($"Plugin {pluginPath} not found");
-        await using var file = File.OpenRead(pluginPath);
-        using var zip = new ZipArchive(file, ZipArchiveMode.Read);
-        var manifestZipEntry = zip.Entries.FirstOrDefault(e => e.Name == PluginManifestFile)
+        await using FileStream file = File.OpenRead(pluginPath);
+        using ZipArchive zip = new(file, ZipArchiveMode.Read);
+        ZipArchiveEntry manifestZipEntry = zip.Entries.FirstOrDefault(e => e.Name == PluginManifestFile)
              ?? throw new FileNotFoundException("Plugin manifest not found");
         await using Stream manifestStream = manifestZipEntry.Open();
-        using var reader = new StreamReader(manifestStream);
+        using StreamReader reader = new(manifestStream);
         string manifestContent = await reader.ReadToEndAsync();
-        var manifest = JsonSerializer.Deserialize<PluginManifest>(manifestContent);
+        PluginManifest manifest = JsonSerializer.Deserialize<PluginManifest>(manifestContent);
         _ = zip.Entries.FirstOrDefault(x => x.Name == manifest.EntryPoint)
             ?? throw new FileNotFoundException("Plugin entry point not found");
         //TODO: Verify entrypoint
@@ -45,7 +45,7 @@ public class PluginManager : IPluginManager
     /// <inheritdoc/>
     public async Task<PluginConfig> GetPluginInfo(PluginConfigType configType, string pluginReference)
     {
-        var plugins = await LoadPluginsConfigAsync(configType);
+        List<PluginConfig> plugins = await LoadPluginsConfigAsync(configType);
         if (Guid.TryParse(pluginReference, out Guid guid))
             return plugins.Find(x => x.Id == guid);
         else if (plugins.Exists(x => x.Name == pluginReference))
@@ -57,7 +57,7 @@ public class PluginManager : IPluginManager
     public async Task<PluginConfig> InstallPluginAsync(string pluginPath, bool overwrite, bool enable, PluginManifest manifest)
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
-        var existingConfig = plugins.Find(p => p.Id == manifest.Id);
+        PluginConfig existingConfig = plugins.Find(p => p.Id == manifest.Id);
         if (existingConfig == null)
         {
             existingConfig = new PluginConfig
@@ -73,10 +73,10 @@ public class PluginManager : IPluginManager
             plugins.Add(existingConfig);
         }
         existingConfig.Versions.RemoveWhere(x => x.Version == manifest.Version);
-        var installedVersion = new PluginVersion { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed };
+        PluginVersion installedVersion = new() { Version = manifest.Version, Status = enable ? VersionStatus.Enabled : VersionStatus.Installed };
         existingConfig.Versions.Add(installedVersion);
 
-        var destFileName = GetInstalledPath(existingConfig.Id, installedVersion.Version);
+        string destFileName = GetInstalledPath(existingConfig.Id, installedVersion.Version);
         Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
         File.Copy(pluginPath, destFileName, overwrite);
 
@@ -90,19 +90,19 @@ public class PluginManager : IPluginManager
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
         PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
-        foreach (var version in versions)
+        foreach (Version version in versions)
         {
             if (!plugin.Versions.Any(x => x.Version == version))
                 throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
         }
 
-        foreach (var version in versions)
+        foreach (Version version in versions)
         {
-            var pluginVersion = plugin.Versions.FirstOrDefault(x => x.Version == version);
+            PluginVersion pluginVersion = plugin.Versions.FirstOrDefault(x => x.Version == version);
             if (pluginVersion.Status == VersionStatus.Installed)
             {
-                var destFileName = GetInstalledPath(plugin.Id, pluginVersion.Version);
-                var dir = Path.GetDirectoryName(destFileName);
+                string destFileName = GetInstalledPath(plugin.Id, pluginVersion.Version);
+                string dir = Path.GetDirectoryName(destFileName);
 
                 File.Delete(destFileName);
                 if (Directory.GetFiles(dir).Length == 0)
@@ -130,7 +130,7 @@ public class PluginManager : IPluginManager
         if (!plugin.Versions.Any(x => x.Version == version))
             throw new KeyNotFoundException($"Version {version} not found for plugin {plugin.Name}");
 
-        foreach (var item in plugin.Versions)
+        foreach (PluginVersion item in plugin.Versions)
             item.Status = item.Version == version ? VersionStatus.Enabled : VersionStatus.Installed;
 
         await SavePluginsConfig(plugins);
@@ -142,7 +142,7 @@ public class PluginManager : IPluginManager
     {
         List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Staged);
         PluginConfig plugin = plugins.Find(p => p.Id == pluginId);
-        var currentActiveplugin = plugin.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled);
+        PluginVersion currentActiveplugin = plugin.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled);
         if (currentActiveplugin != null)
             currentActiveplugin.Status = VersionStatus.Installed;
         await SavePluginsConfig(plugins);
@@ -159,15 +159,15 @@ public class PluginManager : IPluginManager
     /// <inheritdoc/>
     public async Task<List<PluginConfig>> RestorePluginConfigAsync(bool hardCopy)
     {
-        var filter = new List<PluginType> { PluginType.Receiver, PluginType.Storage };
+        List<PluginType> filter = new() { PluginType.Receiver, PluginType.Storage };
         if (hardCopy)
         {
             File.Copy(PluginRunningConfigFile, PluginStagedConfigFile, true);
             return await ListPluginsAsync(PluginConfigType.Staged, filter);
         }
 
-        var plugins = await ListPluginsAsync(PluginConfigType.Staged, filter);
-        foreach (var version in plugins.SelectMany(plugin => plugin.Versions))
+        List<PluginConfig> plugins = await ListPluginsAsync(PluginConfigType.Staged, filter);
+        foreach (PluginVersion version in plugins.SelectMany(plugin => plugin.Versions))
             version.Status = VersionStatus.Installed;
         File.Copy(PluginRunningConfigFile, PluginStagedConfigFile, true);
         await SavePluginsConfig(plugins);
@@ -177,7 +177,7 @@ public class PluginManager : IPluginManager
     /// <inheritdoc/>
     public async Task<Version> GetRunningVersion(Guid pluginId)
     {
-        var plugins = await LoadPluginsConfigAsync(PluginConfigType.Running);
+        List<PluginConfig> plugins = await LoadPluginsConfigAsync(PluginConfigType.Running);
         return plugins.FirstOrDefault(x => x.Id == pluginId)?.Versions.FirstOrDefault(x => x.Status == VersionStatus.Enabled)?.Version;
     }
 
@@ -188,7 +188,7 @@ public class PluginManager : IPluginManager
     /// <returns>List of plugin configurations.</returns>
     private static async Task<List<PluginConfig>> LoadPluginsConfigAsync(PluginConfigType configType)
     {
-        var configFile = configType == PluginConfigType.Running ? PluginRunningConfigFile : PluginStagedConfigFile;
+        string configFile = configType == PluginConfigType.Running ? PluginRunningConfigFile : PluginStagedConfigFile;
         string json = await File.ReadAllTextAsync(configFile);
         return JsonSerializer.Deserialize<List<PluginConfig>>(json);
     }
@@ -199,7 +199,7 @@ public class PluginManager : IPluginManager
     /// <param name="plugins">List of plugin configurations to save.</param>
     private static async Task SavePluginsConfig(List<PluginConfig> plugins)
     {
-        var json = JsonSerializer.Serialize(plugins);
+        string json = JsonSerializer.Serialize(plugins);
         await File.WriteAllTextAsync(PluginStagedConfigFile, json);
     }
 

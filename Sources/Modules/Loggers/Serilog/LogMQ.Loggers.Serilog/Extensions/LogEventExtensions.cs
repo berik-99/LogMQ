@@ -63,11 +63,11 @@ internal static class LogEventExtensions
 	/// </remarks>
 	internal static LogEvent ToLogEvent(this LogMessage logMessage)
 	{
-		var serilogLevel = logMessage.LogLevel.ToSerilogLogLevel();
-		var messageTemplate = new MessageTemplateParser().Parse(logMessage.Message ?? string.Empty);
-		var exMsg = logMessage.ExceptionMessage;
-		var properties = new List<LogEventProperty>
-		{
+        LogEventLevel serilogLevel = logMessage.LogLevel.ToSerilogLogLevel();
+        MessageTemplate messageTemplate = new MessageTemplateParser().Parse(logMessage.Message ?? string.Empty);
+        string exMsg = logMessage.ExceptionMessage;
+        List<LogEventProperty> properties = new()
+        {
 			new(nameof(LogApplication.Name), new ScalarValue(logMessage.Application.Name)),
 			new(nameof(LogApplication.Category), new ScalarValue(logMessage.Application.Category)),
 			new(nameof(LogApplication.Machine), new ScalarValue(logMessage.Application.Machine)),
@@ -126,7 +126,7 @@ internal static class LogEventExtensions
 		bool TryGetProperty<T>(string propertyName, out T value)
 		{
 			value = default;
-			if (logEvent.Properties.TryGetValue(propertyName, out var propertyValue) &&
+			if (logEvent.Properties.TryGetValue(propertyName, out LogEventPropertyValue propertyValue) &&
 				propertyValue is ScalarValue scalarValue)
 			{
 				value = (T)Convert.ChangeType(scalarValue.Value, typeof(T));

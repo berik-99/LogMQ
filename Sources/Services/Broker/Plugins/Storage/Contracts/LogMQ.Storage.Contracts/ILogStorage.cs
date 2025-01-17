@@ -16,5 +16,7 @@ public interface ILogStorage
 
     Task<List<LogMessage>> GetLogsAsync(LogFilter filter);
 
-    Task<long> GetLogsCountAsync(string applicationName);
+    Task<long> GetTotalLogsCountAsync(string applicationName);
+
+    Task<List<string>> GetLogApplications();
 }

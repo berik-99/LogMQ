@@ -11,6 +11,8 @@ namespace LogMQ.Storage;
 /// </summary>
 public class RocksDbStorage : ILogStorage, IDisposable
 {
+    private const string timestampSerializationFormat = "yyyyMMddHHmmssffff";
+
     /// <summary>
     /// The instance of the RocksDB database.
     /// </summary>
@@ -44,7 +46,7 @@ public class RocksDbStorage : ILogStorage, IDisposable
         this.logger = logger;
         logger.LogInformation("Init RocksDB Storage");
         Directory.CreateDirectory(dbPath);
-        var families = GetColumnFamilies();
+        ColumnFamilies families = GetColumnFamilies();
         db = RocksDb.Open(dbOptions, dbPath, families);
     }
 
@@ -78,24 +80,19 @@ public class RocksDbStorage : ILogStorage, IDisposable
         {
             List<LogMessage> logMessages = [];
 
-            if (db.TryGetColumnFamily(filter.ApplicationName, out var handle))
+            if (db.TryGetColumnFamily(filter.ApplicationName, out ColumnFamilyHandle handle))
             {
-                using var iterator = db.NewIterator(handle);
+                using Iterator iterator = db.NewIterator(handle);
                 iterator.SeekToFirst();
 
                 while (iterator.Valid() && logMessages.Count < filter.Count)
                 {
-                    var keyBytes = iterator.Key();
-                    var valueBytes = iterator.Value();
-
-                    var (timestamp, _) = DeserializeKey(keyBytes);
-
-                    var logMessage = LogMessage.Deserialize(valueBytes);
-                    logMessages.Add(logMessage);
-
+                    byte[] valueBytes = iterator.Value();
+                    LogMessage logMessage = LogMessage.Deserialize(valueBytes);
+                    if (logMessage.Timestamp >= filter.TimeFrom && logMessage.Timestamp <= filter.TimeTo)
+                        logMessages.Add(logMessage);
                     iterator.Next();
                 }
-                //logMessages = logMessages.OrderBy(msg => msg.Timestamp).Take(filter.Count).ToList();
             }
             else
             {
@@ -110,11 +107,11 @@ public class RocksDbStorage : ILogStorage, IDisposable
     }
 
     /// <inheritdoc />
-    public async Task<long> GetLogsCountAsync(string applicationName)
+    public async Task<long> GetTotalLogsCountAsync(string applicationName)
     {
         return await Task.Run(() =>
         {
-            if (db.TryGetColumnFamily(applicationName, out var handle))
+            if (db.TryGetColumnFamily(applicationName, out ColumnFamilyHandle handle))
             {
                 string propertyValue = db.GetProperty("rocksdb.estimate-num-keys", handle);
                 return long.TryParse(propertyValue, out long numberOfRecords) ? numberOfRecords : 0;
@@ -127,15 +124,21 @@ public class RocksDbStorage : ILogStorage, IDisposable
         });
     }
 
+    /// <inheritdoc />
+    public async Task<List<string>> GetLogApplications()
+    {
+        return await Task.Run(() => GetColumnFamilies().ToList().ConvertAll(x => x.Name));
+    }
+
     /// <summary>
     /// Serializes a unique key composed of a timestamp and a GUID for RocksDB storage.
     /// </summary>
-    /// <param name="dateTimeOffset">The timestamp to include in the key.</param>
+    /// <param name="timestamp">The timestamp to include in the key.</param>
     /// <param name="guid">The GUID to include in the key.</param>
     /// <returns>A byte array representing the serialized key.</returns>
-    public static byte[] SerializeKey(DateTimeOffset dateTimeOffset, Guid guid)
+    public static byte[] SerializeKey(UniversalDateTime timestamp, Guid guid)
     {
-        string dateTimeString = dateTimeOffset.ToString("yyyyMMddHHmmssffff");
+        string dateTimeString = timestamp.ToDateTimeOffset().UtcDateTime.ToString(timestampSerializationFormat);
         string guidString = guid.ToString("N");
         string combinedKey = $"{dateTimeString}-{guidString}";
         return Encoding.UTF8.GetBytes(combinedKey);
@@ -146,16 +149,16 @@ public class RocksDbStorage : ILogStorage, IDisposable
     /// </summary>
     /// <param name="keyBytes">The byte array representing the serialized key.</param>
     /// <returns>A tuple containing the deserialized <see cref="DateTimeOffset"/> and <see cref="Guid"/>.</returns>
-    public static (DateTimeOffset, Guid) DeserializeKey(byte[] keyBytes)
+    public static (UniversalDateTime, Guid) DeserializeKey(byte[] keyBytes)
     {
         string combinedKey = Encoding.UTF8.GetString(keyBytes);
         string[] parts = combinedKey.Split('-');
         string dateTimeString = parts[0];
         string guidString = parts[1];
-        DateTimeOffset dateTimeOffset = DateTimeOffset.ParseExact(dateTimeString, "yyyyMMddHHmmssffff", null);
+        DateTimeOffset dateTimeOffset = DateTime.ParseExact(dateTimeString, timestampSerializationFormat, null);
         Guid guid = Guid.Parse(guidString);
 
-        return (dateTimeOffset, guid);
+        return (new UniversalDateTime(dateTimeOffset), guid);
     }
 
     /// <summary>
@@ -170,7 +173,7 @@ public class RocksDbStorage : ILogStorage, IDisposable
         if (Directory.GetFiles(dbPath).Length > 0)
             familiesStr = RocksDb.ListColumnFamilies(dbOptions, dbPath).ToList();
 
-        foreach (var family in familiesStr)
+        foreach (string family in familiesStr)
             families.Add(family, new());
 
         return families;

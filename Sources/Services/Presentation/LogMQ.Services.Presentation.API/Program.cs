@@ -3,14 +3,14 @@ using LogMQ.Storage;
 using LogMQ.Storage.Contracts;
 using ProtoBuf.Grpc.Server;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSingleton<ILogStorage, RocksDbStorage>();
 
 // Add services to the container.
 builder.Services.AddCodeFirstGrpc();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<LogService>();

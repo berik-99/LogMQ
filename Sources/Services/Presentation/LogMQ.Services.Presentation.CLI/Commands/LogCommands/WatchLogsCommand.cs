@@ -21,12 +21,12 @@ public class WatchLogsCommand(ILogManager manager) : AsyncCommand<WatchLogsComma
 	{
 		try
 		{
-			var lastId = Guid.Empty;
+            Guid lastId = Guid.Empty;
 			while (true)
 			{
-				var logs = await manager.GetLastLogsAsync("http://localhost:5000", settings.ApplicationName, lastId, 1);
+                List<LogMessage> logs = await manager.GetLogsAsync("http://localhost:5000", settings.ApplicationName, lastId, 1);
 				lastId = logs.LastOrDefault()?.Guid ?? lastId;
-				foreach (var message in logs)
+				foreach (LogMessage message in logs)
 				{
 					AnsiConsole.MarkupLine($"[bold]Message:[/] {message.Message}");
 				}

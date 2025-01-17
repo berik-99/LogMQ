@@ -16,8 +16,8 @@ internal static class CommonCommands
     {
         if (plugins.Count > 0)
         {
-            var pluginListTree = new Tree("[green]Plugins[/]");
-            foreach (var plugin in plugins)
+            Tree pluginListTree = new("[green]Plugins[/]");
+            foreach (KeyValuePair<PluginConfig, Version> plugin in plugins)
                 pluginListTree.AddNode(BuildPluginTree(plugin.Key, plugin.Value, null));
             AnsiConsole.Write(pluginListTree);
         }
@@ -51,7 +51,7 @@ internal static class CommonCommands
             return true;
         }
 
-        var confirmation = AnsiConsole.Prompt(new TextPrompt<bool>(message)
+        bool confirmation = AnsiConsole.Prompt(new TextPrompt<bool>(message)
             .AddChoice(true)
             .AddChoice(false)
             .DefaultValue(true)
@@ -75,22 +75,22 @@ internal static class CommonCommands
     private static Tree BuildPluginTree(PluginConfig pluginConfig, Version running, List<Version> externalVersions)
     {
         externalVersions ??= [];
-        var pluginTree = new Tree($"[blue]{pluginConfig.Id}[/]");
+        Tree pluginTree = new($"[blue]{pluginConfig.Id}[/]");
         pluginTree.AddNode($"[yellow]Name:[/] {pluginConfig.Name}");
         pluginTree.AddNode($"[yellow]Author:[/] {pluginConfig.Author}");
         pluginTree.AddNode($"[yellow]Description:[/] {pluginConfig.Description}");
         pluginTree.AddNode($"[yellow]Type:[/] {pluginConfig.Type}");
         pluginTree.AddNode($"[yellow]Entry point:[/] {pluginConfig.EntryPoint}");
 
-        var versionsNode = pluginTree.AddNode("[yellow]Versions[/]");
+        TreeNode versionsNode = pluginTree.AddNode("[yellow]Versions[/]");
 
         HashSet<PluginVersion> mergedVersions = new(pluginConfig.Versions);
-        foreach (var v in externalVersions)
+        foreach (Version v in externalVersions)
             mergedVersions.Add(new PluginVersion { Version = v });
 
         if (mergedVersions.Count > 0)
         {
-            foreach (var version in mergedVersions)
+            foreach (PluginVersion version in mergedVersions)
             {
                 string color = "cyan";
                 string status = "INSTALLED";

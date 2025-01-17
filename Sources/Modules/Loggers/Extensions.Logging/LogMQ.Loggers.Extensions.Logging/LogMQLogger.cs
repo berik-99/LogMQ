@@ -47,9 +47,9 @@ internal sealed class LogMQLogger(ILogProvider provider, string applicationName,
 		if (!IsEnabled(logLevel))
 			return;
 
-		var message = formatter?.Invoke(state, exception);
-		var logMessage = new LogMessage
-		{
+        string message = formatter?.Invoke(state, exception);
+        LogMessage logMessage = new()
+        {
 			Guid = Guid.NewGuid(),
 			Timestamp = DateTime.UtcNow,
 			Message = message,

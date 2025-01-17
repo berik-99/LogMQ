@@ -17,9 +17,9 @@ public class ShowLogsCommand(ILogManager manager) : AsyncCommand<ShowLogsCommand
 	{
 		try
 		{
-			var logs = await manager.GetLogsByFilterAsync("http://localhost:5000", settings.ApplicationName);
+            List<Core.LogMessage> logs = await manager.GetLogsByFilterAsync("http://localhost:5000", settings.ApplicationName);
 
-			foreach (var message in logs)
+			foreach (Core.LogMessage message in logs)
 			{
 				AnsiConsole.MarkupLine($"[bold]Message:[/] {message.Message}");
 			}

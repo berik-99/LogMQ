@@ -169,7 +169,7 @@ public class LightTcpServer(string ipAddress, int port) : IDisposable
         {
             if (ex.InnerException is SocketException)
             {
-                var error = (ex.InnerException as SocketException).SocketErrorCode;
+                SocketError error = (ex.InnerException as SocketException).SocketErrorCode;
                 if (error != SocketError.ConnectionAborted && error != SocketError.ConnectionReset)
                     return;
             }
@@ -184,7 +184,7 @@ public class LightTcpServer(string ipAddress, int port) : IDisposable
 
     private static IPAddress ResolveAddress(string input)
     {
-        var hostEntry = Dns.GetHostEntry(input);
+        IPHostEntry hostEntry = Dns.GetHostEntry(input);
         if (hostEntry.AddressList.Length > 0)
             return hostEntry.AddressList[0]; ;
         return IPAddress.Parse(input);
@@ -209,7 +209,7 @@ public class LightTcpServer(string ipAddress, int port) : IDisposable
 
         if (disposing)
         {
-            foreach (var client in clients.Values)
+            foreach (TcpClient client in clients.Values)
             {
                 client.Close();
             }

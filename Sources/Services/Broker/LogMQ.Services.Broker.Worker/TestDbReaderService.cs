@@ -10,16 +10,19 @@ internal class TestDbReaderService(ILogger<TestDbReaderService> logger, ILogStor
         while (!stoppingToken.IsCancellationRequested)
         {
             const string appName = "SerilogTestConsole";
-            var count = await storage.GetLogsCountAsync(appName);
+            long count = await storage.GetTotalLogsCountAsync(appName);
             logger.LogInformation("Retrieved {Count} messages for application '{App}'.", count, appName);
 
-            var last = await storage.GetLogsAsync(new LogFilter() { ApplicationName = appName, Count = 30 });
-            for (int i = 0; i < last.Count; i++)
-            {
-                LogMessage log = last[i];
-                logger.LogInformation("Retrieved #{Index} TS: {Timestamp}; message: {Message}", i, log.Timestamp.ToString("yyyy/MM/dd HH:mm:ss.fff"), log.Message);
-            }
-            await Task.Delay(500, stoppingToken);
+            var now = UniversalDateTime.Now;
+            List<LogMessage> last = await storage.GetLogsAsync(new LogFilter() { ApplicationName = appName, Count = 100, TimeFrom = now.AddSeconds(-30), TimeTo = now });
+            //for (int i = 0; i < last.Count; i++)
+            //{
+            //    LogMessage log = last[i];
+            //    logger.LogInformation("Retrieved #{Index} TS: {Timestamp}; message: {Message}", i, log.Timestamp.ToString("yyyy/MM/dd HH:mm:ss.fff"), log.Message);
+            //}
+
+            logger.LogInformation("Retrieved {Count} messages for application '{App}' in last 30 seconds.", last.Count, appName);
+            await Task.Delay(1000, stoppingToken);
         }
     }
 }

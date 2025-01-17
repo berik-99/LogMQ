@@ -58,10 +58,10 @@ public class ListPluginsCommand(IPluginManager manager) : AsyncCommand<ListPlugi
 			typefilter.AddRange([PluginType.Receiver, PluginType.Storage]);
 		else
 			typefilter.Add((PluginType)settings.Type);
-		var plugins = await manager.ListPluginsAsync(settings.ConfigType, typefilter);
+        List<PluginConfig> plugins = await manager.ListPluginsAsync(settings.ConfigType, typefilter);
 
 		Dictionary<PluginConfig, Version> dict = [];
-		foreach (var plugin in plugins)
+		foreach (PluginConfig plugin in plugins)
 			dict.Add(plugin, await manager.GetRunningVersion(plugin.Id));
 
 		ShowPluginListTree(dict);

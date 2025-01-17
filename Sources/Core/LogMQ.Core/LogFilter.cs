@@ -9,17 +9,11 @@ public class LogFilter
     public string ApplicationName { get; set; }
 
     [ProtoMember(2)]
-    public Guid ApplicationId { get; set; }
+    public UniversalDateTime TimeFrom { get; set; }
 
     [ProtoMember(3)]
-    public DateTime TimeFrom { get; set; }
+    public UniversalDateTime TimeTo { get; set; }
 
     [ProtoMember(4)]
-    public DateTime TimeTo { get; set; }
-
-    [ProtoMember(5)]
-    public TimeSpan TimeOffset { get; set; }
-
-    [ProtoMember(6)]
     public int Count { get; set; }
 }

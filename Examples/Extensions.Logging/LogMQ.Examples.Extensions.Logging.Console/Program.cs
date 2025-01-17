@@ -19,7 +19,7 @@ public class Program
 		};
 		timer.Elapsed += (sender, e) => logger.LogInformation("This is a test log message from Timer");
 
-		var serviceCollection = new ServiceCollection();
+        ServiceCollection serviceCollection = new();
 		serviceCollection.AddLogging(loggingBuilder =>
 		{
 			loggingBuilder.ClearProviders();
@@ -27,14 +27,14 @@ public class Program
 			loggingBuilder.AddConsole();
 			loggingBuilder.SetMinimumLevel(LogLevel.Information);
 		});
-		var serviceProvider = serviceCollection.BuildServiceProvider();
+        ServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
 		logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
 		logger.LogInformation("This is a test log message from Main");
 		TestSyncMethod(23, 8646);
 		await TestAsyncMethod("ciao", false);
-		var m = (int arg) => logger.LogInformation("This is a test log message from lambda sync method. args: {Arg}", arg);
-		var m2 = async (int arg) =>
+        Action<int> m = (int arg) => logger.LogInformation("This is a test log message from lambda sync method. args: {Arg}", arg);
+        Func<int, Task> m2 = async (int arg) =>
 		{
 			await Task.Delay(1);
 			logger.LogInformation("This is a test log message from lambda async method. args: {Arg}", arg);
