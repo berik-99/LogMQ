@@ -1,31 +1,37 @@
-﻿namespace LogMQ.Services.Shared.LogManager;
+﻿using Grpc.Net.Client;
+using LogMQ.Core;
+using LogMQ.Storage.Contracts;
+using ProtoBuf.Grpc.Client;
 
-//public class LogManager : ILogManager
-//{
-//    public async Task<List<LogMessage>> GetLogsByFilterAsync(string grpcAddress, string applicationName)
+namespace LogMQ.Services.Shared.LogManager;
 
-//    {
-//        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
-//        ILogService client = channel.CreateGrpcService<ILogService>();
+public class LogManager(string grpcAddress) : ILogStorage
+{
+    public async Task<List<string>> GetLogApplications()
+    {
+        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
+        ILogStorage client = channel.CreateGrpcService<ILogStorage>();
+        return await client.GetLogApplications();
+    }
 
-//        var now = UniversalDateTime.Now;
-//        List<LogMessage> logs = await GetLogsAsync(new LogFilter() { ApplicationName = appName, Count = 30, TimeFrom = now.AddHours(-1), TimeTo = now });
-//        return logs;
-//    }
+    public async Task<List<LogMessage>> GetLogsAsync(LogFilter filter)
+    {
+        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
+        ILogStorage client = channel.CreateGrpcService<ILogStorage>();
+        return await client.GetLogsAsync(filter);
+    }
 
-//    public async Task<List<LogMessage>> GetLogsAsync(string grpcAddress, string applicationName, Guid guid, int count)
-//    {
-//        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
-//        ILogService client = channel.CreateGrpcService<ILogService>();
-//        List<LogMessage> logs = await client.GetLastLogsAsync(new LastLogsFilter { ApplicationName = applicationName, StartFromId = guid, Count = count });
-//        return logs;
-//    }
+    public async Task<Wrapper<long>> GetTotalLogsCountAsync(Wrapper<string> applicationName)
+    {
+        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
+        ILogStorage client = channel.CreateGrpcService<ILogStorage>();
+        return await client.GetTotalLogsCountAsync(applicationName);
+    }
 
-//    //public async Task<List<LogMessage>> GetLastLogsAsync(string grpcAddress, string applicationName, Guid guid, int count)
-//    //{
-//    //    using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
-//    //    ILogService client = channel.CreateGrpcService<ILogService>();
-//    //    List<LogMessage> logs = await client.GetLastLogsAsync(new LastLogsFilter { ApplicationName = applicationName, StartFromId = guid, Count = count });
-//    //    return logs;
-//    //}
-//}
+    public async Task WriteLogMessageAsync(LogMessage logMessage)
+    {
+        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
+        ILogStorage client = channel.CreateGrpcService<ILogStorage>();
+        await client.WriteLogMessageAsync(logMessage);
+    }
+}

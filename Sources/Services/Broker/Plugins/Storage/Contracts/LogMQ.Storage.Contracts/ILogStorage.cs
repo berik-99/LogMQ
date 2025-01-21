@@ -1,22 +1,22 @@
-﻿using LogMQ.Core;
+﻿using System.ServiceModel;
+using LogMQ.Core;
 
 namespace LogMQ.Storage.Contracts;
 
-/// <summary>
-/// Defines a contract for a storage mechanism that handles LogMQ messages.
-/// </summary>
+//TODO: Add documentation
+
+[ServiceContract]
 public interface ILogStorage
 {
-    /// <summary>
-    /// Writes a log message to the storage system.
-    /// </summary>
-    /// <param name="logMessage">The <see cref="LogMessage"/> to be stored.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    [OperationContract]
     Task WriteLogMessageAsync(LogMessage logMessage);
 
+    [OperationContract]
     Task<List<LogMessage>> GetLogsAsync(LogFilter filter);
 
-    Task<long> GetTotalLogsCountAsync(string applicationName);
+    [OperationContract]
+    Task<Wrapper<long>> GetTotalLogsCountAsync(Wrapper<string> applicationName);
 
+    [OperationContract]
     Task<List<string>> GetLogApplications();
 }

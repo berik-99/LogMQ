@@ -9,4 +9,6 @@ public static class Defaults
     /// The folder where all LogMQ data is stored.
     /// </summary>
     public static readonly string DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LogMQ");
+
+    public const string GrpcAddress = "http://localhost:5000";
 }

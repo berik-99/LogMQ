@@ -11,7 +11,7 @@ namespace LogMQ.Receivers;
 /// Represents a LogMQ Receiver that leverages Socket TCP as the transport mechanism for messages sent by the compatible LogMQ TCP Provider.
 /// </summary>
 /// <param name="logger">An instance of <see cref="ILogger{TCategoryName}"/> used for logging events within the receiver.</param>
-/// <param name="storage">An implementation of <see cref="ILogStorage"/> used for storing received log messages.</param>
+/// <param name="storage">An implementation of <see cref="ILogStorageWriter"/> used for storing received log messages.</param>
 public class TcpReceiver(ILogger<TcpReceiver> logger, ILogStorage storage) : LogReceiverBase(storage)
 {
     private readonly string tcpHost = DefaultTcpHost;

@@ -17,7 +17,6 @@ public static class Program
         ServiceCollection services = new();
 
         services.AddSingleton<IPluginManager, PluginManager>();
-        //services.AddSingleton<ILogManager, LogManager>();
         Type platformBrokerManager = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? typeof(WindowsBrokerManager) : typeof(LinuxBrokerManager);
         services.AddSingleton(typeof(IBrokerManager), platformBrokerManager);
 

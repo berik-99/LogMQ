@@ -33,9 +33,14 @@
         //  "commandLineArgs": "plugin restore -H -y"
         //}
 
-        "CLI - Logs": {
+        "Logs Show": {
             "commandName": "Project",
-            "commandLineArgs": "log show app1"
+            "commandLineArgs": "log show SerilogTestConsole --range 2w --count 1000 --level Error"
+        },
+
+        "Logs Watch": {
+            "commandName": "Project",
+            "commandLineArgs": "log watch SerilogTestConsole --interval 1000"
         }
     }
 }
