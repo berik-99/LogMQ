@@ -13,7 +13,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\..\Core\LogMQ.Core\LogMQ.Core.csproj" />
-	  <ProjectReference Include="..\..\Broker\Plugins\Storage\Contracts\LogMQ.Storage.Contracts\LogMQ.Storage.Contracts.csproj" />
 	</ItemGroup>
 
 </Project>

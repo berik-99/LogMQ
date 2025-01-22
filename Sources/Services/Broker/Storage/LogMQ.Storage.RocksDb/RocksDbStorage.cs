@@ -8,11 +8,11 @@ namespace LogMQ.Storage;
 
 public class RocksDbStorage : ILogStorage
 {
-
+    private readonly string dbPath = string.Empty;
     private const string timestampSerializationFormat = "yyyyMMddHHmmssffff";
     private readonly RocksDb db;
     private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
-    private readonly ILogger<RocksDbStorage> logger;
+    private readonly ILogger<RocksDbStorage> log;
     private readonly DbOptions dbOptions = new DbOptions()
             .SetCreateIfMissing(true)
             .SetCreateMissingColumnFamilies(true)
@@ -20,11 +20,10 @@ public class RocksDbStorage : ILogStorage
             .SetMaxWriteBufferNumber(3)
             .SetCompression(Compression.Snappy);
 
-    private readonly string dbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "RocksDB", "db_0");
-
-    public RocksDbStorage(ILogger<RocksDbStorage> logger)
+    public RocksDbStorage(ILogger<RocksDbStorage> logger, RocksDbStorageConfiguration config)
     {
-        this.logger = logger;
+        dbPath = config.DbPath;
+        log = logger;
         logger.LogInformation("Init RocksDB Storage");
         Directory.CreateDirectory(dbPath);
         ColumnFamilies families = GetColumnFamilies();
@@ -42,7 +41,7 @@ public class RocksDbStorage : ILogStorage
             byte[] key = SerializeKey(logMessage.Timestamp, logMessage.Guid);
             byte[] message = logMessage.Serialize();
             db.Put(key, message, handle);
-            logger.LogInformation("Writed message for '{Application}': {Message}", logMessage.Application.Name, logMessage.Message);
+            log.LogInformation("Writed message for '{Application}': {Message}", logMessage.Application.Name, logMessage.Message);
         }
         finally
         {
@@ -74,7 +73,7 @@ public class RocksDbStorage : ILogStorage
             }
             else
             {
-                logger.LogWarning("Column family {ColumnFamilyName} not found.", filter.ApplicationName);
+                log.LogWarning("Column family {ColumnFamilyName} not found.", filter.ApplicationName);
             }
             return logMessages;
         }
@@ -83,27 +82,21 @@ public class RocksDbStorage : ILogStorage
             semaphoreSlim.Release();
         }
     }
-    public async Task<Wrapper<long>> GetTotalLogsCountAsync(Wrapper<string> applicationName)
-    {
-        return await Task.Run(() =>
-        {
-            if (db.TryGetColumnFamily(applicationName, out ColumnFamilyHandle handle))
-            {
-                string propertyValue = db.GetProperty("rocksdb.estimate-num-keys", handle);
-                return int.TryParse(propertyValue, out int numberOfRecords) ? numberOfRecords : 0;
-            }
-            else
-            {
-                logger.LogWarning("Column family {ColumnFamilyName} not found.", applicationName);
-                return 0;
-            }
-        });
-    }
+    public async Task<Wrapper<long>> GetTotalLogsCountAsync(Wrapper<string> applicationName) => await Task.Run(() =>
+                                                                                                     {
+                                                                                                         if (db.TryGetColumnFamily(applicationName, out ColumnFamilyHandle handle))
+                                                                                                         {
+                                                                                                             string propertyValue = db.GetProperty("rocksdb.estimate-num-keys", handle);
+                                                                                                             return int.TryParse(propertyValue, out int numberOfRecords) ? numberOfRecords : 0;
+                                                                                                         }
+                                                                                                         else
+                                                                                                         {
+                                                                                                             log.LogWarning("Column family {ColumnFamilyName} not found.", applicationName);
+                                                                                                             return 0;
+                                                                                                         }
+                                                                                                     });
 
-    public async Task<List<string>> GetLogApplications()
-    {
-        return await Task.Run(() => GetColumnFamilies().ToList().ConvertAll(x => x.Name));
-    }
+    public async Task<List<string>> GetLogApplications() => await Task.Run(() => GetColumnFamilies().ToList().ConvertAll(x => x.Name));
 
     public static byte[] SerializeKey(UniversalDateTime timestamp, Guid guid)
     {

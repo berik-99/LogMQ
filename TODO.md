@@ -7,7 +7,6 @@
 - [ ] **Write tests**
 - [ ] **Use multi-target framework** in LogMQ modules
 - [ ] **Improve Exception management in LogMessage serialization and deserialization**
-- [ ] **Consider using fixed storage method without plugins** for better integration with the Broker
 - [ ] **Consider using another storage system (e.g. RavenDB)**
 - [ ] **Make some bechmarks to get some informations over storage systems**
 
@@ -43,3 +42,4 @@
 - [x] **Implement new Loggers** Microsoft.Extensions.Logging
 - [x] **Create extension method to register Serilog enricher**
 - [x] **Replace WatsonTcp with standard tcp socket**
+- [x] **Consider using fixed storage method without plugins** for better integration with the Broker

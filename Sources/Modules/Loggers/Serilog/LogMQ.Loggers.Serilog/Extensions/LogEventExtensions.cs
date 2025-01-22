@@ -14,54 +14,51 @@ namespace LogMQ.Loggers.Serilog.Extensions;
 /// </remarks>
 internal static class LogEventExtensions
 {
-	/// <summary>
-	/// Converts a Serilog <see cref="LogEvent"/> into a LogMQ <see cref="LogMessage"/>.
-	/// </summary>
-	/// <param name="logEvent">The Serilog log event to convert.</param>
-	/// <param name="formatProvider">
-	/// An <see cref="IFormatProvider"/> used to format the message string.
-	/// </param>
-	/// <param name="applicationName">The name of the application generating the log.</param>
-	/// <param name="category">The category of the application.</param>
-	/// <returns>
-	/// A <see cref="LogMessage"/> instance containing structured log details compatible with LogMQ.
-	/// </returns>
-	/// <remarks>
-	/// This method extracts log event properties, including timestamp, log level, message content,
-	/// and application details, while also retrieving metadata from the log event's stack trace.
-	/// </remarks>
-	internal static LogMessage ToLogMessage(this LogEvent logEvent, IFormatProvider formatProvider, string applicationName, string category)
-	{
-		return new()
-		{
-			Guid = Guid.NewGuid(),
-			Timestamp = logEvent.Timestamp,
-			LogLevel = logEvent.Level.ToLogMQLogLevel(),
-			Message = logEvent.RenderMessage(formatProvider),
-			ExceptionMessage = logEvent.Exception?.Message,
-			Application = new LogApplication()
-			{
-				Name = applicationName,
-				Category = category,
-				Machine = Environment.MachineName,
-				Pid = Environment.ProcessId,
-			},
-			Metadata = logEvent.ExtractLogMetadata()
-		};
-	}
+    /// <summary>
+    /// Converts a Serilog <see cref="LogEvent"/> into a LogMQ <see cref="LogMessage"/>.
+    /// </summary>
+    /// <param name="logEvent">The Serilog log event to convert.</param>
+    /// <param name="formatProvider">
+    /// An <see cref="IFormatProvider"/> used to format the message string.
+    /// </param>
+    /// <param name="applicationName">The name of the application generating the log.</param>
+    /// <param name="category">The category of the application.</param>
+    /// <returns>
+    /// A <see cref="LogMessage"/> instance containing structured log details compatible with LogMQ.
+    /// </returns>
+    /// <remarks>
+    /// This method extracts log event properties, including timestamp, log level, message content,
+    /// and application details, while also retrieving metadata from the log event's stack trace.
+    /// </remarks>
+    internal static LogMessage ToLogMessage(this LogEvent logEvent, IFormatProvider formatProvider, string applicationName, string category) => new()
+    {
+        Guid = Guid.NewGuid(),
+        Timestamp = logEvent.Timestamp,
+        LogLevel = logEvent.Level.ToLogMQLogLevel(),
+        Message = logEvent.RenderMessage(formatProvider),
+        ExceptionMessage = logEvent.Exception?.Message,
+        Application = new LogApplication()
+        {
+            Name = applicationName,
+            Category = category,
+            Machine = Environment.MachineName,
+            Pid = Environment.ProcessId,
+        },
+        Metadata = logEvent.ExtractLogMetadata()
+    };
 
-	/// <summary>
-	/// Converts a LogMQ <see cref="LogMessage"/> into a Serilog <see cref="LogEvent"/>.
-	/// </summary>
-	/// <param name="logMessage">The LogMQ log message to convert.</param>
-	/// <returns>
-	/// A <see cref="LogEvent"/> instance that can be processed by Serilog sinks.
-	/// </returns>
-	/// <remarks>
-	/// This method maps LogMQ's log levels to Serilog's, reconstructs the message template, and creates a log event
-	/// with exMsg details and custom properties derived from the <see cref="LogMessage"/>.
-	/// </remarks>
-	internal static LogEvent ToLogEvent(this LogMessage logMessage)
+    /// <summary>
+    /// Converts a LogMQ <see cref="LogMessage"/> into a Serilog <see cref="LogEvent"/>.
+    /// </summary>
+    /// <param name="logMessage">The LogMQ log message to convert.</param>
+    /// <returns>
+    /// A <see cref="LogEvent"/> instance that can be processed by Serilog sinks.
+    /// </returns>
+    /// <remarks>
+    /// This method maps LogMQ's log levels to Serilog's, reconstructs the message template, and creates a log event
+    /// with exMsg details and custom properties derived from the <see cref="LogMessage"/>.
+    /// </remarks>
+    internal static LogEvent ToLogEvent(this LogMessage logMessage)
 	{
         LogEventLevel serilogLevel = logMessage.LogLevel.ToSerilogLogLevel();
         MessageTemplate messageTemplate = new MessageTemplateParser().Parse(logMessage.Message ?? string.Empty);

@@ -7,8 +7,5 @@ internal sealed class TypeResolver(IServiceProvider provider) : ITypeResolver
 {
     private readonly IServiceProvider provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-    public object Resolve(Type type)
-    {
-        return provider.GetRequiredService(type);
-    }
+    public object Resolve(Type type) => provider.GetRequiredService(type);
 }

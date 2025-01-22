@@ -36,17 +36,9 @@ public sealed class FallbackLogger(ILogger fallback = null) : FallbackLogProvide
 	/// </summary>
 	private ILogger Fallback => fallback ?? defaultFallback.Value;
 
-	/// <inheritdoc />
-	public override void WriteFallback(LogMessage message)
-	{
-		Fallback.Log((Microsoft.Extensions.Logging.LogLevel)message.LogLevel, message.Message);
-		// TODO: Better management for fallback logs.
-		// TODO: Add exception details if present in the log message.
-	}
+    /// <inheritdoc />
+    public override void WriteFallback(LogMessage message) => Fallback.Log((Microsoft.Extensions.Logging.LogLevel)message.LogLevel, message.Message);// TODO: Better management for fallback logs.// TODO: Add exception details if present in the log message.
 
-	/// <inheritdoc />
-	public override void Write(Core.LogLevel logLevel, string message, Exception ex = null)
-	{
-		Fallback.Log((Microsoft.Extensions.Logging.LogLevel)logLevel, ex, message);
-	}
+    /// <inheritdoc />
+    public override void Write(Core.LogLevel logLevel, string message, Exception ex = null) => Fallback.Log((Microsoft.Extensions.Logging.LogLevel)logLevel, ex, message);
 }

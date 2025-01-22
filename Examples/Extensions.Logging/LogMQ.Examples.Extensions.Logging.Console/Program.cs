@@ -48,12 +48,9 @@ public class Program
 		System.Console.ReadLine();
 	}
 
-	private static void TestSyncMethod(int arg1, int arg2)
-	{
-		logger.LogInformation("This is a test log message from internal sync method. args: {Arg1} {Arg2}", arg1, arg2);
-	}
+    private static void TestSyncMethod(int arg1, int arg2) => logger.LogInformation("This is a test log message from internal sync method. args: {Arg1} {Arg2}", arg1, arg2);
 
-	private static async Task TestAsyncMethod(string arg1, bool arg2)
+    private static async Task TestAsyncMethod(string arg1, bool arg2)
 	{
 		await Task.Delay(1);
 		logger.LogInformation("This is a test log message from internal async method. args: {Arg1} {Arg2}", arg1, arg2);

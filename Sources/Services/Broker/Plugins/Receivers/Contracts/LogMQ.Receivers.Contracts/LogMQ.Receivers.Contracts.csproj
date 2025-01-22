@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Storage\Contracts\LogMQ.Storage.Contracts\LogMQ.Storage.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\..\Storage\Contracts\LogMQ.Storage.Contracts\LogMQ.Storage.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -12,18 +12,9 @@ public class LinuxBrokerManager : IBrokerManager
 		return $"{BrokerSerivePlatform}_{BrokerSeriveName}";
 	}
 
-	public async Task RestartBrokerAsync()
-	{
-		throw new NotImplementedException();
-	}
+    public async Task RestartBrokerAsync() => throw new NotImplementedException();
 
-	public async Task StartBrokerAsync()
-	{
-		throw new NotImplementedException();
-	}
+    public async Task StartBrokerAsync() => throw new NotImplementedException();
 
-	public async Task StopBrokerAsync()
-	{
-		throw new NotImplementedException();
-	}
+    public async Task StopBrokerAsync() => throw new NotImplementedException();
 }

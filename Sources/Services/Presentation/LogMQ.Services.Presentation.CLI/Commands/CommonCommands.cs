@@ -33,10 +33,7 @@ internal static class CommonCommands
     /// <param name="pluginConfig">The configuration of the plugin to display.</param>
     /// <param name="running">The currently running version of the plugin.</param>
     /// <param name="otherVerison">A list of other versions of the plugin, if any.</param>
-    public static void ShowPluginTree(PluginConfig pluginConfig, Version running, List<Version> otherVerison = null)
-    {
-        AnsiConsole.Write(BuildPluginTree(pluginConfig, running, otherVerison));
-    }
+    public static void ShowPluginTree(PluginConfig pluginConfig, Version running, List<Version> otherVerison = null) => AnsiConsole.Write(BuildPluginTree(pluginConfig, running, otherVerison));
 
     /// <summary>
     /// Prompts the user for confirmation before proceeding with an operation.

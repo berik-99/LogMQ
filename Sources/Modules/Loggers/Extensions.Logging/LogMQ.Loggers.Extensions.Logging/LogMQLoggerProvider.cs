@@ -15,11 +15,8 @@ internal sealed class LogMQLoggerProvider(ILogProvider provider, string applicat
 	/// <returns>An instance of <see cref="LogMQLogger"/>.</returns>
 	public ILogger CreateLogger(string categoryName) => new LogMQLogger(provider, applicationName, categoryName);
 
-	/// <summary>
-	/// Releases resources used by the provider.
-	/// </summary>
-	public void Dispose()
-	{
-		GC.SuppressFinalize(this);
-	}
+    /// <summary>
+    /// Releases resources used by the provider.
+    /// </summary>
+    public void Dispose() => GC.SuppressFinalize(this);
 }

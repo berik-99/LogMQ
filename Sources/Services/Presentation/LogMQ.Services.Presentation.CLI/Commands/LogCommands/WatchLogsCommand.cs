@@ -47,6 +47,5 @@ public class WatchLogsCommand : AsyncCommand<WatchLogsCommand.Settings>
             AnsiConsole.Markup("[red]Error: Cannot connect to broker api service.[/]");
             return -1;
         }
-        return 0;
     }
 }
