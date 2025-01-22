@@ -38,7 +38,7 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 
 builder.Services.AddCodeFirstGrpc();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.MapGrpcService<ILogService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client.");

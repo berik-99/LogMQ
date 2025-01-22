@@ -69,7 +69,7 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
 
             AnsiConsole.MarkupLine($"Fetching {(settings.Count > 0 ? settings.Count.ToString() : "all")} logs from {dateFrom:yyyy/MM/dd HH:mm:ss.fff} to {dateTo:yyyy/MM/dd HH:mm:ss.fff}");
 
-            LogFilter filter = new() { ApplicationName = settings.ApplicationName, DateFrom = dateFrom, DateTo = dateTo, Count = settings.Count, Level = settings.Type };
+            LogFilter filter = new() { ApplicationName = settings.ApplicationName, DateFrom = dateFrom, DateTo = dateTo, Count = settings.Count, LogLevel = settings.Type };
             List<LogMessage> logs = await manager.GetLogsAsync(filter);
 
             Table table = new();

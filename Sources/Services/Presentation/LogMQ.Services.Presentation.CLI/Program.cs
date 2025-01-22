@@ -54,26 +54,30 @@ public static class Program
             config.AddBranch("broker", c =>
             {
                 c.AddCommand<RestartBrokerCommand>("restart")
-                      .WithDescription("Restarts the LogMQ broker.");
+                    .WithDescription("Restarts the LogMQ broker.");
 
                 c.AddCommand<RestartBrokerCommand>("stop")
-                      .WithDescription("Stop the LogMQ broker.");
+                    .WithDescription("Stop the LogMQ broker.");
 
                 c.AddCommand<RestartBrokerCommand>("start")
-                      .WithDescription("Start the LogMQ broker.");
+                    .WithDescription("Start the LogMQ broker.");
 
                 c.AddCommand<BrokerStatusCommand>("status")
-                      .WithDescription("Checks the status of the LogMQ broker.");
+                    .WithDescription("Checks the status of the LogMQ broker.");
             });
 
             // Log commands
             config.AddBranch("log", c =>
             {
+
+                c.AddCommand<ListAppsCommand>("list-apps")
+                    .WithDescription("Show all logging applications.");
+
                 c.AddCommand<ShowLogsCommand>("show")
-                      .WithDescription("Show logs from an application.");
+                    .WithDescription("Show logs from an application.");
 
                 c.AddCommand<WatchLogsCommand>("watch")
-                      .WithDescription("Watch logs from an application.");
+                    .WithDescription("Watch logs from an application.");
             });
         });
 

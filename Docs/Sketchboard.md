@@ -82,17 +82,17 @@ logmq service status
 # List all logging-registered applications
 logmq log list-applications 
 
-# Show logs from a application identified by name or guid.
+# Show logs from a application identified by name
 #	--count => The number of logs to show, defaults to 100.
 #	--from => The datetime from which to show logs, defaults to 1 hour ago.
 #	--to => The datetime to which to show logs, defaults to now.
 #	--type => The trace type of logs to show, defaults to all. 
 logmq log show <app-name|app-id> [--count <log-count>] [--from <datetime-from>] [--to <datetime-from>] [--type <trace-type>]
 
-# Watch logs from application identified by name or guid in real time. CTRL-C to exit.
+# Watch logs from application identified by name in real time. CTRL-C to exit.
 logmq log watch <app-name|app-id>
 
-# Export logs from a application identified by name or guid to a file.
+# Export logs from a application identified by name to a file.
 #	--output => The path to the output file where logs will be written.
 #	--count => The number of logs to show, defaults to 100.
 #	--from => The datetime from which to show logs, defaults to 1 hour ago.

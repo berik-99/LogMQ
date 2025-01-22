@@ -6,18 +6,21 @@ using RocksDbSharp;
 
 namespace LogMQ.Storage;
 
-public class RocksDbStorage : ILogStorage
+public class RocksDbStorage : ILogStorage, IDisposable
 {
-    private readonly string dbPath = string.Empty;
     private const string timestampSerializationFormat = "yyyyMMddHHmmssffff";
+    private const ulong writeBufferSize = 64 * 1024 * 1024L;
+    private const int maxWriteBufferNumber = 3;
+
+    private readonly string dbPath = string.Empty;
     private readonly RocksDb db;
     private readonly SemaphoreSlim semaphoreSlim = new(1, 1);
     private readonly ILogger<RocksDbStorage> log;
     private readonly DbOptions dbOptions = new DbOptions()
             .SetCreateIfMissing(true)
             .SetCreateMissingColumnFamilies(true)
-            .SetWriteBufferSize(64 * 1024 * 1024)
-            .SetMaxWriteBufferNumber(3)
+            .SetWriteBufferSize(writeBufferSize)
+            .SetMaxWriteBufferNumber(maxWriteBufferNumber)
             .SetCompression(Compression.Snappy);
 
     public RocksDbStorage(ILogger<RocksDbStorage> logger, RocksDbStorageConfiguration config)
@@ -55,7 +58,6 @@ public class RocksDbStorage : ILogStorage
         try
         {
             List<LogMessage> logMessages = [];
-
             if (db.TryGetColumnFamily(filter.ApplicationName, out ColumnFamilyHandle handle))
             {
                 if (filter.Count == -1) filter.Count = int.MaxValue;
@@ -66,8 +68,12 @@ public class RocksDbStorage : ILogStorage
                     {
                         byte[] valueBytes = iterator.Value();
                         LogMessage logMessage = LogMessage.Deserialize(valueBytes);
-                        if (logMessage.Timestamp >= filter.DateFrom && logMessage.Timestamp <= filter.DateTo)
+                        if (logMessage.Timestamp >= filter.DateFrom
+                            && logMessage.Timestamp <= filter.DateTo
+                            && (filter.LogLevel == null || logMessage.LogLevel == filter.LogLevel))
+                        {
                             logMessages.Insert(0, logMessage);
+                        }
                     }
                 }
             }
@@ -83,18 +89,18 @@ public class RocksDbStorage : ILogStorage
         }
     }
     public async Task<Wrapper<long>> GetTotalLogsCountAsync(Wrapper<string> applicationName) => await Task.Run(() =>
-                                                                                                     {
-                                                                                                         if (db.TryGetColumnFamily(applicationName, out ColumnFamilyHandle handle))
-                                                                                                         {
-                                                                                                             string propertyValue = db.GetProperty("rocksdb.estimate-num-keys", handle);
-                                                                                                             return int.TryParse(propertyValue, out int numberOfRecords) ? numberOfRecords : 0;
-                                                                                                         }
-                                                                                                         else
-                                                                                                         {
-                                                                                                             log.LogWarning("Column family {ColumnFamilyName} not found.", applicationName);
-                                                                                                             return 0;
-                                                                                                         }
-                                                                                                     });
+    {
+        if (db.TryGetColumnFamily(applicationName, out ColumnFamilyHandle handle))
+        {
+            string propertyValue = db.GetProperty("rocksdb.estimate-num-keys", handle);
+            return int.TryParse(propertyValue, out int numberOfRecords) ? numberOfRecords : 0;
+        }
+        else
+        {
+            log.LogWarning("Column family {ColumnFamilyName} not found.", applicationName);
+            return 0;
+        }
+    });
 
     public async Task<List<string>> GetLogApplications() => await Task.Run(() => GetColumnFamilies().ToList().ConvertAll(x => x.Name));
 

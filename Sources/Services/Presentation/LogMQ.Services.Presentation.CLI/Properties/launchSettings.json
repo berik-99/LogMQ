@@ -40,7 +40,12 @@
 
         "Logs Watch": {
             "commandName": "Project",
-            "commandLineArgs": "log watch SerilogTestConsole --interval 1000"
+            "commandLineArgs": "log watch SerilogTestConsole --interval 500"
+        },
+
+        "Logs Apps": {
+            "commandName": "Project",
+            "commandLineArgs": "log list-apps"
         }
     }
 }

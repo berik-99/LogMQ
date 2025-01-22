@@ -25,19 +25,24 @@ public class WatchLogsCommand : AsyncCommand<WatchLogsCommand.Settings>
         try
         {
             LogManager manager = new(settings.GrpcAddress);
-            Guid lastId = Guid.Empty;
+            UniversalDateTime lastTimestamp = UniversalDateTime.MinValue;
+            bool firstRun = true;
             while (true)
             {
                 DateTime now = DateTime.Now;
-                LogFilter filter = new() { ApplicationName = settings.ApplicationName, DateFrom = now.AddSeconds(-5), DateTo = now, Count = int.MaxValue };
+                LogFilter filter = firstRun
+                    ? new() { ApplicationName = settings.ApplicationName, DateFrom = UniversalDateTime.MinValue, DateTo = now, Count = 100 }
+                    : new() { ApplicationName = settings.ApplicationName, DateFrom = now.AddSeconds(-5), DateTo = now, Count = int.MaxValue };
+                firstRun = false;
                 List<LogMessage> newlogs = await manager.GetLogsAsync(filter);
+                newlogs = newlogs.Where(x => x.Timestamp > lastTimestamp).ToList();
                 foreach (LogMessage log in newlogs)
                 {
-                    if (log.Guid != lastId)
-                    {
-                        AnsiConsole.MarkupLine($"[grey]{log.Timestamp}[/] [yellow]{log.LogLevel}[/] [aqua]{log.Application.Name}[/] {log.Message}");
-                        lastId = log.Guid;
-                    }
+                    //if (log.time != lastId)
+                    //{
+                    AnsiConsole.MarkupLine($"[grey]{log.Timestamp}[/] [yellow]{log.LogLevel}[/] [aqua]{log.Application.Name}[/] {log.Message}");
+                    lastTimestamp = log.Timestamp;
+                    //}
                 }
                 await Task.Delay(settings.Interval);
             }

@@ -18,7 +18,7 @@ public class LogFilter
     public int Count { get; set; }
 
     [ProtoMember(5)]
-    public LogLevel? Level { get; set; }
+    public LogLevel? LogLevel { get; set; }
 }
 
 [ProtoContract]
