@@ -32,8 +32,8 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
         try
         {
             LogManager manager = new(settings.GrpcAddress);
-            DateTime dateTo = DateTime.Now;
-            DateTime dateFrom = DateTime.MinValue;
+            UniversalDateTime dateTo = UniversalDateTime.Now;
+            UniversalDateTime dateFrom = UniversalDateTime.MinValue;
 
             if (!string.IsNullOrEmpty(settings.Range))
             {
@@ -104,7 +104,7 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
         }
     }
 
-    private static DateTime ParseDate(string date, DateTime referenceDate, bool isDateFrom)
+    private static UniversalDateTime ParseDate(string date, UniversalDateTime referenceDate, bool isDateFrom)
     {
         if (DateTime.TryParseExact(date, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateTime))
         {
@@ -134,7 +134,7 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
             : throw new ArgumentException("Invalid date format. Only full date time allowed for the `date-to` parameter.");
     }
 
-    private static DateTime ParseQuickFilter(string value, DateTime referenceDate)
+    private static UniversalDateTime ParseQuickFilter(string value, UniversalDateTime referenceDate)
     {
         if (value.Length < 2) throw new ArgumentException("Invalid string format. Please use a full date time or quick date time.");
         char unit = value[^1];

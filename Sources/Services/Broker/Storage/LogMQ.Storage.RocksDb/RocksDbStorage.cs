@@ -51,7 +51,6 @@ public class RocksDbStorage : ILogStorage
 
     public async Task<List<LogMessage>> GetLogsAsync(LogFilter filter)
     {
-        //TODO: Implement filters properly.
         await semaphoreSlim.WaitAsync();
         try
         {
@@ -59,16 +58,17 @@ public class RocksDbStorage : ILogStorage
 
             if (db.TryGetColumnFamily(filter.ApplicationName, out ColumnFamilyHandle handle))
             {
+                if (filter.Count == -1) filter.Count = int.MaxValue;
                 using Iterator iterator = db.NewIterator(handle);
-                iterator.SeekToFirst();
-
-                while (iterator.Valid() && logMessages.Count < filter.Count)
+                for (iterator.SeekToLast(); iterator.Valid(); iterator.Prev())
                 {
-                    byte[] valueBytes = iterator.Value();
-                    LogMessage logMessage = LogMessage.Deserialize(valueBytes);
-                    if (logMessage.Timestamp >= filter.DateFrom && logMessage.Timestamp <= filter.DateTo)
-                        logMessages.Add(logMessage);
-                    iterator.Next();
+                    if (logMessages.Count < filter.Count)
+                    {
+                        byte[] valueBytes = iterator.Value();
+                        LogMessage logMessage = LogMessage.Deserialize(valueBytes);
+                        if (logMessage.Timestamp >= filter.DateFrom && logMessage.Timestamp <= filter.DateTo)
+                            logMessages.Insert(0, logMessage);
+                    }
                 }
             }
             else
