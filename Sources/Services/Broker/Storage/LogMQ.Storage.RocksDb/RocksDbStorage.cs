@@ -11,6 +11,7 @@ public class RocksDbStorage : ILogStorage, IDisposable
     private const string timestampSerializationFormat = "yyyyMMddHHmmssffff";
     private const ulong writeBufferSize = 64 * 1024 * 1024L;
     private const int maxWriteBufferNumber = 3;
+    private const string defaultColumnFamily = "default";
 
     private readonly string dbPath = string.Empty;
     private readonly RocksDb db;
@@ -102,7 +103,8 @@ public class RocksDbStorage : ILogStorage, IDisposable
         }
     });
 
-    public async Task<List<string>> GetLogApplications() => await Task.Run(() => GetColumnFamilies().ToList().ConvertAll(x => x.Name));
+    public async Task<List<string>> GetLogApplications() => await Task.Run(() =>
+        GetColumnFamilies().Where(x => x.Name != defaultColumnFamily).ToList().ConvertAll(x => x.Name));
 
     public static byte[] SerializeKey(UniversalDateTime timestamp, Guid guid)
     {
