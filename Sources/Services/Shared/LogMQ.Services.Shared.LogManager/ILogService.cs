@@ -15,3 +15,5 @@ public interface ILogService
     [OperationContract]
     Task<List<string>> GetLogApplications();
 }
+
+

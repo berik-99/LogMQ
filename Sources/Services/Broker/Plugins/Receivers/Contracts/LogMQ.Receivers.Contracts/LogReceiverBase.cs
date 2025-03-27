@@ -1,5 +1,4 @@
-﻿using LogMQ.Storage.Contracts;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace LogMQ.Receivers.Contracts;
 

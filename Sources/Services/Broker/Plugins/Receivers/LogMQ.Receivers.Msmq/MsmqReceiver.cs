@@ -1,7 +1,6 @@
 ﻿using System.Runtime.Versioning;
 using LogMQ.Core;
 using LogMQ.Receivers.Contracts;
-using LogMQ.Storage.Contracts;
 using Microsoft.Extensions.Logging;
 using Msmq.NetCore.Messaging;
 using static LogMQ.Providers.MsmqProvider;

@@ -56,56 +56,56 @@ public static class LoggerConfigurationExtensions
         return sinkConfiguration.Sink(new LogMQSink(logProvider, applicationName, category, restrictedToMinimumLevel, levelSwitch));
     }
 
-	/// <summary>
-	/// Configures Serilog to enrich log events with LogMQ-specific metadata.
-	/// Adds contextual properties such as file name, class name, method details, and exception information.
-	/// </summary>
-	/// <param name="enrichmentConfiguration">
-	/// The <see cref="LoggerEnrichmentConfiguration"/> to extend with LogMQ-specific enrichers.
-	/// </param>
-	/// <returns>
-	/// A <see cref="LoggerConfiguration"/> object for further configuration.
-	/// </returns>
-	public static LoggerConfiguration WithLogMQMetadata(this LoggerEnrichmentConfiguration enrichmentConfiguration) 
+    /// <summary>
+    /// Configures Serilog to enrich log events with LogMQ-specific metadata.
+    /// Adds contextual properties such as file name, class name, method details, and exception information.
+    /// </summary>
+    /// <param name="enrichmentConfiguration">
+    /// The <see cref="LoggerEnrichmentConfiguration"/> to extend with LogMQ-specific enrichers.
+    /// </param>
+    /// <returns>
+    /// A <see cref="LoggerConfiguration"/> object for further configuration.
+    /// </returns>
+    public static LoggerConfiguration WithLogMQMetadata(this LoggerEnrichmentConfiguration enrichmentConfiguration)
         => enrichmentConfiguration.With(new LogMQEnricher());
 
-	/// <summary>
-	/// Configures a pre-defined logging stack for LogMQ, including metadata enrichment and sink configuration.
-	/// This method simplifies the setup process for applications using LogMQ.
-	/// </summary>
-	/// <param name="loggerConfiguration">
-	/// The <see cref="LoggerConfiguration"/> to extend with LogMQ's logging stack.
-	/// </param>
-	/// <param name="logProvider">
-	/// An instance of <see cref="ILogProvider"/> responsible for managing log delivery to LogMQ.
-	/// </param>
-	/// <param name="category">
-	/// A category representing the type of application generating the logs. Defaults to 'Generic' if not provided.
-	/// </param>
-	/// <param name="applicationName">
-	/// The name of the application generating the logs. Defaults to the current process name if not provided.
-	/// </param>
-	/// <param name="restrictedToMinimumLevel">
-	/// The minimum log level for events to be written. Defaults to <see cref="LogEventLevel.Verbose"/>.
-	/// </param>
-	/// <param name="levelSwitch">
-	/// An optional <see cref="LoggingLevelSwitch"/> for dynamic control of the log level at runtime.
-	/// </param>
-	/// <returns>
-	/// A <see cref="LoggerConfiguration"/> object for further customization.
-	/// </returns>
-	public static LoggerConfiguration UseLogMQStack(
-		this LoggerConfiguration loggerConfiguration,
-		ILogProvider logProvider,
-		string category = DefaultCategory,
-		string applicationName = null,
-		LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
-		LoggingLevelSwitch levelSwitch = null)
-	{
-		category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
-		applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
-		loggerConfiguration.Enrich.WithLogMQMetadata();
+    /// <summary>
+    /// Configures a pre-defined logging stack for LogMQ, including metadata enrichment and sink configuration.
+    /// This method simplifies the setup process for applications using LogMQ.
+    /// </summary>
+    /// <param name="loggerConfiguration">
+    /// The <see cref="LoggerConfiguration"/> to extend with LogMQ's logging stack.
+    /// </param>
+    /// <param name="logProvider">
+    /// An instance of <see cref="ILogProvider"/> responsible for managing log delivery to LogMQ.
+    /// </param>
+    /// <param name="category">
+    /// A category representing the type of application generating the logs. Defaults to 'Generic' if not provided.
+    /// </param>
+    /// <param name="applicationName">
+    /// The name of the application generating the logs. Defaults to the current process name if not provided.
+    /// </param>
+    /// <param name="restrictedToMinimumLevel">
+    /// The minimum log level for events to be written. Defaults to <see cref="LogEventLevel.Verbose"/>.
+    /// </param>
+    /// <param name="levelSwitch">
+    /// An optional <see cref="LoggingLevelSwitch"/> for dynamic control of the log level at runtime.
+    /// </param>
+    /// <returns>
+    /// A <see cref="LoggerConfiguration"/> object for further customization.
+    /// </returns>
+    public static LoggerConfiguration UseLogMQStack(
+        this LoggerConfiguration loggerConfiguration,
+        ILogProvider logProvider,
+        string category = DefaultCategory,
+        string applicationName = null,
+        LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+        LoggingLevelSwitch levelSwitch = null)
+    {
+        category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
+        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
+        loggerConfiguration.Enrich.WithLogMQMetadata();
         loggerConfiguration.WriteTo.LogMQ(logProvider, category, applicationName, restrictedToMinimumLevel, levelSwitch);
-		return loggerConfiguration;
-	}
+        return loggerConfiguration;
+    }
 }

@@ -15,7 +15,7 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
         public string ApplicationName { get; set; }
 
         [CommandOption("--count")]
-        public int Count { get; set; } = -1;
+        public long Count { get; set; } = -1;
 
         [CommandOption("--range")]
         public string Range { get; set; }

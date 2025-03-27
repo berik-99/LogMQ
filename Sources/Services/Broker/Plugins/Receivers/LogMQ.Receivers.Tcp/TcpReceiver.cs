@@ -1,7 +1,6 @@
 ﻿using LightTcp;
 using LogMQ.Core;
 using LogMQ.Receivers.Contracts;
-using LogMQ.Storage.Contracts;
 using Microsoft.Extensions.Logging;
 using static LogMQ.Providers.TcpProvider;
 

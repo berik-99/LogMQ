@@ -1,9 +1,8 @@
 using System.Runtime.InteropServices;
 using LogMQ.Receivers;
+using LogMQ.Receivers.Contracts;
 using LogMQ.Services.Broker.Worker.Services;
 using LogMQ.Services.Shared.LogManager;
-using LogMQ.Storage;
-using LogMQ.Storage.Contracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -28,9 +27,9 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 else
     builder.Services.AddSystemd();
 
-builder.Services.AddSingleton(new RocksDbStorageConfiguration() { DbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "RocksDB", "db") });
-builder.Services.AddSingleton<ILogStorage, RocksDbStorage>();
-builder.Services.AddSingleton<ILogService, RocksDbStorageService>();
+builder.Services.AddSingleton(new DuckDBStorageConfiguration() { DbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "DuckDB", "db") });
+builder.Services.AddSingleton<ILogStorage, DuckDBStorageService>();
+builder.Services.AddSingleton<ILogService, DuckDBStorageService>();
 
 builder.Services.AddHostedService<TcpReceiver>();
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

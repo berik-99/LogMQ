@@ -6,9 +6,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.70.0" />
 		<PackageReference Include="protobuf-net.Grpc" Version="1.2.2" />
-		<PackageReference Include="System.ServiceModel.Primitives" Version="8.1.1" />
+		<PackageReference Include="System.ServiceModel.Primitives" Version="8.1.2" />
 	</ItemGroup>
 
 	<ItemGroup>

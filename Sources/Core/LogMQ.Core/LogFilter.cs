@@ -15,7 +15,7 @@ public class LogFilter
     public UniversalDateTime DateTo { get; set; }
 
     [ProtoMember(4)]
-    public int Count { get; set; }
+    public long Count { get; set; }
 
     [ProtoMember(5)]
     public LogLevel? LogLevel { get; set; }
