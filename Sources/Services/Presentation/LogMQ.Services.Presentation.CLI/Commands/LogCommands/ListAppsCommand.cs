@@ -10,7 +10,7 @@ public class ListAppsCommand : AsyncCommand<ListAppsCommand.Settings>
     public class Settings : CommandSettings
     {
         [CommandOption("--broker")]
-        public string GrpcAddress { get; set; } = Shared.Common.Defaults.GrpcAddress;
+        public string GrpcAddress { get; set; } = Defaults.GrpcAddress;
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)

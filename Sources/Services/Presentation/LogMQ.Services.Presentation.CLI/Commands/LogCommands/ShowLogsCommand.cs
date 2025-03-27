@@ -4,6 +4,7 @@ using LogMQ.Core;
 using LogMQ.Services.Shared.LogManager;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using Defaults = LogMQ.Services.Shared.LogManager.Defaults;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.LogCommands;
 
@@ -21,7 +22,7 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
         public string Range { get; set; }
 
         [CommandOption("--broker")]
-        public string GrpcAddress { get; set; } = Shared.Common.Defaults.GrpcAddress;
+        public string GrpcAddress { get; set; } = Defaults.GrpcAddress;
 
         [CommandOption("--type")]
         public LogLevel? Type { get; set; }

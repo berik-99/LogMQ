@@ -10,7 +10,7 @@ using ProtoBuf.Grpc.Server;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls(LogMQ.Services.Shared.Common.Defaults.GrpcAddress);
+builder.WebHost.UseUrls(Defaults.GrpcAddress);
 builder.WebHost.ConfigureKestrel(opts => opts.ConfigureEndpointDefaults(static endpoints => endpoints.Protocols = HttpProtocols.Http2));
 
 builder.Logging
@@ -27,7 +27,7 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 else
     builder.Services.AddSystemd();
 
-builder.Services.AddSingleton(new DuckDBStorageConfiguration() { DbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "DuckDB", "db") });
+builder.Services.AddSingleton(new DuckDBStorageConfiguration() { DbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "logs.db") });
 builder.Services.AddSingleton<ILogStorage, DuckDBStorageService>();
 builder.Services.AddSingleton<ILogService, DuckDBStorageService>();
 

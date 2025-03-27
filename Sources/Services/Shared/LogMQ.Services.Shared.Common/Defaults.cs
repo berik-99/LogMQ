@@ -10,5 +10,5 @@ public static class Defaults
     /// </summary>
     public static readonly string DataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "LogMQ");
 
-    public const string GrpcAddress = "http://localhost:5000";
+    //public const string GrpcAddress = "http://localhost:5000";
 }

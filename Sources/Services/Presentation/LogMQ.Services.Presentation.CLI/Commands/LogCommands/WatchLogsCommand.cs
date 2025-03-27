@@ -3,6 +3,7 @@ using LogMQ.Core;
 using LogMQ.Services.Shared.LogManager;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using Defaults = LogMQ.Services.Shared.LogManager.Defaults;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.LogCommands;
 
@@ -17,7 +18,7 @@ public class WatchLogsCommand : AsyncCommand<WatchLogsCommand.Settings>
         public int Interval { get; set; }
 
         [CommandOption("--broker")]
-        public string GrpcAddress { get; set; } = Shared.Common.Defaults.GrpcAddress;
+        public string GrpcAddress { get; set; } = Defaults.GrpcAddress;
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
