@@ -21,10 +21,24 @@ public class LogManager(string grpcAddress) : ILogGrpcService
         return await client.GetLogsAsync(filter);
     }
 
-    public async Task<Wrapper<long>> GetTotalLogsCountAsync(Wrapper<string> applicationName)
+    public async Task<Wrapper<ulong>> ClearLogsAsync(ClearFilter filter)
     {
         using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
         ILogGrpcService client = channel.CreateGrpcService<ILogGrpcService>();
-        return await client.GetTotalLogsCountAsync(applicationName);
+        return await client.ClearLogsAsync(filter);
+    }
+
+    public async Task<Wrapper<ulong>> CountLogsAsync(SearchFilter filter)
+    {
+        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
+        ILogGrpcService client = channel.CreateGrpcService<ILogGrpcService>();
+        return await client.CountLogsAsync(filter);
+    }
+
+    public async Task<Wrapper<ulong>> MergeLogsAsync(MergeFilter filter)
+    {
+        using GrpcChannel channel = GrpcChannel.ForAddress(grpcAddress);
+        ILogGrpcService client = channel.CreateGrpcService<ILogGrpcService>();
+        return await client.MergeLogsAsync(filter);
     }
 }

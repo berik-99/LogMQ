@@ -49,11 +49,11 @@ public class ShowCommand : AsyncCommand<ShowCommand.Settings>
                     dateFrom = ParseDate(parts[0], dateTo, true);
                 }
             }
-            //else if (settings.Count != null)
-            //{
-            //    AnsiConsole.MarkupLine("[red]Error: You must specify at least a time range (`--range`) or a count (`--count`).[/]");
-            //    return -1; // Return an error code
-            //}
+            else if (settings.Count != null)
+            {
+                AnsiConsole.MarkupLine("[red]Error: You must specify at least a time range (`--range`) or a count (`--count`).[/]");
+                return -1;
+            }
 
             if (dateFrom >= dateTo)
             {

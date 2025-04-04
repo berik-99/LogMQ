@@ -10,5 +10,5 @@ public class ClearFilter
     public string ApplicationName { get; set; }
 
     [ProtoMember(2)]
-    public UniversalDateTime OlderThan { get; set; }
+    public UniversalDateTime? OlderThan { get; set; }
 }

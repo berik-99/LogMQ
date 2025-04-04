@@ -19,6 +19,10 @@ public interface ILogGrpcService
     [OperationContract]
     Task<Wrapper<ulong>> ClearLogsAsync(ClearFilter filter);
 
+    //Merge all logs from return the count of merged logs
+    [OperationContract]
+    Task<Wrapper<ulong>> MergeLogsAsync(MergeFilter filter);
+
     //Retun the list of logging applications
     [OperationContract]
     Task<List<string>> GetLogApplications();
