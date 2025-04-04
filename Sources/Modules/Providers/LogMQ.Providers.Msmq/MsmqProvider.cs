@@ -1,7 +1,7 @@
-﻿using LogMQ.Core;
+﻿using System.Runtime.Versioning;
+using LogMQ.Core;
 using LogMQ.Providers.Contracts;
 using Msmq.NetCore.Messaging;
-using System.Runtime.Versioning;
 
 namespace LogMQ.Providers;
 
@@ -89,7 +89,7 @@ public sealed class MsmqProvider : ILogProvider, IDisposable
         try
         {
             using MemoryStream stream = new();
-            message.SerializeToStream(stream);
+            message.Serialize(stream);
             Message queueMsg = new()
             {
                 BodyStream = stream,

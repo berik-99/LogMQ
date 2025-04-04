@@ -8,7 +8,7 @@ namespace LogMQ.Core;
 /// such as the file name, method details, and exception details.
 /// </summary>
 [ProtoContract]
-public class LogMetadata
+public class LogMetadata : ProtoSerializable<LogMetadata>
 {
     /// <summary>
     /// Gets or sets the name of the source file where the log event occurred.

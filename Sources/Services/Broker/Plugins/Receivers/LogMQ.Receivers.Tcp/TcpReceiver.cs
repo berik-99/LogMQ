@@ -38,6 +38,7 @@ public class TcpReceiver(ILogger<TcpReceiver> logger, ILogStorage storage) : Log
     private async Task MessageReceived(byte[] data)
     {
         LogMessage logMessage = LogMessage.Deserialize(data);
+        logger.LogInformation("Received message from TCP");
         await Storage.WriteLogMessageAsync(logMessage);
     }
 }

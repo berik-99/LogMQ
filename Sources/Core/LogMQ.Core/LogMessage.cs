@@ -6,7 +6,7 @@ namespace LogMQ.Core;
 /// Represents a log message with metadata and information about the event.
 /// </summary>
 [ProtoContract]
-public class LogMessage : IEquatable<LogMessage>
+public class LogMessage : ProtoSerializable<LogMessage>, IEquatable<LogMessage>
 {
     /// <summary>
     /// Gets or sets the unique id of the log message.
@@ -50,39 +50,6 @@ public class LogMessage : IEquatable<LogMessage>
     [ProtoMember(7)]
     public string ExceptionMessage { get; set; }
 
-    /// <summary>
-    /// Serializes the log message to the specified stream using Protocol Buffers (protobuf).
-    /// </summary>
-    /// <param name="stream">The stream to which the log message will be serialized.</param>
-    /// <returns>The same stream that was passed in.</returns>
-    public Stream SerializeToStream(Stream stream)
-    {
-        Serializer.Serialize(stream, this);
-        return stream;
-    }
-
-    /// <summary>
-    /// Serializes the log message and returns it as a byte array using Protocol Buffers (protobuf).
-    /// </summary>
-    /// <returns>A byte array containing the serialized log message.</returns>
-    public byte[] Serialize()
-    {
-        using MemoryStream stream = new();
-        SerializeToStream(stream);
-        return stream.ToArray();
-    }
-
-    /// <summary>
-    /// Deserializes a log message from the specified stream using Protocol Buffers (protobuf).
-    /// </summary>
-    /// <param name="message">The byte array containing the log message previously serialized.</param>
-    /// <returns>The deserialized log message.</returns>
-    public static LogMessage Deserialize(byte[] message)
-    {
-        ReadOnlySpan<byte> bytes = new(message);
-        return Serializer.Deserialize<LogMessage>(bytes);
-    }
-
     /// <inheritdoc/>
     public override bool Equals(object obj) => Equals(obj as LogMessage);
 
@@ -97,4 +64,49 @@ public class LogMessage : IEquatable<LogMessage>
 
     /// <inheritdoc/>
     public override int GetHashCode() => HashCode.Combine(Guid);
+}
+
+public abstract class ProtoSerializable<T>
+{
+    /// <summary>
+    /// Serializes the log message to the specified stream using Protocol Buffers (protobuf).
+    /// </summary>
+    /// <param name="stream">The stream to which the log message will be serialized.</param>
+    /// <returns>The same stream that was passed in.</returns>
+    public void Serialize(Stream stream)
+    {
+        Serializer.Serialize(stream, this);
+    }
+
+    /// <summary>
+    /// Serializes the log message and returns it as a byte array using Protocol Buffers (protobuf).
+    /// </summary>
+    /// <returns>A byte array containing the serialized log message.</returns>
+    public byte[] Serialize()
+    {
+        using MemoryStream stream = new();
+        Serialize(stream);
+        return stream.ToArray();
+    }
+
+    /// <summary>
+    /// Deserializes a log message from the specified stream using Protocol Buffers (protobuf).
+    /// </summary>
+    /// <param name="message">The byte ReadOnlySpan containing the log message previously serialized.</param>
+    /// <returns>The deserialized log message.</returns>
+    public static T Deserialize(ReadOnlySpan<byte> message) => Serializer.Deserialize<T>(message);
+
+    /// <summary>
+    /// Deserializes a log message from the specified stream using Protocol Buffers (protobuf).
+    /// </summary>
+    /// <param name="message">The byte array containing the log message previously serialized.</param>
+    /// <returns>The deserialized log message.</returns>
+    public static T Deserialize(byte[] message) => Deserialize(new ReadOnlySpan<byte>(message));
+
+    /// <summary>
+    /// Deserializes a log message from the specified stream using Protocol Buffers (protobuf).
+    /// </summary>
+    /// <param name="message">The stream containing the log message previously serialized.</param>
+    /// <returns>The deserialized log message.</returns>
+    public static T Deserialize(Stream message) => Serializer.Deserialize<T>(message);
 }

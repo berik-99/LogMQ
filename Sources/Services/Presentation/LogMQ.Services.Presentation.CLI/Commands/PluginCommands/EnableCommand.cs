@@ -18,7 +18,7 @@ namespace LogMQ.Services.Presentation.CLI.Commands.PluginCommands;
 /// - Optional broker restart after enabling the plugin
 /// </remarks>
 /// <param name="manager">The plugin manager instance used to handle plugin operations.</param>
-public class EnablePluginCommand(IPluginManager manager) : AsyncCommand<EnablePluginCommand.Settings>
+public class EnableCommand(IPluginManager manager) : AsyncCommand<EnableCommand.Settings>
 {
     /// <summary>
     /// Settings class that defines the command-line arguments and options for the plugin enabling command.

@@ -1,9 +1,9 @@
-﻿using LogMQ.Providers.Contracts;
+﻿using System.Diagnostics;
+using LogMQ.Providers.Contracts;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;
-using static LogMQ.Core.Defaults;
 
 #pragma warning disable IDE0130
 namespace LogMQ.Loggers.Serilog;
@@ -16,6 +16,23 @@ namespace LogMQ.Loggers.Serilog;
 /// </summary>
 public static class LoggerConfigurationExtensions
 {
+
+    /// <summary>
+    /// The default category name for log messages.
+    /// </summary>
+    /// <remarks>
+    /// This value is used when no specific category is provided for a log entry.
+    /// </remarks>
+    private const string DefaultCategory = "Generic";
+
+    /// <summary>
+    /// The default application name derived from the current process name.
+    /// </summary>
+    /// <remarks>
+    /// This value is determined dynamically at runtime based on the name of the executing process.
+    /// </remarks>
+    private static string DefualtApplicationname => Process.GetCurrentProcess().ProcessName;
+
     /// <summary>
     /// Configures a custom Serilog sink to send log events to LogMQ message broker.
     /// This sink routes log messages to LogMQ for structured storage and processing.
@@ -52,7 +69,7 @@ public static class LoggerConfigurationExtensions
     {
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
         category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
-        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
+        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefualtApplicationname : applicationName;
         return sinkConfiguration.Sink(new LogMQSink(logProvider, applicationName, category, restrictedToMinimumLevel, levelSwitch));
     }
 
@@ -103,7 +120,7 @@ public static class LoggerConfigurationExtensions
         LoggingLevelSwitch levelSwitch = null)
     {
         category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
-        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefaultApplicationName : applicationName;
+        applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefualtApplicationname : applicationName;
         loggerConfiguration.Enrich.WithLogMQMetadata();
         loggerConfiguration.WriteTo.LogMQ(logProvider, category, applicationName, restrictedToMinimumLevel, levelSwitch);
         return loggerConfiguration;

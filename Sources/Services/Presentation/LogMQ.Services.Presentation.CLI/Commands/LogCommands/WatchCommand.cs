@@ -1,13 +1,14 @@
 ﻿using Grpc.Core;
 using LogMQ.Core;
 using LogMQ.Services.Shared.LogManager;
+using LogMQ.Services.Shared.LogManager.Filters;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using Defaults = LogMQ.Services.Shared.LogManager.Defaults;
+using Constants = LogMQ.Services.Shared.LogManager.Constants;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.LogCommands;
 
-public class WatchLogsCommand : AsyncCommand<WatchLogsCommand.Settings>
+public class WatchCommand : AsyncCommand<WatchCommand.Settings>
 {
     public class Settings : CommandSettings
     {
@@ -15,10 +16,10 @@ public class WatchLogsCommand : AsyncCommand<WatchLogsCommand.Settings>
         public string ApplicationName { get; set; }
 
         [CommandOption("-i|--interval")]
-        public int Interval { get; set; }
+        public ushort Interval { get; set; } = 1000;
 
         [CommandOption("--broker")]
-        public string GrpcAddress { get; set; } = Defaults.GrpcAddress;
+        public string GrpcAddress { get; set; } = Constants.GrpcAddress;
     }
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -27,14 +28,16 @@ public class WatchLogsCommand : AsyncCommand<WatchLogsCommand.Settings>
         {
             LogManager manager = new(settings.GrpcAddress);
             UniversalDateTime lastTimestamp = UniversalDateTime.MinValue;
-            bool firstRun = true;
             while (true)
             {
                 DateTime now = DateTime.Now;
-                LogFilter filter = firstRun
-                    ? new() { ApplicationName = settings.ApplicationName, DateFrom = UniversalDateTime.MinValue, DateTo = now, Count = 100 }
-                    : new() { ApplicationName = settings.ApplicationName, DateFrom = now.AddSeconds(-5), DateTo = now, Count = int.MaxValue };
-                firstRun = false;
+                SearchFilter filter = new()
+                {
+                    ApplicationName = settings.ApplicationName,
+                    DateFrom = now.AddMilliseconds(-(settings.Interval * 2)),
+                    DateTo = now,
+                    Count = int.MaxValue
+                };
                 List<LogMessage> newlogs = await manager.GetLogsAsync(filter);
                 newlogs = newlogs.Where(x => x.Timestamp > lastTimestamp).ToList();
                 foreach (LogMessage log in newlogs)

@@ -36,9 +36,8 @@ public class MsmqReceiver(ILogger<MsmqReceiver> logger, ILogStorage storage) : L
             await Task.Run(async () =>
             {
                 Message message = queue.Receive();
-                MemoryStream stream = new();
-                message.BodyStream.CopyTo(stream);
-                LogMessage logMessage = LogMessage.Deserialize(stream.ToArray());
+                LogMessage logMessage = LogMessage.Deserialize(message.BodyStream);
+                logger.LogInformation("Received message from MSMQ");
                 await Storage.WriteLogMessageAsync(logMessage);
             }, stoppingToken);
         }

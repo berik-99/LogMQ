@@ -10,7 +10,7 @@ using ProtoBuf.Grpc.Server;
 using Serilog;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls(Defaults.GrpcAddress);
+builder.WebHost.UseUrls(Constants.GrpcAddress);
 builder.WebHost.ConfigureKestrel(opts => opts.ConfigureEndpointDefaults(static endpoints => endpoints.Protocols = HttpProtocols.Http2));
 
 builder.Logging
@@ -27,9 +27,12 @@ if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 else
     builder.Services.AddSystemd();
 
-builder.Services.AddSingleton(new DuckDBStorageConfiguration() { DbPath = Path.Combine(LogMQ.Services.Shared.Common.Defaults.DataFolder, "Data", "logs.db") });
+builder.Services.AddSingleton(new DuckDBStorageConfiguration() { DatabaseFolderPath = Path.Combine(LogMQ.Services.Shared.Common.Constants.DataFolder, "Data") });
+//Registering storage service
 builder.Services.AddSingleton<ILogStorage, DuckDBStorageService>();
-builder.Services.AddSingleton<ILogService, DuckDBStorageService>();
+
+//Registering gRPC service
+builder.Services.AddSingleton<ILogGrpcService, DuckDBStorageService>();
 
 builder.Services.AddHostedService<TcpReceiver>();
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -39,7 +42,7 @@ builder.Services.AddCodeFirstGrpc();
 
 WebApplication app = builder.Build();
 
-app.MapGrpcService<ILogService>();
+app.MapGrpcService<ILogGrpcService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client.");
 
 await app.RunAsync();

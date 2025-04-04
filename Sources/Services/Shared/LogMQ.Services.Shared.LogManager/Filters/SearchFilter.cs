@@ -1,9 +1,10 @@
-﻿using ProtoBuf;
+﻿using LogMQ.Core;
+using ProtoBuf;
 
-namespace LogMQ.Core;
+namespace LogMQ.Services.Shared.LogManager.Filters;
 
 [ProtoContract]
-public class LogFilter
+public class SearchFilter
 {
     [ProtoMember(1)]
     public string ApplicationName { get; set; }
@@ -15,7 +16,7 @@ public class LogFilter
     public UniversalDateTime DateTo { get; set; }
 
     [ProtoMember(4)]
-    public long Count { get; set; }
+    public ulong? Count { get; set; }
 
     [ProtoMember(5)]
     public LogLevel? LogLevel { get; set; }

@@ -35,12 +35,12 @@
 
         "Logs Show": {
             "commandName": "Project",
-            "commandLineArgs": "log show SerilogTestConsole --range 2w --count 1000 --level Error"
+            "commandLineArgs": "log show MSMQ_PROVIDER --range 1d"
         },
 
         "Logs Watch": {
             "commandName": "Project",
-            "commandLineArgs": "log watch SerilogTestConsole --interval 500"
+            "commandLineArgs": "log watch MSMQ_PROVIDER"
         },
 
         "Logs Apps": {

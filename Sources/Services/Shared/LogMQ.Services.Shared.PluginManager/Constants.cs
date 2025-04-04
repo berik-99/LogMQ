@@ -3,12 +3,12 @@
 /// <summary>
 /// Provides default paths and filenames used for plugin management in the LogMQ application.
 /// </summary>
-public static class Defaults
+public static class Constants
 {
     /// <summary>
     /// The folder where all the plugins are stored.
     /// </summary>
-    public static readonly string PluginFolder = Path.Combine(Common.Defaults.DataFolder, "Plugins");
+    public static readonly string PluginFolder = Path.Combine(Common.Constants.DataFolder, "Plugins");
 
     /// <summary>
     /// The file path for the staged plugin configuration file.

@@ -2,13 +2,14 @@
 using Grpc.Core;
 using LogMQ.Core;
 using LogMQ.Services.Shared.LogManager;
+using LogMQ.Services.Shared.LogManager.Filters;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using Defaults = LogMQ.Services.Shared.LogManager.Defaults;
+using Constants = LogMQ.Services.Shared.LogManager.Constants;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.LogCommands;
 
-public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
+public class ShowCommand : AsyncCommand<ShowCommand.Settings>
 {
     public class Settings : CommandSettings
     {
@@ -16,13 +17,13 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
         public string ApplicationName { get; set; }
 
         [CommandOption("--count")]
-        public long Count { get; set; } = -1;
+        public ulong? Count { get; set; }
 
         [CommandOption("--range")]
         public string Range { get; set; }
 
         [CommandOption("--broker")]
-        public string GrpcAddress { get; set; } = Defaults.GrpcAddress;
+        public string GrpcAddress { get; set; } = Constants.GrpcAddress;
 
         [CommandOption("--type")]
         public LogLevel? Type { get; set; }
@@ -48,29 +49,29 @@ public class ShowLogsCommand : AsyncCommand<ShowLogsCommand.Settings>
                     dateFrom = ParseDate(parts[0], dateTo, true);
                 }
             }
-            else if (settings.Count <= 0)
-            {
-                AnsiConsole.MarkupLine("[red]Error: You must specify at least a time range (`--range`) or a count (`--count`).[/]");
-                return -1; // Return an error code
-            }
+            //else if (settings.Count != null)
+            //{
+            //    AnsiConsole.MarkupLine("[red]Error: You must specify at least a time range (`--range`) or a count (`--count`).[/]");
+            //    return -1; // Return an error code
+            //}
 
             if (dateFrom >= dateTo)
             {
-                AnsiConsole.MarkupLine("[red]Error: The start date (`date-from`) must be earlier than the end date (`date-to`).[/]");
-                return -1; // Return an error code
-            }
-
-            TimeSpan timeSpan = dateTo - dateFrom;
-            if (timeSpan.TotalHours > 24
-                && settings.Count <= 0
-                && !CommonCommands.ConfirmOperation(false, "[yellow]Warning: The specified time range is greater than 24 hours without specifying a count. This operation might take a long time, do you want to proceed?[/]"))
-            {
+                AnsiConsole.MarkupLine("[red]Error: The start date must be earlier than the end date.[/]");
                 return -1;
             }
 
-            AnsiConsole.MarkupLine($"Fetching {(settings.Count > 0 ? settings.Count.ToString() : "all")} logs from {dateFrom:yyyy/MM/dd HH:mm:ss.fff} to {dateTo:yyyy/MM/dd HH:mm:ss.fff}");
+            //TimeSpan timeSpan = dateTo - dateFrom;
+            //if (timeSpan.TotalDays > 10
+            //    && settings.Count != null
+            //    && !CommonCommands.ConfirmOperation(false, "[yellow]Warning: The specified time range is greater than 24 hours without specifying a count. This operation might take a long time, do you want to proceed?[/]"))
+            //{
+            //    return -1;
+            //}
 
-            LogFilter filter = new() { ApplicationName = settings.ApplicationName, DateFrom = dateFrom, DateTo = dateTo, Count = settings.Count, LogLevel = settings.Type };
+            AnsiConsole.MarkupLine($"Fetching {settings.Count?.ToString() ?? "all"} logs from {dateFrom:yyyy/MM/dd HH:mm:ss.fff} to {dateTo:yyyy/MM/dd HH:mm:ss.fff}");
+
+            SearchFilter filter = new() { ApplicationName = settings.ApplicationName, DateFrom = dateFrom, DateTo = dateTo, Count = settings.Count, LogLevel = settings.Type };
             List<LogMessage> logs = await manager.GetLogsAsync(filter);
 
             Table table = new();

@@ -1,7 +1,7 @@
 ﻿using LogMQ.Services.Shared.PluginManager.Models;
 using System.IO.Compression;
 using System.Text.Json;
-using static LogMQ.Services.Shared.PluginManager.Defaults;
+using static LogMQ.Services.Shared.PluginManager.Constants;
 
 namespace LogMQ.Services.Shared.PluginManager;
 

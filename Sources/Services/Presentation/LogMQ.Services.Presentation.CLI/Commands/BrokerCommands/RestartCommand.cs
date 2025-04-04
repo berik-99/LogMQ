@@ -3,7 +3,7 @@ using Spectre.Console.Cli;
 
 namespace LogMQ.Services.Presentation.CLI.Commands.BrokerCommands;
 
-public class RestartBrokerCommand : Command
+public class RestartCommand : Command
 {
 	public override int Execute(CommandContext context)
 	{

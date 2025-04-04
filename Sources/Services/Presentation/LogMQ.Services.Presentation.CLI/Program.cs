@@ -28,41 +28,41 @@ public static class Program
         {
             config.AddBranch("plugin", c =>
             {
-                c.AddCommand<InstallPluginCommand>("install")
+                c.AddCommand<InstallCommand>("install")
                   .WithDescription("Installs a plugin package.");
 
-                c.AddCommand<EnablePluginCommand>("enable")
+                c.AddCommand<EnableCommand>("enable")
                   .WithDescription("Enables a plugin by name or ID.");
 
-                c.AddCommand<DisablePluginCommand>("disable")
+                c.AddCommand<DisableCommand>("disable")
                   .WithDescription("Disables a plugin by name or ID.");
 
-                c.AddCommand<UninstallPluginCommand>("uninstall")
+                c.AddCommand<UninstallCommand>("uninstall")
                   .WithDescription("Uninstalls a plugin.");
 
-                c.AddCommand<ListPluginsCommand>("list")
+                c.AddCommand<ListCommand>("list")
                   .WithDescription("Lists all plugins with optional filters.");
 
-                c.AddCommand<PluginInfoCommand>("info")
+                c.AddCommand<InfoCommand>("info")
                   .WithDescription("Gets the plugin informations.");
 
-                c.AddCommand<RestorePluginsCommand>("restore")
+                c.AddCommand<RestoreCommand>("restore")
                   .WithDescription("Resets the plugin configuration.");
             });
 
             // Broker commands
             config.AddBranch("broker", c =>
             {
-                c.AddCommand<RestartBrokerCommand>("restart")
+                c.AddCommand<RestartCommand>("restart")
                     .WithDescription("Restarts the LogMQ broker.");
 
-                c.AddCommand<RestartBrokerCommand>("stop")
+                c.AddCommand<RestartCommand>("stop")
                     .WithDescription("Stop the LogMQ broker.");
 
-                c.AddCommand<RestartBrokerCommand>("start")
+                c.AddCommand<RestartCommand>("start")
                     .WithDescription("Start the LogMQ broker.");
 
-                c.AddCommand<BrokerStatusCommand>("status")
+                c.AddCommand<StatusCommand>("status")
                     .WithDescription("Checks the status of the LogMQ broker.");
             });
 
@@ -73,10 +73,10 @@ public static class Program
                 c.AddCommand<ListAppsCommand>("list-apps")
                     .WithDescription("Show all logging applications.");
 
-                c.AddCommand<ShowLogsCommand>("show")
+                c.AddCommand<ShowCommand>("show")
                     .WithDescription("Show logs from an application.");
 
-                c.AddCommand<WatchLogsCommand>("watch")
+                c.AddCommand<WatchCommand>("watch")
                     .WithDescription("Watch logs from an application.");
             });
         });

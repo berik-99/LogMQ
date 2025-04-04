@@ -18,7 +18,7 @@ namespace LogMQ.Services.Presentation.CLI.Commands.PluginCommands;
 /// - Optional broker restart after disabling the plugin
 /// </remarks>
 /// <param name="manager">The plugin manager instance used to handle plugin operations.</param>
-public class DisablePluginCommand(IPluginManager manager) : AsyncCommand<DisablePluginCommand.Settings>
+public class DisableCommand(IPluginManager manager) : AsyncCommand<DisableCommand.Settings>
 {
 	/// <summary>
 	/// Settings class that defines the command-line arguments and options for the plugin disabling command.

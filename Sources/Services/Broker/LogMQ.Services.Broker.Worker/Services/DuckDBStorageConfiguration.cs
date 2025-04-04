@@ -2,5 +2,5 @@
 
 public class DuckDBStorageConfiguration
 {
-    public string DbPath { get; set; }
+    public string DatabaseFolderPath { get; set; }
 }
