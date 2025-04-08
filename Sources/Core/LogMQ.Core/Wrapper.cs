@@ -3,11 +3,14 @@
 namespace LogMQ.Core;
 
 [ProtoContract]
-public record Wrapper<T>([property: ProtoMember(1)] T Value)
+public class Wrapper<T>
 {
+    [ProtoMember(1)]
+    public T Value { init; get; }
+
     public static implicit operator Wrapper<T>(T value)
     {
-        return new Wrapper<T>(value);
+        return new Wrapper<T> { Value = value };
     }
 
     public static implicit operator T(Wrapper<T> protoValue)

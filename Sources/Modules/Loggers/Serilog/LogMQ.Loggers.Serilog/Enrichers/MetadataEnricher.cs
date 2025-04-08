@@ -3,14 +3,14 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace LogMQ.Loggers.Serilog;
+namespace LogMQ.Loggers.Serilog.Enrichers;
 
 /// <summary>
 /// The <c>LogMQEnricher</c> class enriches log messages with structured metadata
 /// specific to LogMQ providers. It ensures that the log events carry additional
 /// contextual information required by LogMQ.
 /// </summary>
-internal sealed class LogMQEnricher : ILogEventEnricher
+internal sealed class MetadataEnricher : ILogEventEnricher
 {
     /// <summary>
     /// Enriches the provided <see cref="LogEvent"/> with LogMQ-specific metadata properties.
@@ -25,14 +25,14 @@ internal sealed class LogMQEnricher : ILogEventEnricher
     {
         LogMetadata meta = LogMetadata.GetLogMetadata(typeof(Log));
 
-        LogEventProperty[] properties = new[]
-        {
+        LogEventProperty[] properties =
+        [
             propertyFactory.CreateProperty(nameof(meta.File), meta.File),
             propertyFactory.CreateProperty(nameof(meta.Class), meta.Class),
             propertyFactory.CreateProperty(nameof(meta.MethodName), meta.MethodName),
             propertyFactory.CreateProperty(nameof(meta.MethodSignature), meta.MethodSignature),
             propertyFactory.CreateProperty(nameof(meta.Row), meta.Row)
-        };
+        ];
 
         foreach (LogEventProperty property in properties)
         {

@@ -61,20 +61,20 @@ public class ShowCommand : AsyncCommand<ShowCommand.Settings>
                 return -1;
             }
 
-            //TimeSpan timeSpan = dateTo - dateFrom;
-            //if (timeSpan.TotalDays > 10
-            //    && settings.Count != null
-            //    && !CommonCommands.ConfirmOperation(false, "[yellow]Warning: The specified time range is greater than 24 hours without specifying a count. This operation might take a long time, do you want to proceed?[/]"))
-            //{
-            //    return -1;
-            //}
-
             AnsiConsole.MarkupLine($"Fetching {settings.Count?.ToString() ?? "all"} logs from {dateFrom:yyyy/MM/dd HH:mm:ss.fff} to {dateTo:yyyy/MM/dd HH:mm:ss.fff}");
-
             SearchFilter filter = new() { ApplicationName = settings.ApplicationName, DateFrom = dateFrom, DateTo = dateTo, Count = settings.Count, LogLevel = settings.Type };
+            ulong count = await manager.CountLogsAsync(filter);
+            if (count > 10000)
+            {
+                if (!CommonCommands.ConfirmOperation(false, $"[yellow]The search yielded {count} results. Printing these results may take several minutes. " +
+                    "Press y to continue, otherwise try again with a shorter time interval.[/]"))
+                {
+                    return -1;
+                }
+            }
             List<LogMessage> logs = await manager.GetLogsAsync(filter);
-
             Table table = new();
+            table.Expand();
 
             table.AddColumn("Timestamp");
             table.AddColumn("LogLevel");

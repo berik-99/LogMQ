@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using LogMQ.Loggers.Serilog.Enrichers;
 using LogMQ.Providers.Contracts;
 using Serilog;
 using Serilog.Configuration;
@@ -84,7 +85,10 @@ public static class LoggerConfigurationExtensions
     /// A <see cref="LoggerConfiguration"/> object for further configuration.
     /// </returns>
     public static LoggerConfiguration WithLogMQMetadata(this LoggerEnrichmentConfiguration enrichmentConfiguration)
-        => enrichmentConfiguration.With(new LogMQEnricher());
+        => enrichmentConfiguration.With(new MetadataEnricher());
+
+    public static LoggerConfiguration WithLogMQInfo(this LoggerEnrichmentConfiguration enrichmentConfiguration)
+        => enrichmentConfiguration.With(new LogInfoEnricher());
 
     /// <summary>
     /// Configures a pre-defined logging stack for LogMQ, including metadata enrichment and sink configuration.
@@ -121,6 +125,7 @@ public static class LoggerConfigurationExtensions
     {
         category = string.IsNullOrWhiteSpace(category) ? DefaultCategory : category;
         applicationName = string.IsNullOrWhiteSpace(applicationName) ? DefualtApplicationname : applicationName;
+        loggerConfiguration.Enrich.WithLogMQInfo();
         loggerConfiguration.Enrich.WithLogMQMetadata();
         loggerConfiguration.WriteTo.LogMQ(logProvider, category, applicationName, restrictedToMinimumLevel, levelSwitch);
         return loggerConfiguration;

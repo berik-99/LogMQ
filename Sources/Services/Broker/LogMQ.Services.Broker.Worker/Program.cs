@@ -1,6 +1,9 @@
 using System.Runtime.InteropServices;
+using System.Threading.Channels;
+using LogMQ.Core;
 using LogMQ.Receivers;
 using LogMQ.Receivers.Contracts;
+using LogMQ.Services.Broker.Worker;
 using LogMQ.Services.Broker.Worker.Services;
 using LogMQ.Services.Shared.LogManager;
 using Microsoft.AspNetCore.Builder;
@@ -22,23 +25,27 @@ builder.Logging
            .CreateLogger()
    );
 
-if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-    builder.Services.AddWindowsService();
-else
-    builder.Services.AddSystemd();
+builder.Services.AddSystemServiceProvider();
+builder.Services.AddCodeFirstGrpc();
 
-builder.Services.AddSingleton(new DuckDBStorageConfiguration() { DatabaseFolderPath = Path.Combine(LogMQ.Services.Shared.Common.Constants.DataFolder, "Data") });
+//Repository configuration
+builder.Services.AddSingleton(new RepositoryConfiguration() { DatabaseFolderPath = Path.Combine(LogMQ.Services.Shared.Common.Constants.DataFolder, "Data") });
+//Message channel
+builder.Services.AddSingleton(_ => Channel.CreateUnbounded<LogMessage>());
+
+//Message Writer Progessor 
+builder.Services.AddHostedService<MessageWriterProcessor>();
+
 //Registering storage service
-builder.Services.AddSingleton<ILogStorage, DuckDBStorageService>();
+builder.Services.AddSingleton<ILogStorage, RepositoryService>();
 
 //Registering gRPC service
-builder.Services.AddSingleton<ILogGrpcService, DuckDBStorageService>();
+builder.Services.AddSingleton<ILogGrpcService, RepositoryService>();
 
+//Registering receivers
 builder.Services.AddHostedService<TcpReceiver>();
 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     builder.Services.AddHostedService<MsmqReceiver>();
-
-builder.Services.AddCodeFirstGrpc();
 
 WebApplication app = builder.Build();
 

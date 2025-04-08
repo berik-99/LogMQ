@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Threading.Channels;
 using Dapper;
 using DuckDB.NET.Data;
 using LogMQ.Core;
@@ -9,18 +10,20 @@ using LogMQ.Services.Shared.LogManager.Filters;
 
 namespace LogMQ.Services.Broker.Worker.Services;
 
-public class DuckDBStorageService : ILogStorage, ILogGrpcService
+internal class RepositoryService : ILogStorage, ILogGrpcService
 {
-    private readonly DuckDBStorageConfiguration config;
+    private readonly RepositoryConfiguration config;
     private readonly ILogger logger;
+    private readonly Channel<LogMessage> channel;
 
-    public DuckDBStorageService(ILogger<DuckDBStorageService> logger, DuckDBStorageConfiguration config)
+    public RepositoryService(ILogger<RepositoryService> logger, RepositoryConfiguration config, Channel<LogMessage> channel)
     {
         logger.LogInformation("Initializing database storage...");
         this.config = config;
         this.logger = logger;
+        this.channel = channel;
         Directory.CreateDirectory(config.DatabaseFolderPath);
-        using DuckDBConnection conn = new(BuildDataSourceString(Guid.Empty));
+        using DuckDBConnection conn = new(config.BuildDataSourceString(Guid.Empty));
         conn.Open();
         conn.Execute(@"
         CREATE TABLE IF NOT EXISTS Applications (
@@ -33,7 +36,7 @@ public class DuckDBStorageService : ILogStorage, ILogGrpcService
 
     public async Task<List<string>> GetLogApplications()
     {
-        await using DuckDBConnection conn = new(BuildDataSourceString(Guid.Empty));
+        await using DuckDBConnection conn = new(config.BuildDataSourceString(Guid.Empty));
         await conn.OpenAsync();
         IEnumerable<string> res = await conn.QueryAsync<string>("SELECT Name FROM Applications");
         return res.ToList();
@@ -41,8 +44,8 @@ public class DuckDBStorageService : ILogStorage, ILogGrpcService
 
     public async Task<List<LogMessage>> GetLogsAsync(SearchFilter filter)
     {
-        Guid appId = await GetApplicationId(filter.ApplicationName);
-        await using DuckDBConnection conn = new(BuildDataSourceString(appId));
+        Guid appId = await config.GetApplicationId(filter.ApplicationName);
+        await using DuckDBConnection conn = new(config.BuildDataSourceString(appId));
         await conn.OpenAsync();
         StringBuilder str = new("SELECT * FROM (SELECT * FROM LogMessages WHERE Timestamp BETWEEN $DateFrom AND $DateTo");
         if (filter.LogLevel != null)
@@ -58,8 +61,8 @@ public class DuckDBStorageService : ILogStorage, ILogGrpcService
 
     public async Task<Wrapper<ulong>> CountLogsAsync(SearchFilter filter)
     {
-        Guid appId = await GetApplicationId(filter.ApplicationName);
-        await using DuckDBConnection conn = new(BuildDataSourceString(appId));
+        Guid appId = await config.GetApplicationId(filter.ApplicationName);
+        await using DuckDBConnection conn = new(config.BuildDataSourceString(appId));
         await conn.OpenAsync();
         StringBuilder str = new("SELECT COUNT(*) FROM LogMessages WHERE Timestamp BETWEEN $DateFrom AND $DateTo");
         if (filter.LogLevel != null)
@@ -72,20 +75,20 @@ public class DuckDBStorageService : ILogStorage, ILogGrpcService
 
     public async Task<Wrapper<ulong>> ClearLogsAsync(ClearFilter filter)
     {
-        Guid appId = await GetApplicationId(filter.ApplicationName);
+        Guid appId = await config.GetApplicationId(filter.ApplicationName);
         //if no date provided, will delete entire file and remove app from app list, otherwise will delete only the logs
         ulong count = 0;
         if (filter.OlderThan == null)
         {
             count = await CountLogsAsync(new SearchFilter { ApplicationName = filter.ApplicationName, DateFrom = UniversalDateTime.MinValue, DateTo = filter.OlderThan ?? UniversalDateTime.Now });
-            File.Delete(BuildDataSourceString(appId, true));
-            await using DuckDBConnection conn = new(BuildDataSourceString(Guid.Empty));
+            File.Delete(config.BuildDataSourceString(appId, true));
+            await using DuckDBConnection conn = new(config.BuildDataSourceString(Guid.Empty));
             await conn.OpenAsync();
             await conn.ExecuteAsync("DELETE FROM Applications WHERE Guid = $Guid", new { Guid = appId });
         }
         else
         {
-            await using DuckDBConnection conn = new(BuildDataSourceString(appId));
+            await using DuckDBConnection conn = new(config.BuildDataSourceString(appId));
             await conn.OpenAsync();
             count = (ulong)await conn.ExecuteAsync("DELETE FROM LogMessages WHERE Timestamp <= $OlderThan", new { filter.OlderThan });
         }
@@ -94,25 +97,25 @@ public class DuckDBStorageService : ILogStorage, ILogGrpcService
 
     public async Task<Wrapper<ulong>> MergeLogsAsync(MergeFilter filter)
     {
-        Guid sourceAppId = await GetApplicationId(filter.SourceApplicationName);
-        Guid targetAppId = await GetApplicationId(filter.TargetApplicationName);
+        Guid sourceAppId = await config.GetApplicationId(filter.SourceApplicationName);
+        Guid targetAppId = await config.GetApplicationId(filter.TargetApplicationName);
 
         string dumpPath = $"./{sourceAppId}.tmp.parquet";
-        await using DuckDBConnection sourceConn = new(BuildDataSourceString(sourceAppId));
+        await using DuckDBConnection sourceConn = new(config.BuildDataSourceString(sourceAppId));
         await sourceConn.OpenAsync();
         await sourceConn.ExecuteAsync($"COPY LogMessages TO '{dumpPath}' (FORMAT PARQUET)");
         await sourceConn.CloseAsync();
         await sourceConn.DisposeAsync();
 
-        await using DuckDBConnection targetConn = new(BuildDataSourceString(targetAppId));
+        await using DuckDBConnection targetConn = new(config.BuildDataSourceString(targetAppId));
         await targetConn.OpenAsync();
         ulong count = (ulong)await targetConn.ExecuteAsync($"INSERT INTO LogMessages SELECT * FROM read_parquet('{dumpPath}')");
         //If everything is ok, delete the dump file and the source database.
         if (count > 0)
         {
             File.Delete(dumpPath);
-            File.Delete(BuildDataSourceString(sourceAppId, true));
-            await using DuckDBConnection conn = new(BuildDataSourceString(Guid.Empty));
+            File.Delete(config.BuildDataSourceString(sourceAppId, true));
+            await using DuckDBConnection conn = new(config.BuildDataSourceString(Guid.Empty));
             await conn.OpenAsync();
             await conn.ExecuteAsync("DELETE FROM Applications WHERE Guid = $Guid", new { Guid = sourceAppId });
         }
@@ -121,53 +124,6 @@ public class DuckDBStorageService : ILogStorage, ILogGrpcService
 
     public async Task WriteLogMessageAsync(LogMessage logMessage)
     {
-        Guid appId = await GetApplicationId(logMessage.Application.Name, false);
-        if (appId == Guid.Empty)
-        {
-            appId = Guid.NewGuid();
-            await using DuckDBConnection rootConn = new(BuildDataSourceString(Guid.Empty));
-            await rootConn.ExecuteAsync("INSERT INTO Applications VALUES ($Guid, $Name, $Category)",
-                new { Guid = appId, logMessage.Application.Name, logMessage.Application.Category });
-        }
-
-        await using DuckDBConnection conn = new(BuildDataSourceString(appId));
-        await conn.OpenAsync();
-        await conn.ExecuteAsync(@"
-        CREATE TABLE IF NOT EXISTS LogMessages (
-            Guid UUID NOT NULL,
-            Timestamp TIMESTAMPTZ NOT NULL,
-            LogLevel VARCHAR NOT NULL,
-            Message TEXT NOT NULL,
-            Metadata BLOB,
-            Application BLOB,
-            ExceptionMessage TEXT,
-            PRIMARY KEY (Guid, Timestamp));
-        ");
-
-        int res = await conn.ExecuteAsync("INSERT OR IGNORE INTO LogMessages VALUES ($Guid, $Timestamp, $LogLevel, $Message, $Metadata, $Application, $ExceptionMessage)",
-            new
-            {
-                logMessage.Guid,
-                Timestamp = logMessage.Timestamp.ToDateTimeOffset(),
-                logMessage.LogLevel,
-                logMessage.Message,
-                Metadata = logMessage.Metadata.Serialize(),
-                Application = logMessage.Application.Serialize(),
-                logMessage.ExceptionMessage
-            }
-        );
-        logger.LogInformation("Inserted {Count} messages in storage", res);
+        await channel.Writer.WriteAsync(logMessage);
     }
-
-    private async Task<Guid> GetApplicationId(string appName, bool throwIfNull = true)
-    {
-        await using DuckDBConnection conn = new(BuildDataSourceString(Guid.Empty));
-        await conn.OpenAsync();
-        Guid res = await conn.ExecuteScalarAsync<Guid>("SELECT Guid FROM Applications WHERE Name = $appName", new { appName });
-        if (throwIfNull && res == Guid.Empty)
-            throw new InvalidOperationException($"Application '{appName}' not found");
-        return res;
-    }
-
-    private string BuildDataSourceString(Guid appId, bool pathOnly = false) => $"{(pathOnly ? "" : "Data Source=")}{Path.Join(config.DatabaseFolderPath, appId.ToString("N").ToUpperInvariant())}";
 }
